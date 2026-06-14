@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Reports Module | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <div class="flex items-center gap-2 text-label-small text-secondary mb-1">
+                <span>Intelligence</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-medium">Reports Module</span>
+            </div>
+            <h2 class="font-page-title text-page-title text-on-background">Reports &amp; Analytics</h2>
+            <p class="text-body-default text-secondary mt-1">Generate comprehensive financial, operational, and compliance reports. Monitor asset lifecycles and valuation in real-time with auditable data exports.</p>
+        </div>
+        <div class="hidden lg:block w-32">
+            <img alt="Reports Illustration" class="w-full h-auto opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7lI4SAoE9WVP_Z_nw5HYhEc0tx_lEKBB8DimkalN6PGlNLau1kbIKmU7MBrCtWbacW_-8DjW77tLZNNPGlCcKP0qq82XIrO2e1oKlFDJD4td8Q7iIyTDI1jqND9T85jIsJGYCFanzEW_1bwLwPFLfsQVundzTxb77qMLEp5TPh4gWuQx_G8Gdu5H0ZQC5JEQv0oUPcj4p_eRXiXMFq54Xmo7GwxD8TJJUufhiPtcS0VH3EC5y7MsF">
+        </div>
+    </div>
+
+    <!-- Main Content Grid (12 columns) -->
+    <div class="grid grid-cols-12 gap-6">
+        <!-- Left Panel: Report Catalogue (3 columns) -->
+        <div class="col-span-12 lg:col-span-3 bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+            <div class="p-5 border-b border-border-default">
+                <h3 class="font-card-header text-card-header text-on-surface">Report Catalogue</h3>
+            </div>
+            <div class="p-4 space-y-5">
+                <!-- Asset Reports -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2 px-2">
+                        <span class="material-symbols-outlined text-[18px] text-primary">inventory_2</span>
+                        <h4 class="font-body-medium text-on-surface">Asset Reports</h4>
+                    </div>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Asset Register</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Inventory Summary</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Location Audit</a></li>
+                    </ul>
+                </div>
+                <!-- Financial Reports -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2 px-2">
+                        <span class="material-symbols-outlined text-[18px] text-primary">payments</span>
+                        <h4 class="font-body-medium text-on-surface">Financial Reports</h4>
+                    </div>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default font-medium bg-primary/10 text-primary rounded-lg">Valuation Report</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Depreciation Schedule</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Purchase Analysis</a></li>
+                    </ul>
+                </div>
+                <!-- Maintenance Reports -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2 px-2">
+                        <span class="material-symbols-outlined text-[18px] text-primary">settings_suggest</span>
+                        <h4 class="font-body-medium text-on-surface">Maintenance</h4>
+                    </div>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Service History</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Pending Repairs</a></li>
+                    </ul>
+                </div>
+                <!-- Audit & Compliance -->
+                <div>
+                    <div class="flex items-center gap-2 mb-2 px-2">
+                        <span class="material-symbols-outlined text-[18px] text-primary">gavel</span>
+                        <h4 class="font-body-medium text-on-surface">Audit &amp; Compliance</h4>
+                    </div>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Missing Asset Report</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Warranty Expiry</a></li>
+                        <li><a href="#" class="block px-3 py-1.5 text-body-default text-secondary rounded-lg hover:bg-surface-canvas transition-colors">Disposal Logs</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Report Builder & Preview (9 columns) -->
+        <div class="col-span-12 lg:col-span-9 space-y-6">
+            <!-- Report Builder Controls Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="font-card-header text-card-header text-on-surface">Asset Valuation Report</h2>
+                        <p class="text-label-small text-secondary mt-1">Comprehensive view of current book values across all departments.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-2 text-secondary hover:bg-surface-canvas rounded-lg transition-colors" title="Schedule Report">
+                            <span class="material-symbols-outlined text-[18px]">event_repeat</span>
+                        </button>
+                        <button class="h-[38px] px-4 border border-border-strong rounded-lg text-body-medium text-on-surface hover:bg-surface-canvas transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">table_view</span>
+                            Export to Excel
+                        </button>
+                        <button class="h-[38px] px-4 bg-primary text-on-primary rounded-lg text-body-medium hover:bg-brand-primary-dark transition-colors flex items-center gap-2 shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                            Export to PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="text-label-small text-secondary uppercase tracking-wide">Date Range</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">calendar_today</span>
+                            <input type="text" value="Jan 01, 2024 - Mar 31, 2024" class="w-full h-[38px] pl-10 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-label-small text-secondary uppercase tracking-wide">Category</label>
+                        <select class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option>All Categories</option>
+                            <option>IT Hardware</option>
+                            <option>Office Furniture</option>
+                            <option>Manufacturing</option>
+                            <option>Vehicles</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-label-small text-secondary uppercase tracking-wide">Department</label>
+                        <select class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option>Global Operations</option>
+                            <option>Finance &amp; Admin</option>
+                            <option>Engineering</option>
+                            <option>Research &amp; Dev</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-label-small text-secondary uppercase tracking-wide">Status</label>
+                        <div class="flex items-center h-[38px]">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="rounded text-primary focus:ring-primary border-border-default h-4 w-4">
+                                <span class="ml-2 text-body-default text-on-surface">Active Only</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Area: Data Table -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="px-5 py-3 bg-surface-canvas border-b border-border-default flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[20px]">preview</span>
+                        <span class="text-label-small font-medium text-on-surface uppercase tracking-wider">Report Preview (Sample Data)</span>
+                    </div>
+                    <span class="text-label-small text-secondary">Showing 5 of 1,280 assets</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="bg-surface-canvas border-b border-border-default">
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset ID</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Name</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Category</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Acquisition Cost</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Accum. Depr.</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Net Book Value</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-default">
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-technical-data text-technical-data text-on-surface">AST-2024-001</td>
+                            <td class="px-5 py-3 text-body-default font-medium text-on-surface">Precision Laser Cutter V3</td>
+                            <td class="px-5 py-3 text-body-default text-secondary">Manufacturing</td>
+                            <td class="px-5 py-3 text-body-default text-on-surface">$124,500.00</td>
+                            <td class="px-5 py-3 text-body-default text-error">($12,450.00)</td>
+                            <td class="px-5 py-3 text-body-default font-bold text-primary">$112,050.00</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-success/10 text-status-success text-badge-label font-badge-label uppercase">Verified</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors border-l-4 border-primary">
+                            <td class="px-5 py-3 font-technical-data text-technical-data text-on-surface">AST-2023-882</td>
+                            <td class="px-5 py-3 text-body-default font-medium text-on-surface">MacBook Pro M2 - HQ-02</td>
+                            <td class="px-5 py-3 text-body-default text-secondary">IT Hardware</td>
+                            <td class="px-5 py-3 text-body-default text-on-surface">$2,499.00</td>
+                            <td class="px-5 py-3 text-body-default text-error">($833.00)</td>
+                            <td class="px-5 py-3 text-body-default font-bold text-primary">$1,666.00</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-success/10 text-status-success text-badge-label font-badge-label uppercase">Assigned</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-technical-data text-technical-data text-on-surface">AST-2022-451</td>
+                            <td class="px-5 py-3 text-body-default font-medium text-on-surface">Network Server Node 04</td>
+                            <td class="px-5 py-3 text-body-default text-secondary">IT Hardware</td>
+                            <td class="px-5 py-3 text-body-default text-on-surface">$15,200.00</td>
+                            <td class="px-5 py-3 text-body-default text-error">($7,600.00)</td>
+                            <td class="px-5 py-3 text-body-default font-bold text-primary">$7,600.00</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-warning/10 text-status-warning text-badge-label font-badge-label uppercase">Maintenance</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-technical-data text-technical-data text-on-surface">AST-2024-112</td>
+                            <td class="px-5 py-3 text-body-default font-medium text-on-surface">Ergonomic Desk Unit x12</td>
+                            <td class="px-5 py-3 text-body-default text-secondary">Office Furniture</td>
+                            <td class="px-5 py-3 text-body-default text-on-surface">$6,000.00</td>
+                            <td class="px-5 py-3 text-body-default text-error">($0.00)</td>
+                            <td class="px-5 py-3 text-body-default font-bold text-primary">$6,000.00</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-success/10 text-status-success text-badge-label font-badge-label uppercase">Verified</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-technical-data text-technical-data text-on-surface">AST-2021-009</td>
+                            <td class="px-5 py-3 text-body-default font-medium text-on-surface">Industrial Forklift XL</td>
+                            <td class="px-5 py-3 text-body-default text-secondary">Vehicles</td>
+                            <td class="px-5 py-3 text-body-default text-on-surface">$45,000.00</td>
+                            <td class="px-5 py-3 text-body-default text-error">($22,500.00)</td>
+                            <td class="px-5 py-3 text-body-default font-bold text-primary">$22,500.00</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label uppercase">Overdue Audit</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination (matches dashboard) -->
+                <div class="px-5 py-3 border-t border-border-default flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="text-body-default text-secondary">Page 1 of 54</span>
+                        <div class="flex items-center gap-1">
+                            <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors text-secondary disabled:opacity-50" disabled>
+                                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-lg font-body-medium">1</button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors font-body-medium text-on-surface">2</button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors font-body-medium text-on-surface">3</button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors text-secondary">
+                                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-body-default text-secondary">Rows per page:</span>
+                        <select class="h-[32px] px-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option>20</option>
+                            <option>50</option>
+                            <option>100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Summary Stats Cards (grid) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="bg-surface-card rounded-xl card-shadow border border-border-default p-4 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-[24px]">payments</span>
+                    </div>
+                    <div>
+                        <p class="text-label-small text-secondary uppercase tracking-wide">Total Net Book Value</p>
+                        <p class="font-page-title text-[20px] font-bold text-on-surface">$4,284,550.00</p>
+                    </div>
+                </div>
+                <div class="bg-surface-card rounded-xl card-shadow border border-border-default p-4 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-status-success/5 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-status-success text-[24px]">trending_up</span>
+                    </div>
+                    <div>
+                        <p class="text-label-small text-secondary uppercase tracking-wide">YTD Appreciation</p>
+                        <p class="font-page-title text-[20px] font-bold text-status-success">+$214,000.00</p>
+                    </div>
+                </div>
+                <div class="bg-surface-card rounded-xl card-shadow border border-border-default p-4 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-status-info/5 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-status-info text-[24px]">history_edu</span>
+                    </div>
+                    <div>
+                        <p class="text-label-small text-secondary uppercase tracking-wide">Last Audit Date</p>
+                        <p class="font-page-title text-[20px] font-bold text-on-surface">March 12, 2024</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

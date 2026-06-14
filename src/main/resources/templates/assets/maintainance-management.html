@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Maintenance Management | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Maintenance Management</h2>
+            <p class="text-body-default text-secondary mt-1">Orchestrate lifecycle maintenance and emergency repairs.</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs (dashboard style) -->
+    <div class="border-b border-border-default flex gap-6">
+        <button class="pb-3 px-1 text-secondary font-body-medium hover:text-primary transition-colors relative cursor-pointer" id="tab-preventive">Preventive Schedules</button>
+        <button class="pb-3 px-1 text-primary font-bold border-b-2 border-primary relative cursor-pointer" id="tab-corrective">Corrective Requests</button>
+    </div>
+
+    <!-- Corrective Requests Tab Content -->
+    <div id="corrective-content">
+        <!-- Empty State Hero (initially shown) -->
+        <div class="bg-surface-card border border-border-default rounded-xl card-shadow p-12 flex flex-col items-center justify-center text-center" id="empty-state-hero">
+            <div class="w-48 h-48 mb-6">
+                <img alt="Workshop Bench Illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHIYV45njyjkkhnQBtO90OhQFnDwDNmSUW4IgOVPyceJOLlLRY1g-KD67EkVi8GljWdkFXoBuRj4-SeHSVfTMzIUrS0_UkyO6iIdzBoNGLKrA6VmrcHjEI8XsFkp8jT3m_NuoocjCcxBzt02IVls5S4nu7K1Pebfv62oPjebZ5pxqPchFKu1hd1uFFSTlhgbZiGLTHdWVfcD9IOyzWxYrwv2TkJjFu6ZePvQRaNiqIi9YxVj6gOL9h">
+            </div>
+            <h3 class="font-section-header text-section-header text-on-surface">No Active Maintenance Requests</h3>
+            <p class="text-body-default text-secondary mt-2 max-w-md">
+                The corrective queue is currently clear. Log a new issue to begin tracking repairs, spare parts procurement, and work orders.
+            </p>
+            <button class="mt-6 h-[38px] px-6 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all shadow-sm flex items-center gap-2" onclick="showKanban()">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                Log Issue
+            </button>
+        </div>
+
+        <!-- Kanban Board (hidden by default) -->
+        <div class="hidden" id="kanban-view">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Open Column -->
+                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-status-info"></span>
+                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">Open (3)</h4>
+                        </div>
+                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Card 1 -->
+                        <div class="bg-surface-card border border-border-default rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-grab">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 bg-error-container text-error rounded-full text-badge-label font-badge-label">CRITICAL</span>
+                                <span class="font-technical-data text-secondary text-label-small">#JJ-7729</span>
+                            </div>
+                            <h5 class="font-card-header text-card-header text-on-surface">Honda HR-V (Logistics)</h5>
+                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Brake system failure reported during morning inspection. Vehicle grounded.</p>
+                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
+                                <div class="flex -space-x-1">
+                                    <img class="w-6 h-6 rounded-full border-2 border-surface-card object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_qt9Y2n8-44fhksYSz04VgVWxttrCoUoeZyGMQaHO88JZWX8eiIVpgnNpcwfHa44xHtF39GH_5g2SNN96bUPZcyPaj1Sv0ICSMnqjJVcIiFdsQTqvjnQ3GRWY_ta7QIAFuvg4nxOl1j_lMvhcbsHY4F72UU6NeO0c6fN0mMJ9J-3H5l9fxonZPWSm4YPiSyO6GnsP1DbprCMDSTNn02bpBPPXufuHAsV1QtW2epdH7Ox_gprTIHri">
+                                </div>
+                                <span class="text-label-small text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">history</span>2h ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-status-warning"></span>
+                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">In Progress (2)</h4>
+                        </div>
+                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-surface-card border border-border-default rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant rounded-full text-badge-label font-badge-label">MEDIUM</span>
+                                <span class="font-technical-data text-secondary text-label-small">#JJ-8801</span>
+                            </div>
+                            <h5 class="font-card-header text-card-header text-on-surface">Konica Minolta bizhub</h5>
+                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Drum unit replacement in progress. Waiting for part arrival from vendor.</p>
+                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
+                                <img class="w-6 h-6 rounded-full border border-border-default object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8L0IAP6b6bC4MdyWEf0y7_gAxWYYMZwnmUH5tBYXp-igaRn_6GPdai3WrmeO-gqpoTiBpXDPnhzIUlC-AdrfEmgg1QLaLbNgMM6fZkVXD49YGu-6ohzt1MxLqbOgovBrQ5C9oEp7eH8nFPuBI8BkyAMc56p460X5CpXF3i6zetBgmAxP39MVagion-Pg5u62B80i75u0Of9vfLgFuvOtRD-PbYYK89GMuEXhGQXkeZoPMNDn2NlsF">
+                                <span class="text-label-small text-status-warning flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">timer</span>Awaiting Part</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed Column -->
+                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-status-success"></span>
+                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">Completed (12)</h4>
+                        </div>
+                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-surface-card border border-border-default rounded-xl p-4 opacity-75 shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant rounded-full text-badge-label font-badge-label">LOW</span>
+                                <span class="font-technical-data text-secondary text-label-small">#JJ-9012</span>
+                            </div>
+                            <h5 class="font-card-header text-card-header text-on-surface">Dell Latitude 5530</h5>
+                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Screen flickering resolved via cable reseat. Asset returned to user.</p>
+                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
+                                <span class="text-label-small text-status-success font-bold">VERIFIED</span>
+                                <span class="text-label-small text-secondary">Today, 09:15 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preventive Schedules Tab Content (hidden by default) -->
+    <div class="hidden" id="preventive-content">
+        <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+            <div class="p-5 border-b border-border-default flex justify-between items-center flex-wrap gap-3">
+                <h3 class="font-card-header text-card-header text-on-surface">Preventive Maintenance Log</h3>
+                <button class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Schedule Maintenance
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-surface-canvas border-b border-border-default">
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset Name &amp; ID</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Service Type</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Frequency</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Next Due</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Technician</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-default">
+                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col">
+                                <span class="font-body-medium text-on-surface">Cisco Catalyst 9300</span>
+                                <span class="font-technical-data text-secondary text-label-small">NW-SW-998</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Firmware Update</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Quarterly</td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">2023-11-15</td>
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-surface-variant text-[10px] flex items-center justify-center font-bold text-primary border border-primary/20">AM</div>
+                                <span class="text-body-default text-on-surface">Alan Miller</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-surface-variant text-status-info rounded-full text-badge-label font-badge-label uppercase">Scheduled</span></td>
+                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">edit</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors border-l-4 border-primary">
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col">
+                                <span class="font-body-medium text-on-surface">HVAC Unit Block B</span>
+                                <span class="font-technical-data text-secondary text-label-small">FAC-HV-002</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Filter Clean</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Monthly</td>
+                        <td class="px-5 py-3 font-technical-data text-error font-bold">2023-10-01</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">External Vendor</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error rounded-full text-badge-label font-badge-label uppercase">Overdue</span></td>
+                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">warning</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex flex-col">
+                                <span class="font-body-medium text-on-surface">Server Rack R1</span>
+                                <span class="font-technical-data text-secondary text-label-small">IT-SR-01</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Power Audit</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Annually</td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">2023-10-30</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Unassigned</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-status-warning/10 text-status-warning rounded-full text-badge-label font-badge-label uppercase">Due Soon</span></td>
+                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">person_add</span></button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTab(tab) {
+            const preventiveBtn = document.getElementById('tab-preventive');
+            const correctiveBtn = document.getElementById('tab-corrective');
+            const preventiveContent = document.getElementById('preventive-content');
+            const correctiveContent = document.getElementById('corrective-content');
+
+            if (tab === 'preventive') {
+                preventiveBtn.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                preventiveBtn.classList.remove('text-secondary', 'font-body-medium');
+                correctiveBtn.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                correctiveBtn.classList.add('text-secondary', 'font-body-medium');
+                preventiveContent.classList.remove('hidden');
+                correctiveContent.classList.add('hidden');
+            } else {
+                correctiveBtn.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                correctiveBtn.classList.remove('text-secondary', 'font-body-medium');
+                preventiveBtn.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-bold');
+                preventiveBtn.classList.add('text-secondary', 'font-body-medium');
+                correctiveContent.classList.remove('hidden');
+                preventiveContent.classList.add('hidden');
+            }
+        }
+
+        function showKanban() {
+            document.getElementById('empty-state-hero').classList.add('hidden');
+            document.getElementById('kanban-view').classList.remove('hidden');
+        }
+
+        // Attach tab click handlers
+        document.getElementById('tab-preventive').onclick = () => toggleTab('preventive');
+        document.getElementById('tab-corrective').onclick = () => toggleTab('corrective');
+    </script>
+</main>
+</body>
+</html>

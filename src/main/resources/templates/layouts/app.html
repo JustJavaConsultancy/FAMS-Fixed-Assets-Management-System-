@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+    <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">JustJava FAMS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffffff",
+                        "status-info": "#1558A8",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed": "#9bf6ba",
+                        "border-default": "#E4E6EA",
+                        "surface-container-low": "#f1f3ff",
+                        "on-background": "#151b29",
+                        "surface-variant": "#dde2f5",
+                        "on-surface-variant": "#5b403e",
+                        "on-secondary-fixed-variant": "#45464d",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e9edff",
+                        "brand-primary-light": "#F5E4E6",
+                        "surface-tint": "#bb1327",
+                        "tertiary": "#005530",
+                        "secondary-fixed-dim": "#c5c6ce",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f9f9ff",
+                        "nav-hover": "#F4F5F7",
+                        "surface-dim": "#d4daed",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#e4bdbb",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#80d9a0",
+                        "on-primary-container": "#ffd3d0",
+                        "on-error-container": "#93000a",
+                        "outline": "#906f6d",
+                        "border-strong": "#CBD0D8",
+                        "on-tertiary-fixed-variant": "#00522e",
+                        "secondary-fixed": "#e2e2ea",
+                        "tertiary-container": "#067041",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-surface": "#151b29",
+                        "surface-card": "#FFFFFF",
+                        "secondary-container": "#dfdfe8",
+                        "on-secondary-container": "#61626a",
+                        "brand-primary-dark": "#8F0F1E",
+                        "secondary": "#5d5e65",
+                        "inverse-surface": "#2a303f",
+                        "primary-fixed-dim": "#ffb3af",
+                        "on-primary-fixed-variant": "#930019",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#410006",
+                        "on-secondary-fixed": "#191b22",
+                        "primary": "#98001a",
+                        "surface-container-highest": "#dde2f5",
+                        "on-tertiary-container": "#96f0b5",
+                        "surface-container-high": "#e2e8fb",
+                        "primary-container": "#c0182a",
+                        "status-success": "#1A7A4A",
+                        "surface-canvas": "#F4F5F7",
+                        "on-tertiary-fixed": "#00210f",
+                        "background": "#f9f9ff",
+                        "status-warning": "#A05C00",
+                        "inverse-primary": "#ffb3af",
+                        "primary-fixed": "#ffdad8",
+                        "nav-text": "#1A1D23",
+                        "sidebar-text": "#1A1D23"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        "2xl": "1rem",
+                        xxl: "1rem",
+                        sidebar: "1rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        gutter: "1rem",
+                        "topbar-height": "64px",
+                        "row-height": "48px",
+                        "sidebar-width": "260px",
+                        "sidebar-margin": "20px",
+                        "edge-margin": "20px",
+                        "input-height": "38px",
+                        "button-height": "36px",
+                        "container-padding": "1.25rem"
+                    },
+                    fontFamily: {
+                        "technical-data": ["JetBrains Mono"],
+                        "nav-group": ["Inter"],
+                        "card-header": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "label-small": ["Inter"],
+                        "page-title": ["Inter"],
+                        "body-default": ["Inter"],
+                        "section-header": ["Inter"],
+                        "badge-label": ["Inter"]
+                    },
+                    fontSize: {
+                        "technical-data": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "nav-group": ["10px", { lineHeight: "12px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "card-header": ["15px", { lineHeight: "20px", fontWeight: "500" }],
+                        "body-medium": ["13px", { lineHeight: "18px", fontWeight: "500" }],
+                        "label-small": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "page-title": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "body-default": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "section-header": ["18px", { lineHeight: "24px", fontWeight: "500" }],
+                        "badge-label": ["11px", { lineHeight: "14px", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sidebar-w: 260px;
+            --sidebar-collapsed-w: 72px;
+            --sidebar-margin: 20px;
+            --transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: #F4F5F7;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            position: fixed;
+            top: var(--sidebar-margin);
+            left: var(--sidebar-margin);
+            bottom: var(--sidebar-margin);
+            width: var(--sidebar-w);
+            transition: width var(--transition);
+            overflow: hidden;
+            z-index: 50;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-w);
+        }
+
+        /* Sidebar labels fade out when collapsed */
+        #sidebar .sidebar-label,
+        #sidebar .sidebar-brand-text,
+        #sidebar .sidebar-user-text,
+        #sidebar .sidebar-section-label {
+            transition: opacity var(--transition), max-width var(--transition);
+            opacity: 1;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        #sidebar.collapsed .sidebar-label,
+        #sidebar.collapsed .sidebar-brand-text,
+        #sidebar.collapsed .sidebar-user-text,
+        #sidebar.collapsed .sidebar-section-label {
+            opacity: 0;
+            max-width: 0;
+        }
+
+        .sidebar-active {
+            background-color: #C0182A;
+            color: white !important;
+        }
+        .sidebar-active .material-symbols-outlined {
+            color: white !important;
+        }
+
+        .nav-item-hover:hover {
+            background-color: #F4F5F7;
+            color: #1A1D23;
+        }
+
+        #sidebar.collapsed .nav-link {
+            padding-left: 0;
+            padding-right: 0;
+            justify-content: center;
+        }
+
+        .nav-tooltip {
+            position: absolute;
+            left: calc(var(--sidebar-collapsed-w) + 8px);
+            background: #1A1D23;
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 150ms;
+            z-index: 200;
+        }
+        #sidebar.collapsed .nav-link-wrap:hover .nav-tooltip {
+            opacity: 1;
+        }
+        .nav-link-wrap {
+            position: relative;
+        }
+
+        /* ── Topbar ── */
+        #topbar {
+            position: fixed;
+            top: var(--sidebar-margin);
+            left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
+            right: var(--sidebar-margin);
+            height: 64px;
+            transition: left var(--transition);
+            z-index: 40;
+            border-radius: 16px;
+            border: 1px solid #E4E6EA;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            padding: 0 1.25rem;
+            gap: 1rem;
+        }
+
+        body.sidebar-collapsed #topbar {
+            left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+        }
+
+        /* ── Main content ── */
+        #main-content {
+            margin-left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
+            margin-top: calc(64px + var(--sidebar-margin) * 2);
+            padding: 1.25rem;
+            transition: margin-left var(--transition);
+            min-height: 100vh;
+        }
+
+        body.sidebar-collapsed #main-content {
+            margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+        }
+
+        /* Toggle button */
+        #toggle-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #E4E6EA;
+            background: #fff;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 150ms;
+            position: relative;
+        }
+        #toggle-btn:hover { background: #F4F5F7; }
+        #toggle-btn .icon-open,
+        #toggle-btn .icon-close {
+            transition: opacity var(--transition), transform var(--transition);
+        }
+        body.sidebar-collapsed #toggle-btn .icon-open {
+            opacity: 0;
+            transform: scale(0.7) rotate(-90deg);
+        }
+        body.sidebar-collapsed #toggle-btn .icon-close {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+        #toggle-btn .icon-close {
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.7) rotate(90deg);
+        }
+
+        /* Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD0D8; border-radius: 10px; }
+
+        .card-shadow {
+            border: 1px solid #E4E6EA;
+            transition: box-shadow 0.2s ease-in-out;
+        }
+        .card-shadow:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+        /* 📱 Responsive: Auto‑collapse sidebar on smaller screens */
+        @media (max-width: 1023px) {
+            :root {
+                --sidebar-margin: 12px;
+            }
+            body:not(.manual-override) #sidebar,
+            body:not(.manual-override) #sidebar.collapsed {
+                width: var(--sidebar-collapsed-w);
+            }
+            body:not(.manual-override) #topbar {
+                left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+            }
+            body:not(.manual-override) #main-content {
+                margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+            }
+            body:not(.manual-override) .sidebar-label,
+            body:not(.manual-override) .sidebar-brand-text,
+            body:not(.manual-override) .sidebar-user-text,
+            body:not(.manual-override) .sidebar-section-label {
+                opacity: 0;
+                max-width: 0;
+            }
+            body:not(.manual-override) .nav-link {
+                padding-left: 0;
+                padding-right: 0;
+                justify-content: center;
+            }
+            /* Optional: reduce top/bottom margins on very small devices */
+            @media (max-width: 640px) {
+                :root {
+                    --sidebar-margin: 8px;
+                }
+                #topbar {
+                    padding: 0 0.75rem;
+                }
+                #main-content {
+                    padding: 0.75rem;
+                }
+            }
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+
+<!-- ══ Sidebar ══ -->
+<aside id="sidebar" class="bg-white flex flex-col py-6 rounded-2xl shadow-sm">
+    <!-- Brand -->
+    <div class="px-4 mb-8 flex items-center gap-3">
+        <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1;">inventory_2</span>
+        </div>
+        <div class="sidebar-brand-text">
+            <h1 class="text-body-medium text-nav-text font-bold tracking-tight leading-none">JustJava FAMS</h1>
+            <p class="text-nav-group font-nav-group text-secondary uppercase">Asset Management</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+        <p class="px-3 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">General</p>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/dashboard'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/dashboard}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">dashboard</span>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+            <span class="nav-tooltip">Dashboard</span>
+        </div>
+
+        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Assets</p>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">inventory_2</span>
+                <span class="sidebar-label">All Assets</span>
+            </a>
+            <span class="nav-tooltip">All Assets</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/register'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/register}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">add_box</span>
+                <span class="sidebar-label">Register Asset</span>
+            </a>
+            <span class="nav-tooltip">Register Asset</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/details'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/details}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">visibility</span>
+                <span class="sidebar-label">Asset Details</span>
+            </a>
+            <span class="nav-tooltip">Asset Details</span>
+        </div>
+
+        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Operations</p>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/assignment'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/assignment}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">assignment_ind</span>
+                <span class="sidebar-label">Assignment</span>
+            </a>
+            <span class="nav-tooltip">Assignment</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/transfer'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/transfer}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">swap_horiz</span>
+                <span class="sidebar-label">Transfer</span>
+            </a>
+            <span class="nav-tooltip">Transfer</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/disposal'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/disposal}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">delete</span>
+                <span class="sidebar-label">Disposal</span>
+            </a>
+            <span class="nav-tooltip">Disposal</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/maintenance'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/maintenance}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">build</span>
+                <span class="sidebar-label">Maintenance</span>
+            </a>
+            <span class="nav-tooltip">Maintenance</span>
+        </div>
+
+        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Finance &amp; Compliance</p>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/assets/depreciation'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/assets/depreciation}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">payments</span>
+                <span class="sidebar-label">Depreciation</span>
+            </a>
+            <span class="nav-tooltip">Depreciation</span>
+        </div>
+
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/audit'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/audit}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">verified_user</span>
+                <span class="sidebar-label">Audit</span>
+            </a>
+            <span class="nav-tooltip">Audit</span>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="mt-auto px-3 pt-4 border-t border-border-default">
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/reports'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/reports}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">bar_chart</span>
+                <span class="sidebar-label">Reports</span>
+            </a>
+            <span class="nav-tooltip">Reports</span>
+        </div>
+        <div class="nav-link-wrap">
+            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
+               th:classappend="${currentPath == '/notifications'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/notifications}">
+                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">notifications</span>
+                <span class="sidebar-label">Notifications</span>
+            </a>
+            <span class="nav-tooltip">Notifications</span>
+        </div>
+
+        <div class="mt-4 px-3 py-3 flex items-center gap-3 border-t border-border-default/50">
+            <div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-border-default flex-shrink-0">
+                <img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhbCXvzswGoJF8h-HsFCH12MQjSLKu9IFrwp7CP67H_YxsQeutuCJ3R3rXaRqdyZ-oxOaVcMmNawHGZvOSMPHAq4g8c7waAA1wKrEfzGfjtu2t3-MRCbzvZJXDguDmDAl93uKKn1eW4qKc9L-LfZ8azL_gJNgbQn9aiwkDUG6jVMAQnsaYhoUdOwzf2ixqvwaRotkqjScNQnNoZU3a9SJfyvUfrzLFrnn4Lr29vjJHBaKHwru8t63K"/>
+            </div>
+            <div class="overflow-hidden sidebar-user-text">
+                <p class="text-nav-text text-xs font-semibold truncate">Alex Asset</p>
+                <p class="text-secondary text-[10px] truncate">Admin Account</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- ══ Topbar ══ -->
+<header id="topbar">
+    <button id="toggle-btn" aria-label="Toggle sidebar">
+        <span class="material-symbols-outlined text-secondary icon-open" style="font-size:20px;">menu_open</span>
+        <span class="material-symbols-outlined text-secondary icon-close" style="font-size:20px;">menu</span>
+    </button>
+
+    <div class="flex-1 max-w-xl">
+        <div class="relative group">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" style="font-size:20px;">search</span>
+            <input class="w-full h-[38px] pl-10 pr-4 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search assets, locations, or personnel..." type="text"/>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-3 ml-auto">
+        <a class="bg-primary text-on-primary h-[36px] px-5 rounded-lg font-body-medium flex items-center gap-2 hover:bg-brand-primary-dark transition-colors active:scale-95 shadow-sm text-[13px]"
+           th:href="@{/assets/register}">
+            <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
+            Register Asset
+        </a>
+        <div class="h-6 w-px bg-border-default"></div>
+        <a class="w-8 h-8 flex items-center justify-center text-secondary hover:bg-surface-variant rounded-full transition-colors relative"
+           th:href="@{/notifications}" aria-label="Notifications">
+            <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+        </a>
+        <button class="w-8 h-8 flex items-center justify-center text-secondary hover:bg-surface-variant rounded-full transition-colors">
+            <span class="material-symbols-outlined" style="font-size:20px;">account_circle</span>
+        </button>
+    </div>
+</header>
+
+<!-- ══ Main Content (fragment placeholder) ══ -->
+<main id="main-content" class="space-y-6" layout:fragment="content"></main>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const body = document.body;
+        const toggleBtn = document.getElementById('toggle-btn');
+        let isManualOverride = false;
+
+        function applyCollapse(forceCollapse) {
+            if (forceCollapse) {
+                body.classList.add('sidebar-collapsed');
+                sidebar.classList.add('collapsed');
+            } else {
+                body.classList.remove('sidebar-collapsed');
+                sidebar.classList.remove('collapsed');
+            }
+        }
+
+        function handleResize() {
+            const isSmallScreen = window.innerWidth < 1024;
+            if (isSmallScreen) {
+                // Auto-collapse on small screens, remove manual override flag
+                if (!body.classList.contains('sidebar-collapsed')) {
+                    applyCollapse(true);
+                }
+                isManualOverride = false;
+                body.classList.remove('manual-override');
+                // Disable toggle button visually/functionally? keep it but it will be overridden on next resize.
+            } else {
+                // On large screens, if there is no manual override, expand.
+                if (!isManualOverride && body.classList.contains('sidebar-collapsed')) {
+                    applyCollapse(false);
+                }
+            }
+        }
+
+        // Manual toggle – only works on large screens (>=1024px)
+        toggleBtn.addEventListener('click', function(e) {
+            if (window.innerWidth >= 1024) {
+                isManualOverride = true;
+                body.classList.add('manual-override');
+                const isCollapsed = body.classList.contains('sidebar-collapsed');
+                applyCollapse(!isCollapsed);
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            handleResize();
+        });
+        handleResize();
+    })();
+</script>
+</body>
+</html>

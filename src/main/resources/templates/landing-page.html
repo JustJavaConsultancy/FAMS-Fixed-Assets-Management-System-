@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAMS — Fixed Asset Management System | JustJava Technologies</title>
+  <!-- Fonts: Inter (primary) + JetBrains Mono (technical) – same as FAMS dashboard -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #C8102E;
+      --red-dark: #8B0000;
+      --red-light: #FFF0F0;
+      --red-mid: #FDDEDE;
+      --black: #1A1A1A;
+      --gray-soft: #F7F7F7;
+      --gray-border: #E2E2E2;
+      --gray-text: #666;
+      --white: #FFFFFF;
+      --font-display: 'Inter', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); color: var(--black); background: var(--white); overflow-x: hidden; }
+
+    /* ═══════════ NAV ═══════════ */
+    nav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--gray-border);
+      padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 70px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo-icon {
+      width: 38px; height: 38px; background: var(--red); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-icon svg { width: 22px; height: 22px; fill: white; }
+    .nav-logo-name { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--black); letter-spacing: -0.01em; }
+    .nav-logo-name span { color: var(--red); }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--gray-text); text-decoration: none; transition: color 0.2s; font-family: var(--font-body); }
+    .nav-links a:hover { color: var(--red); }
+    .nav-ctas { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-ghost { padding: 0.5rem 1.25rem; border: 1.5px solid var(--gray-border); border-radius: 6px; font-size: 0.875rem; font-weight: 600; color: var(--black); background: transparent; cursor: pointer; text-decoration: none; transition: all 0.2s; font-family: var(--font-body); }
+    .btn-ghost:hover { border-color: var(--red); color: var(--red); }
+    .btn-primary { padding: 0.55rem 1.35rem; background: var(--red); color: white; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; font-family: var(--font-body); }
+    .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(200,16,46,0.35); }
+
+    /* ═══════════ HERO (full‑width background image, no dashboard mockup) ═══════════ */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      padding: 5rem 5%;
+      position: relative;
+      overflow: hidden;
+      background-image: url('https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?w=1600&q=80');
+      background-size: cover;
+      background-position: center 30%;
+      background-repeat: no-repeat;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(200,16,46,0.85);
+      color: white;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.4rem 0.9rem; border-radius: 100px; margin-bottom: 1.5rem;
+      font-family: var(--font-body);
+    }
+    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+    .hero h1 {
+      font-family: var(--font-display); font-size: clamp(2.4rem, 4vw, 3.6rem);
+      font-weight: 800; line-height: 1.1; color: white;
+      margin-bottom: 1.5rem; letter-spacing: -0.02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .hero h1 em { font-style: normal; color: var(--red); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,0.9); line-height: 1.75;
+      max-width: 580px; margin-bottom: 2.5rem;
+      font-family: var(--font-body);
+    }
+    .hero-ctas { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .btn-hero { padding: 0.85rem 2rem; background: var(--red); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); }
+    .btn-hero:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,16,46,0.4); }
+    .btn-hero-ghost { padding: 0.85rem 2rem; border: 2px solid rgba(255,255,255,0.5); border-radius: 8px; font-size: 1rem; font-weight: 600; color: white; text-decoration: none; transition: all 0.2s; background: transparent; font-family: var(--font-body); }
+    .btn-hero-ghost:hover { border-color: var(--red); color: var(--red); background: white; }
+    .hero-trust { display: flex; align-items: center; gap: 1rem; margin-top: 2rem; }
+    .hero-trust-text { font-size: 0.8rem; color: rgba(255,255,255,0.9); font-family: var(--font-body); }
+    .hero-trust-avatars { display: flex; }
+    .hero-trust-avatars span {
+      width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8);
+      background: var(--red); color: white; font-size: 0.65rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; margin-left: -8px;
+      font-family: var(--font-body);
+    }
+    .hero-trust-avatars span:first-child { margin-left: 0; background: #8B0000; }
+    .hero-trust-avatars span:nth-child(2) { background: #C8102E; }
+    .hero-trust-avatars span:nth-child(3) { background: #e03050; }
+
+    /* ═══════════ STATS STRIP ═══════════ */
+    .stats-strip {
+      background: var(--black); color: white;
+      padding: 3rem 5%; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num { font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; color: var(--red); margin-bottom: 0.3rem; letter-spacing: -0.01em; }
+    .stat-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500; font-family: var(--font-body); }
+
+    /* ═══════════ SECTION COMMON ═══════════ */
+    section { padding: 6rem 5%; }
+    .section-eyebrow {
+      display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--red); margin-bottom: 0.75rem;
+      font-family: var(--font-body);
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: clamp(1.9rem, 3vw, 2.7rem);
+      font-weight: 800; color: var(--black); line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.01em;
+    }
+    .section-sub { font-size: 1rem; color: var(--gray-text); line-height: 1.7; max-width: 600px; font-family: var(--font-body); }
+    .section-header-center { text-align: center; margin-bottom: 4rem; }
+    .section-header-center .section-sub { margin: 0 auto; }
+
+    /* ═══════════ PROBLEM SECTION ═══════════ */
+    .problem-section { background: var(--gray-soft); }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .problem-image { border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+    .problem-image img { width: 100%; height: 440px; object-fit: cover; display: block; }
+    .problem-list { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2rem; }
+    .problem-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: white; padding: 1.1rem 1.25rem; border-radius: 10px;
+      border-left: 4px solid var(--red); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      font-family: var(--font-body);
+    }
+    .problem-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+    .problem-item-title { font-size: 0.9rem; font-weight: 700; color: var(--black); margin-bottom: 0.25rem; }
+    .problem-item-desc { font-size: 0.82rem; color: var(--gray-text); line-height: 1.5; }
+
+    /* ═══════════ FEATURES ═══════════ */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem;
+      margin-top: 1rem;
+    }
+    .feature-card {
+      border: 1px solid var(--gray-border); border-radius: 14px;
+      overflow: hidden; background: white;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .feature-card:hover { box-shadow: 0 12px 40px rgba(200,16,46,0.1); transform: translateY(-4px); }
+    .feature-card-img { height: 190px; overflow: hidden; }
+    .feature-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
+    .feature-card:hover .feature-card-img img { transform: scale(1.04); }
+    .feature-card-body { padding: 1.4rem; }
+    .feature-tag {
+      display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--red); background: var(--red-mid);
+      padding: 0.25rem 0.6rem; border-radius: 4px; margin-bottom: 0.65rem;
+      font-family: var(--font-body);
+    }
+    .feature-card-title { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 0.5rem; font-family: var(--font-display); letter-spacing: -0.2px; }
+    .feature-card-desc { font-size: 0.83rem; color: var(--gray-text); line-height: 1.6; font-family: var(--font-body); }
+
+    /* ═══════════ HOW IT WORKS ═══════════ */
+    .how-section { background: var(--red-light); }
+    .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; margin-top: 3.5rem; }
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
+    .how-step { display: flex; gap: 1.5rem; padding: 1.5rem 0; position: relative; font-family: var(--font-body); }
+    .how-step:not(:last-child)::after {
+      content: ''; position: absolute; left: 22px; top: 56px; bottom: -16px;
+      width: 2px; background: var(--red-mid);
+    }
+    .step-num {
+      width: 46px; height: 46px; flex-shrink: 0;
+      background: var(--red); color: white; border-radius: 50%;
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(200,16,46,0.35);
+    }
+    .step-title { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 0.35rem; font-family: var(--font-display); letter-spacing: -0.2px; }
+    .step-desc { font-size: 0.84rem; color: var(--gray-text); line-height: 1.6; font-family: var(--font-body); }
+    .how-image { border-radius: 14px; overflow: hidden; box-shadow: 0 24px 70px rgba(0,0,0,0.14); }
+    .how-image img { width: 100%; height: 480px; object-fit: cover; display: block; }
+
+    /* ═══════════ ROLES ═══════════ */
+    .roles-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.25rem; margin-top: 3.5rem; }
+    .role-card {
+      background: white; border: 1px solid var(--gray-border); border-radius: 12px;
+      padding: 1.5rem 1.1rem; text-align: center;
+      transition: all 0.25s; cursor: default;
+      font-family: var(--font-body);
+    }
+    .role-card:hover { border-color: var(--red); box-shadow: 0 8px 30px rgba(200,16,46,0.1); }
+    .role-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .role-title { font-size: 0.92rem; font-weight: 700; color: var(--black); margin-bottom: 0.5rem; font-family: var(--font-display); }
+    .role-perms { font-size: 0.75rem; color: var(--gray-text); line-height: 1.5; }
+
+    /* ═══════════ DEPRECIATION ═══════════ */
+    .depr-section { background: var(--gray-soft); }
+    .depr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .depr-image { border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+    .depr-image img { width: 100%; height: 440px; object-fit: cover; display: block; }
+    .depr-methods { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .depr-method {
+      background: white; border-radius: 10px; padding: 1.1rem 1.3rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      font-family: var(--font-body);
+    }
+    .depr-method-badge {
+      background: var(--red); color: white; font-size: 0.65rem; font-weight: 800;
+      padding: 0.3rem 0.5rem; border-radius: 5px; text-transform: uppercase;
+      letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0;
+      font-family: var(--font-mono);
+    }
+    .depr-method-name { font-size: 0.9rem; font-weight: 700; color: var(--black); margin-bottom: 0.25rem; }
+    .depr-method-desc { font-size: 0.8rem; color: var(--gray-text); line-height: 1.5; }
+
+    /* ═══════════ AUDIT SECTION ═══════════ */
+    .audit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .audit-image { border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); order: 2; }
+    .audit-image img { width: 100%; height: 440px; object-fit: cover; display: block; }
+    .audit-content { order: 1; }
+    .audit-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+    .audit-stat-box {
+      background: var(--red-light); border-radius: 10px; padding: 1.25rem;
+      border: 1px solid var(--red-mid);
+      font-family: var(--font-body);
+    }
+    .audit-stat-num { font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; color: var(--red); letter-spacing: -0.01em; }
+    .audit-stat-label { font-size: 0.78rem; color: var(--gray-text); margin-top: 4px; line-height: 1.4; font-weight: 500; }
+
+    /* ═══════════ REPORTING ═══════════ */
+    .reports-section { background: var(--black); color: white; }
+    .reports-section .section-title { color: white; }
+    .reports-section .section-sub { color: rgba(255,255,255,0.6); }
+    .reports-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+    .report-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; overflow: hidden;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .report-card:hover { border-color: var(--red); background: rgba(200,16,46,0.08); }
+    .report-card-img { height: 160px; overflow: hidden; }
+    .report-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.75); }
+    .report-card-body { padding: 1.25rem; }
+    .report-card-title { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.4rem; font-family: var(--font-display); letter-spacing: -0.2px; }
+    .report-card-desc { font-size: 0.8rem; color: rgba(255,255,255,0.55); line-height: 1.6; font-family: var(--font-body); }
+
+    /* ═══════════ TESTIMONIALS ═══════════ */
+    .testimonials-section { background: var(--gray-soft); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+    .testimonial-card {
+      background: white; border-radius: 14px; padding: 1.75rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-top: 3px solid var(--red);
+      font-family: var(--font-body);
+    }
+    .testimonial-quote { font-size: 0.9rem; color: var(--gray-text); line-height: 1.7; margin-bottom: 1.25rem; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+    .testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--red); color: white; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); }
+    .testimonial-name { font-size: 0.88rem; font-weight: 700; color: var(--black); }
+    .testimonial-role { font-size: 0.75rem; color: var(--gray-text); }
+    .testimonial-stars { display: flex; gap: 2px; margin-bottom: 1rem; }
+    .testimonial-stars span { color: var(--red); font-size: 0.9rem; }
+
+    /* ═══════════ CTA BANNER ═══════════ */
+    .cta-banner {
+      background: var(--red); color: white;
+      text-align: center; padding: 6rem 5%;
+      position: relative; overflow: hidden;
+    }
+    .cta-banner::before {
+      content: '';
+      position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 65%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .cta-banner h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 1rem; position: relative; letter-spacing: -0.01em; }
+    .cta-banner p { font-size: 1.05rem; color: rgba(255,255,255,0.8); max-width: 540px; margin: 0 auto 2.5rem; line-height: 1.7; font-family: var(--font-body); position: relative; }
+    .btn-white { padding: 0.9rem 2.2rem; background: white; color: var(--red); border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; font-family: var(--font-body); }
+    .btn-white:hover { background: var(--red-mid); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+    /* ═══════════ FOOTER ═══════════ */
+    footer {
+      background: var(--black); color: rgba(255,255,255,0.6);
+      padding: 4rem 5% 2rem;
+    }
+    .footer-top { display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-brand-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; color: white; margin: 0.75rem 0 0.75rem; letter-spacing: -0.01em; }
+    .footer-brand-desc { font-size: 0.82rem; line-height: 1.7; font-family: var(--font-body); }
+    .footer-col-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: white; margin-bottom: 1rem; font-family: var(--font-body); }
+    .footer-links { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; font-family: var(--font-body); }
+    .footer-links a:hover { color: var(--red); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-bottom-text { font-size: 0.78rem; font-family: var(--font-body); }
+    .footer-badge { background: var(--red); color: white; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--font-mono); letter-spacing: 0.3px; }
+
+    /* ═══════════ MOBILE ═══════════ */
+    @media (max-width: 900px) {
+      .hero { padding: 5rem 5%; text-align: center; }
+      .hero-content { max-width: 100%; }
+      .hero-sub { margin-left: auto; margin-right: auto; }
+      .hero-ctas { justify-content: center; }
+      .hero-trust { justify-content: center; }
+      .problem-grid, .how-grid, .depr-grid, .audit-grid { grid-template-columns: 1fr; }
+      .audit-image { order: 1; } .audit-content { order: 2; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .reports-grid { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .roles-grid { grid-template-columns: repeat(3, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .features-grid, .reports-grid { grid-template-columns: 1fr; }
+      .roles-grid { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .stats-strip { flex-direction: column; align-items: center; gap: 1.5rem; }
+      .hero { background-position: center 20%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAVIGATION ═══════════ -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h4v4H3zM10 3h4v4h-4zM17 3h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4zM17 10h4v4h-4zM3 17h4v4H3zM10 17h4v4h-4zM17 17h4v4h-4z" fill-rule="evenodd" clip-rule="evenodd"/></svg>
+    </div>
+    <span class="nav-logo-name">FAMS <span>|</span> JustJava</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#roles">User Roles</a>
+    <a href="#reports">Reporting</a>
+    <a href="#demo">Book a Demo</a>
+  </div>
+  <div class="nav-ctas">
+    <a href="/login" class="btn-ghost">Log In</a>
+    <a href="#demo" class="btn-primary">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO (background image only, no dashboard mockup or KPI badges) ═══════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Fixed Asset Management System</div>
+    <h1>Every Asset.<br /><em>Tracked, Controlled,</em><br />Accounted For.</h1>
+    <p class="hero-sub">FAMS gives your organization total visibility over every physical asset — from acquisition and assignment through maintenance, depreciation, audit, and disposal. No spreadsheets, no guesswork.</p>
+    <div class="hero-ctas">
+      <a href="#demo" class="btn-hero">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Book a Demo
+      </a>
+      <a href="#features" class="btn-hero-ghost">Explore Features</a>
+    </div>
+    <div class="hero-trust">
+      <div class="hero-trust-avatars">
+        <span>FM</span><span>AK</span><span>OJ</span>
+      </div>
+      <p class="hero-trust-text">Trusted by asset managers, finance teams &amp; auditors across Nigeria</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STATS STRIP ═══════════ -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Asset Traceability</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">60%</div>
+    <div class="stat-label">Faster Audit Cycles</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">Zero</div>
+    <div class="stat-label">Manual Depreciation Errors</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">99.5%</div>
+    <div class="stat-label">System Uptime</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">5 Roles</div>
+    <div class="stat-label">Role-Based Access Control</div>
+  </div>
+</div>
+
+<!-- ═══════════ PROBLEM SECTION ═══════════ -->
+<section class="problem-section" id="problem">
+  <div class="problem-grid">
+    <div class="problem-image">
+      <img
+        src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80"
+        alt="Disorganized asset management with spreadsheets"
+        loading="lazy"
+        onerror="this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80'"
+      />
+    </div>
+    <div>
+      <div class="section-eyebrow">The Problem</div>
+      <h2 class="section-title">Managing Assets on Spreadsheets Is Costing You</h2>
+      <p class="section-sub">Without a centralized system, large asset inventories create financial and operational chaos that compounds over time.</p>
+      <div class="problem-list">
+        <div class="problem-item">
+          <div class="problem-icon">📍</div>
+          <div>
+            <div class="problem-item-title">No Real-Time Location Tracking</div>
+            <div class="problem-item-desc">Assets get misplaced, reassigned without records, or go missing entirely with no audit trail to trace them.</div>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">📉</div>
+          <div>
+            <div class="problem-item-title">Inaccurate Depreciation & Financials</div>
+            <div class="problem-item-desc">Manual depreciation calculations introduce errors that compromise financial reporting and regulatory compliance.</div>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">🔧</div>
+          <div>
+            <div class="problem-item-title">Missed Maintenance Schedules</div>
+            <div class="problem-item-desc">Without automated reminders, assets deteriorate past warranty coverage and accumulate avoidable repair costs.</div>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-icon">🔍</div>
+          <div>
+            <div class="problem-item-title">Audit Nightmares & Compliance Risk</div>
+            <div class="problem-item-desc">Physical verifications take weeks, rely on outdated records, and fail to catch discrepancies before they become liabilities.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FEATURES ═══════════ -->
+<section id="features">
+  <div class="section-header-center">
+    <div class="section-eyebrow">Core Modules</div>
+    <h2 class="section-title">Everything You Need Across the Full Asset Lifecycle</h2>
+    <p class="section-sub">From the moment an asset is purchased to the day it's retired, FAMS provides a structured, auditable workflow every step of the way.</p>
+  </div>
+
+  <div class="features-grid">
+    <!-- Smart Asset Registration - replaced with barcode scanning image -->
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80" alt="Barcode scanner for asset registration" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Registration</div>
+        <div class="feature-card-title">Smart Asset Registration</div>
+        <div class="feature-card-desc">Auto-generate unique Asset IDs, QR codes, and barcodes on registration. Capture full asset metadata including purchase cost, vendor, warranty dates, custodian, and supporting documents.</div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80" alt="Team assignment workflow" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Assignment</div>
+        <div class="feature-card-title">Structured Assignment & Return Workflows</div>
+        <div class="feature-card-desc">Assign assets to employees or departments with built-in approval flows. Track Pending, Approved, Rejected, and Returned statuses with a full assignment history per asset.</div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600&q=80" alt="Maintenance scheduling" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Maintenance</div>
+        <div class="feature-card-title">Preventive & Corrective Maintenance</div>
+        <div class="feature-card-desc">Schedule recurring preventive maintenance with automated reminders. Log corrective repairs with technician assignment, cost tracking, and a real-time status calendar view.</div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80" alt="Financial depreciation charts" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Depreciation</div>
+        <div class="feature-card-title">Automated Depreciation Engine</div>
+        <div class="feature-card-desc">Automatically compute Straight-Line, Reducing Balance, and Double Declining Balance depreciation per asset category. Generate detailed schedules showing book value, accumulated depreciation, and salvage value.</div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=600&q=80" alt="QR code barcode scanning for audit" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Audit</div>
+        <div class="feature-card-title">Barcode & QR-Powered Audit Verification</div>
+        <div class="feature-card-desc">Conduct physical asset verifications by scanning QR/barcodes via mobile browser. Categorize results as Verified, Missing, Damaged, or Misplaced and generate discrepancy reports instantly.</div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-img">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Asset transfer and logistics" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80'" />
+      </div>
+      <div class="feature-card-body">
+        <div class="feature-tag">Transfers & Disposal</div>
+        <div class="feature-card-title">Transfers, Disposal & Full Lifecycle Close</div>
+        <div class="feature-card-desc">Manage inter-department, inter-branch, and location transfers via approval workflows. Record disposals — Sale, Scrap, Donation, or Write-Off — with full audit trail before retiring an asset from the register.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ HOW IT WORKS ═══════════ -->
+<section class="how-section" id="how-it-works">
+  <div class="section-eyebrow">How It Works</div>
+  <h2 class="section-title">From Registration to Disposal — In One System</h2>
+
+  <div class="how-grid">
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Register &amp; Tag Every Asset</div>
+          <div class="step-desc">Log full asset details — cost, category, location, custodian — and auto-generate a QR code or barcode for physical tagging.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Assign, Transfer &amp; Track</div>
+          <div class="step-desc">Route assignment and transfer requests through structured approval workflows. Every move is logged with timestamps, approvers, and reasons.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Maintain &amp; Get Alerted</div>
+          <div class="step-desc">Set preventive schedules and receive automated alerts for upcoming maintenance, warranty expiry, overdue returns, and audit cycles.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Audit with a Scan</div>
+          <div class="step-desc">Walk the floor with a mobile browser and scan asset QR codes to verify location and condition. Discrepancies surface in real time.</div>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-title">Report &amp; Dispose Cleanly</div>
+          <div class="step-desc">Generate PDF or Excel reports on demand. When an asset reaches end-of-life, process disposal through an approval chain before it leaves the register.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Replaced generic team image with tablet-based asset management workflow -->
+    <div class="how-image">
+      <img
+        src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=700&q=80"
+        alt="Digital asset management on tablet"
+        loading="lazy"
+        onerror="this.src='https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=700&q=80'"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ USER ROLES ═══════════ -->
+<section id="roles">
+  <div class="section-header-center">
+    <div class="section-eyebrow">Role-Based Access</div>
+    <h2 class="section-title">The Right Access for Every Team Member</h2>
+    <p class="section-sub">FAMS enforces strict role-based access control so each user sees exactly what they need — nothing more, nothing less.</p>
+  </div>
+  <div class="roles-grid">
+    <div class="role-card">
+      <div class="role-icon">🛡️</div>
+      <div class="role-title">Super Administrator</div>
+      <div class="role-perms">Full system configuration — users, categories, depreciation rules, and global settings.</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">📦</div>
+      <div class="role-title">Asset Manager</div>
+      <div class="role-perms">Register, assign, transfer, schedule maintenance, manage audits, and process disposals.</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">🏢</div>
+      <div class="role-title">Department Head</div>
+      <div class="role-perms">View department assets, approve intra-department transfers, and monitor asset usage.</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">👤</div>
+      <div class="role-title">Employee</div>
+      <div class="role-perms">View personally assigned assets, submit maintenance requests, and initiate return requests.</div>
+    </div>
+    <div class="role-card">
+      <div class="role-icon">🔍</div>
+      <div class="role-title">Auditor</div>
+      <div class="role-perms">Conduct physical verifications, log discrepancies, and generate audit reports — read-only access.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DEPRECIATION ═══════════ -->
+<section class="depr-section" id="depreciation">
+  <div class="depr-grid">
+    <div>
+      <div class="section-eyebrow">Financial Accuracy</div>
+      <h2 class="section-title">Depreciation That Complies with Accounting Standards</h2>
+      <p class="section-sub">FAMS automates depreciation in line with IFRS/GAAP requirements, eliminating the manual calculation errors that distort your balance sheet.</p>
+      <div class="depr-methods">
+        <div class="depr-method">
+          <div class="depr-method-badge">SLM</div>
+          <div>
+            <div class="depr-method-name">Straight-Line Method</div>
+            <div class="depr-method-desc">Spreads the cost of an asset evenly over its useful life — ideal for stable, long-lived assets with predictable usage.</div>
+          </div>
+        </div>
+        <div class="depr-method">
+          <div class="depr-method-badge">RBM</div>
+          <div>
+            <div class="depr-method-name">Reducing Balance Method</div>
+            <div class="depr-method-desc">Applies a fixed percentage to the declining book value each year — better for assets that lose value faster early on.</div>
+          </div>
+        </div>
+        <div class="depr-method">
+          <div class="depr-method-badge">DDB</div>
+          <div>
+            <div class="depr-method-name">Double Declining Balance</div>
+            <div class="depr-method-desc">Doubles the straight-line rate, front-loading depreciation. Perfect for technology assets with rapid early obsolescence.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="depr-image">
+      <img
+        src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=80"
+        alt="Financial charts and accounting documents"
+        loading="lazy"
+        onerror="this.src='https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&q=80'"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ AUDIT SECTION ═══════════ -->
+<section id="audit">
+  <div class="audit-grid">
+    <div class="audit-content">
+      <div class="section-eyebrow">Audit &amp; Verification</div>
+      <h2 class="section-title">Complete Physical Audits in Hours, Not Weeks</h2>
+      <p class="section-sub">Armed with just a mobile browser, your auditors can scan QR codes or barcodes across your entire estate and surface discrepancies in real time — no clipboards, no delays.</p>
+      <div class="audit-stats">
+        <div class="audit-stat-box">
+          <div class="audit-stat-num">60%</div>
+          <div class="audit-stat-label">Reduction in audit completion time</div>
+        </div>
+        <div class="audit-stat-box">
+          <div class="audit-stat-num">4</div>
+          <div class="audit-stat-label">Audit outcomes: Verified, Missing, Damaged, Misplaced</div>
+        </div>
+        <div class="audit-stat-box">
+          <div class="audit-stat-num">100%</div>
+          <div class="audit-stat-label">Assets traceable in the system</div>
+        </div>
+        <div class="audit-stat-box">
+          <div class="audit-stat-num">Live</div>
+          <div class="audit-stat-label">Real-time discrepancy reporting &amp; resolution workflow</div>
+        </div>
+      </div>
+    </div>
+    <div class="audit-image">
+      <img
+        src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=700&q=80"
+        alt="Warehouse manager scanning barcode for asset audit"
+        loading="lazy"
+        onerror="this.src='https://images.unsplash.com/photo-1434626881859-194d67b2b86f?w=700&q=80'"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ REPORTING ═══════════ -->
+<section class="reports-section" id="reports">
+  <div class="section-header-center">
+    <div class="section-eyebrow" style="color: rgba(255,255,255,0.5);">Reporting</div>
+    <h2 class="section-title">Actionable Reports. Generated in Seconds.</h2>
+    <p class="section-sub">From asset registers to financial valuations, every report exports to PDF or Excel — instantly available to the right roles.</p>
+  </div>
+  <div class="reports-grid">
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=600&q=80" alt="Asset register report" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Asset Reports</div>
+        <div class="report-card-desc">Full asset register, inventory snapshots, assignment history, and movement logs — filterable by category, department, location, or status.</div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1543286386-2e659306cd6c?w=600&q=80" alt="Financial valuation report" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Financial Reports</div>
+        <div class="report-card-desc">Asset valuation, accumulated depreciation, cost summaries, and book value schedules — aligned with your accounting standard of choice.</div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=600&q=80" alt="Maintenance history report" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Maintenance Reports</div>
+        <div class="report-card-desc">Complete service history per asset, cost of repairs, and upcoming maintenance calendar — so nothing falls through the cracks.</div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="Audit verification report" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Audit Reports</div>
+        <div class="report-card-desc">Full audit logs, missing asset lists, and verification summaries — ready for board review or external compliance submission.</div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80" alt="Disposal and warranty report" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Disposal &amp; Warranty Reports</div>
+        <div class="report-card-desc">Track disposed assets by method — Sale, Scrap, Donation, Write-Off — and flag assets approaching or past warranty expiry.</div>
+      </div>
+    </div>
+    <div class="report-card">
+      <div class="report-card-img">
+        <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&q=80" alt="Real-time dashboard KPIs" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80'" />
+      </div>
+      <div class="report-card-body">
+        <div class="report-card-title">Live Dashboard KPIs</div>
+        <div class="report-card-desc">Real-time widgets showing Total Asset Value, Active Assignments, Assets Under Maintenance, Book Value, and Depreciation Overview — refreshed automatically.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TESTIMONIALS ═══════════ -->
+<section class="testimonials-section" id="testimonials">
+  <div class="section-header-center">
+    <div class="section-eyebrow">What Our Users Say</div>
+    <h2 class="section-title">Built for the People Who Manage Assets Every Day</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      </div>
+      <p class="testimonial-quote">"Our previous quarterly audits used to take three weeks of manual work. With FAMS, our auditors completed the last one in two days using QR scans on their phones. The discrepancy reports were ready before the team got back to the office."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">RA</div>
+        <div>
+          <div class="testimonial-name">Rotimi Adeyemi</div>
+          <div class="testimonial-role">Head of Internal Audit, Lagos</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      </div>
+      <p class="testimonial-quote">"The depreciation engine alone was worth switching. We had three different people calculating depreciation manually in Excel — every quarter there were discrepancies. FAMS calculates it automatically and the numbers match our accountant's figures every time."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">FK</div>
+        <div>
+          <div class="testimonial-name">Fatimah Kareem</div>
+          <div class="testimonial-role">Finance Manager, Abuja</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">
+        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+      </div>
+      <p class="testimonial-quote">"I manage over 1,200 assets across four branches. Before FAMS I had no idea which assets had been moved, who had them, or when they were last serviced. Now I get an alert before anything is due — maintenance, warranty, return. It's completely changed how we operate."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">CI</div>
+        <div>
+          <div class="testimonial-name">Chukwuemeka Igbokwe</div>
+          <div class="testimonial-role">Asset Manager, Port Harcourt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ BOOK DEMO CTA ═══════════ -->
+<section class="cta-banner" id="demo">
+  <h2>See FAMS in Action</h2>
+  <p>Book a live walkthrough with our team. We'll map the system to your organization's specific asset categories, workflows, and reporting needs — no generic slides, no pressure.</p>
+  <a href="mailto:demo@justjavatechnologies.com?subject=FAMS Demo Request" class="btn-white">Book Your Demo →</a>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:34px; height:34px; background:var(--red); border-radius:7px; display:flex; align-items:center; justify-content:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M3 3h4v4H3zM10 3h4v4h-4zM17 3h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4zM17 10h4v4h-4zM3 17h4v4H3zM10 17h4v4h-4zM17 17h4v4h-4z"/></svg>
+        </div>
+        <div class="footer-brand-name">FAMS</div>
+      </div>
+      <p style="font-size:0.75rem; color:rgba(255,255,255,0.4); margin-top:4px; margin-bottom:0.75rem;">by JustJava Technologies</p>
+      <p class="footer-brand-desc">A complete Fixed Asset Management System built to give organizations total control over the lifecycle of every physical asset — from registration to disposal.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#roles">User Roles</a>
+        <a href="#reports">Reporting</a>
+        <a href="#depreciation">Depreciation</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <div class="footer-links">
+        <a href="#">About JustJava</a>
+        <a href="#">Contact Us</a>
+        <a href="#demo">Book a Demo</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">System Access</div>
+      <div class="footer-links">
+        <a href="/login" style="color:white; font-weight:600;">→ Log In to FAMS</a>
+        <a href="#demo">Request a Demo</a>
+        <a href="#">Documentation</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-bottom-text">© 2026 JustJava Technologies. All rights reserved. Fixed Asset Management System v1.0</span>
+    <span class="footer-badge">CONFIDENTIAL · ENTERPRISE</span>
+  </div>
+</footer>
+
+</body>
+</html>

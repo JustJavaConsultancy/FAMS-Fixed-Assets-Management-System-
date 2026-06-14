@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Depreciation Management | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Depreciation Management</h2>
+            <p class="text-body-default text-secondary">Track the reducing value of your fixed assets over time across your entire portfolio.</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Export Report
+            </button>
+            <button class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                Register Asset
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Info Card (matches dashboard banner style) -->
+    <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex flex-col md:flex-row">
+        <div class="flex-1 p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="flex items-center gap-1 text-status-success text-label-small font-medium">
+                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span>Audit Compliant</span>
+                </div>
+                <div class="flex items-center gap-1 text-status-info text-label-small font-medium">
+                    <span class="material-symbols-outlined text-[16px]">update</span>
+                    <span>Last calculated: 2 hours ago</span>
+                </div>
+            </div>
+            <p class="text-body-default text-secondary">Monitor accumulated depreciation, book values, and tax implications across your entire portfolio.</p>
+        </div>
+        <div class="w-full md:w-48 bg-primary/5 flex items-center justify-center p-4">
+            <img alt="Depreciation illustration" class="max-h-24 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7HiFJm0FgP-CXMNQjJ7SN5juACLSJymzMgZIdQFrcGfF8HZLIFL_p1uOiV0xTaGve9nQ-y7kZFjNgZSbWDqxkU28EpME6EbmymbRs9HrjgL-QoPokK9BV0hyhEhzpHXssDhQe3s1iOUb_1QHD2wvBsJuMwaxNFxTEBRRwH245p9qkwWiK0Mu5N1UA2Nbnev4jQxxSb-dpiB-rK-cgqXQlC41uKx1QHYf6O8L6a6_ltyQ-jMmR7eFl">
+        </div>
+    </div>
+
+    <!-- KPI Strip (4 cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border border-border-default">
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-label-small text-secondary uppercase tracking-wider">Total Original Cost</span>
+                <span class="material-symbols-outlined text-secondary">account_balance_wallet</span>
+            </div>
+            <p class="font-page-title text-[28px] font-bold text-on-surface">$1,420,500.00</p>
+            <div class="mt-2 text-badge-label text-status-success flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">trending_up</span>
+                <span>+2.4% vs last quarter</span>
+            </div>
+        </div>
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border border-border-default">
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-label-small text-secondary uppercase tracking-wider">Total Book Value</span>
+                <span class="material-symbols-outlined text-secondary">menu_book</span>
+            </div>
+            <p class="font-page-title text-[28px] font-bold text-on-surface">$984,200.00</p>
+            <div class="mt-2 text-label-small text-secondary">69.3% recovery potential</div>
+        </div>
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border border-border-default">
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-label-small text-secondary uppercase tracking-wider">Accumulated Depreciation</span>
+                <span class="material-symbols-outlined text-secondary">trending_down</span>
+            </div>
+            <p class="font-page-title text-[28px] font-bold text-primary">$436,300.00</p>
+            <div class="mt-2 text-badge-label text-status-warning flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">history</span>
+                <span>30.7% of total asset cost</span>
+            </div>
+        </div>
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border border-border-default">
+            <div class="flex justify-between items-start mb-3">
+                <span class="text-label-small text-secondary uppercase tracking-wider">Fully Depreciated Assets</span>
+                <span class="material-symbols-outlined text-secondary">done_all</span>
+            </div>
+            <p class="font-page-title text-[28px] font-bold text-on-surface">12</p>
+            <div class="mt-2 text-badge-label text-status-info flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">priority_high</span>
+                <span>Replacement needed for 4 items</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Bar (matches dashboard control style) -->
+    <div class="bg-surface-card border border-border-default rounded-xl p-4 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+            <label class="text-label-small text-secondary">Category</label>
+            <select class="flex-1 h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <option>All Categories</option>
+                <option>IT Equipment</option>
+                <option>Vehicles</option>
+                <option>Office Furniture</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+            <label class="text-label-small text-secondary">Department</label>
+            <select class="flex-1 h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <option>All Departments</option>
+                <option>Engineering</option>
+                <option>Sales &amp; Marketing</option>
+                <option>Operations</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+            <label class="text-label-small text-secondary">Method</label>
+            <select class="flex-1 h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <option>All Methods</option>
+                <option>Straight-Line (SL)</option>
+                <option>Reducing Balance (RB)</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+            <label class="text-label-small text-secondary">Year Range</label>
+            <select class="flex-1 h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <option>Current Year (2024)</option>
+                <option>2023</option>
+                <option>2022</option>
+            </select>
+        </div>
+        <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">filter_alt</span>
+            More Filters
+        </button>
+        <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+            Export
+        </button>
+    </div>
+
+    <!-- Main Data Grid (12 columns) -->
+    <div class="grid grid-cols-12 gap-6">
+        <!-- Left: Depreciation Table (8 columns) -->
+        <div class="col-span-12 lg:col-span-8 bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+            <div class="p-5 border-b border-border-default flex justify-between items-center flex-wrap gap-3">
+                <h3 class="font-section-header text-section-header text-on-surface">Asset Depreciation Schedule</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-label-small text-secondary">Showing 6 of 42 assets</span>
+                    <div class="flex border border-border-default rounded-lg overflow-hidden">
+                        <button class="p-1 px-2 hover:bg-surface-canvas border-r border-border-default"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+                        <button class="p-1 px-2 hover:bg-surface-canvas"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="bg-surface-canvas border-b border-border-default">
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset ID</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Name</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Category</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Method</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Acq. Cost</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Accum. Dep.</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Book Value</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider text-right">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-default">
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer border-l-4 border-primary">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-78291</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">MacBook Pro M3 Max</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">IT Equipment</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge-label font-badge-label">Straight-Line</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$4,200.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$1,400.00</td>
+                        <td class="px-5 py-3 font-technical-data font-bold text-on-surface">$2,800.00</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-90122</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Toyota Hilux 2022</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Vehicles</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-warning/10 text-status-warning text-badge-label font-badge-label">Red. Balance</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$45,000.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$12,450.00</td>
+                        <td class="px-5 py-3 font-technical-data font-bold text-on-surface">$32,550.00</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-66321</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Steelcase Gesture Chair</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Furniture</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge-label font-badge-label">Straight-Line</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$1,250.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$250.00</td>
+                        <td class="px-5 py-3 font-technical-data font-bold text-on-surface">$1,000.00</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-11200</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Dell Precision Tower</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">IT Equipment</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge-label font-badge-label">Straight-Line</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$5,500.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$5,500.00</td>
+                        <td class="px-5 py-3 font-technical-data text-status-warning">Scrap Value $500</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-88219</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Cisco Catalyst Switch</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">IT Equipment</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-badge-label font-badge-label">Straight-Line</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$8,900.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$1,780.00</td>
+                        <td class="px-5 py-3 font-technical-data font-bold text-on-surface">$7,120.00</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors cursor-pointer">
+                        <td class="px-5 py-3 font-technical-data text-technical-data text-primary">#ASSET-55401</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface">Ford Transit Van</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Vehicles</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-status-warning/10 text-status-warning text-badge-label font-badge-label">Red. Balance</span></td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface">$38,000.00</td>
+                        <td class="px-5 py-3 font-technical-data text-error">$9,500.00</td>
+                        <td class="px-5 py-3 font-technical-data font-bold text-on-surface">$28,500.00</td>
+                        <td class="px-5 py-3 text-right"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">visibility</span></button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination (matches dashboard) -->
+            <div class="px-5 py-3 border-t border-border-default flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p class="text-label-small text-secondary">Showing <span class="font-bold text-on-surface">6</span> of <span class="font-bold text-on-surface">42</span> assets</p>
+                <div class="flex items-center gap-1">
+                    <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors text-secondary disabled:opacity-50" disabled>
+                        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                    </button>
+                    <button class="w-8 h-8 flex items-center justify-center bg-primary text-on-primary rounded-lg font-body-medium">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors font-body-medium text-on-surface">2</button>
+                    <button class="w-8 h-8 flex items-center justify-center border border-border-default rounded-lg hover:bg-surface-canvas transition-colors text-secondary">
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Charts & Analysis (4 columns) -->
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            <!-- Trend Chart Card (simplified visual) -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex justify-between items-center">
+                    <h3 class="font-card-header text-card-header text-on-surface">Value vs. Cost Over Time</h3>
+                    <span class="material-symbols-outlined text-secondary">monitoring</span>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-end gap-1 h-32 mb-2">
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary/20 rounded-t h-[85%] relative"><div class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] bg-on-surface text-on-primary px-1 rounded hidden group-hover:block whitespace-nowrap">$1.2M</div></div>
+                            <span class="text-[10px] text-secondary mt-1">'21</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary/20 rounded-t h-[72%] relative"></div>
+                            <span class="text-[10px] text-secondary mt-1">'22</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary/20 rounded-t h-[60%] relative"></div>
+                            <span class="text-[10px] text-secondary mt-1">'23</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary rounded-t h-[52%] relative"><div class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] bg-on-surface text-on-primary px-1 rounded hidden group-hover:block">$650k</div></div>
+                            <span class="text-[10px] text-secondary mt-1">'24</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary/20 rounded-t h-[45%] relative"></div>
+                            <span class="text-[10px] text-secondary mt-1">'25(P)</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center group">
+                            <div class="w-full bg-primary/20 rounded-t h-[38%] relative"></div>
+                            <span class="text-[10px] text-secondary mt-1">'26(P)</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-6 mt-4 pt-3 border-t border-border-default">
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 bg-primary/20 rounded"></div><span class="text-label-small text-secondary">Original Cost</span></div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 bg-primary rounded"></div><span class="text-label-small text-secondary">Book Value</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depreciation by Method Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex justify-between items-center">
+                    <h3 class="font-card-header text-card-header text-on-surface">Depreciation by Method</h3>
+                    <span class="text-label-small bg-surface-canvas px-2 py-0.5 rounded text-secondary">Portfolio Split</span>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center justify-around">
+                        <div class="relative w-32 h-32">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" fill="none" r="16" stroke="#C0182A" stroke-dasharray="74, 100" stroke-width="4"></circle>
+                                <circle cx="18" cy="18" fill="none" r="16" stroke="#E4E6EA" stroke-dasharray="26, 100" stroke-dashoffset="-74" stroke-width="4"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="font-page-title text-2xl font-bold text-on-surface">42</span>
+                                <span class="text-label-small text-secondary">Assets</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-primary"></div><span class="font-body-medium text-on-surface">Reducing Bal.</span></div><span class="text-label-small text-secondary ml-4">31 Assets (74%)</span></div>
+                            <div><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-border-default"></div><span class="font-body-medium text-on-surface">Straight-Line</span></div><span class="text-label-small text-secondary ml-4">11 Assets (26%)</span></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-border-default">
+                        <button class="w-full h-[38px] bg-surface-canvas text-on-surface rounded-lg font-body-medium hover:bg-surface-variant transition-all">View Tax Implications Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple row click to show active accent (matches dashboard interaction)
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                rows.forEach(r => r.classList.remove('border-l-4', 'border-primary'));
+                row.classList.add('border-l-4', 'border-primary');
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

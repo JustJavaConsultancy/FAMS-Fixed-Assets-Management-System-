@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Register Asset | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Register New Asset</h2>
+            <p class="text-body-default text-secondary">Populate the fields below to induct a new physical asset into the central ledger.</p>
+        </div>
+        <div>
+            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label">Step 1 of 1</span>
+        </div>
+    </div>
+
+    <!-- Main Form Grid (12-column layout, consistent with dashboard) -->
+    <div class="grid grid-cols-12 gap-6">
+        <!-- Left: Form Panel (8 columns) -->
+        <div class="col-span-8 space-y-6">
+            <!-- Basic Information Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">info</span>
+                    <h3 class="font-card-header text-card-header text-on-surface">Basic Information</h3>
+                </div>
+                <div class="p-5 space-y-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Asset Name</label>
+                            <input type="text" value="Dell Latitude 5530" placeholder="e.g. Dell Latitude 5530"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Category</label>
+                            <select class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                <option>IT Equipment &gt; Laptops</option>
+                                <option>Furniture &gt; Desks</option>
+                                <option>Machinery &gt; Factory</option>
+                                <option>Vehicle &gt; Commercial</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Description</label>
+                            <textarea rows="2" placeholder="Primary workstation for software engineering team..."
+                                      class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                        </div>
+                        <div class="col-span-2 space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Asset Image</label>
+                            <div class="border-2 border-dashed border-primary/30 rounded-xl p-6 flex flex-col items-center justify-center bg-surface-canvas/50 hover:bg-surface-canvas transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-primary text-[32px] mb-2">cloud_upload</span>
+                                <p class="text-body-medium font-medium text-on-surface">Click to upload or drag and drop</p>
+                                <p class="text-label-small text-secondary mt-1">PNG, JPG or WEBP (MAX. 800x400px)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Identification Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">fingerprint</span>
+                    <h3 class="font-card-header text-card-header text-on-surface">Identification</h3>
+                </div>
+                <div class="p-5 space-y-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Serial Number</label>
+                            <input type="text" placeholder="XXXX-XXXX-XXXX"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg font-technical-data text-technical-data text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none uppercase">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Auto-generated Asset ID</label>
+                            <div class="h-[38px] px-3 bg-surface-variant border border-primary/20 rounded-lg flex items-center">
+                                <span class="font-technical-data text-primary font-medium">AST-2026-00847</span>
+                                <span class="ml-auto material-symbols-outlined text-primary text-[16px]">lock</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Manufacturer</label>
+                            <input type="text" value="Dell Inc."
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Model</label>
+                            <input type="text" value="Latitude 5530 vPro"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Details Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">payments</span>
+                    <h3 class="font-card-header text-card-header text-on-surface">Financial Details</h3>
+                </div>
+                <div class="p-5 space-y-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Purchase Date</label>
+                            <input type="date"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Purchase Cost (USD)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary font-technical-data">$</span>
+                                <input type="number" placeholder="0.00"
+                                       class="w-full h-[38px] pl-7 pr-3 bg-surface-canvas border border-border-default rounded-lg font-technical-data text-technical-data text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Vendor</label>
+                            <input type="text" placeholder="e.g. CDW Global"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Warranty Expiry</label>
+                            <input type="date"
+                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Custody Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">location_on</span>
+                    <h3 class="font-card-header text-card-header text-on-surface">Location &amp; Custody</h3>
+                </div>
+                <div class="p-5 space-y-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Department</label>
+                            <select class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                <option>Engineering</option>
+                                <option>Human Resources</option>
+                                <option>Finance &amp; Ops</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Branch</label>
+                            <select class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                <option>Headquarters - NY</option>
+                                <option>Tech Hub - Austin</option>
+                                <option>Logistics - Chicago</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Assigned Custodian</label>
+                            <div class="flex items-center gap-2 h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg">
+                                <img alt="Custodian Avatar" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9T45K2mVqm1Eprjs1jmEnw-TGzKVxf3_30S25id1MyB9QqcFXR8MWt7Pr438II-0taI1sY5KJdgrWzk5q-2A4XDpP2wln9XI8pjbxnsodeVTjN4HpDtt-7jsQatINryfcR-1sNhnCttZJ9r10hvVDKuMKIWmhKgJukq9z9V2gh4SGk4x-nyHXb5p-DXN-LaEzEQQGOg_t3p59XDYzbawgk0AO8OOv3ijqZJD-dFsXLBtBZMlKc-Ek">
+                                <span class="text-body-default text-on-surface font-medium">Liam O'Connell</span>
+                                <button class="ml-auto material-symbols-outlined text-secondary text-[16px] hover:text-primary">close</button>
+                            </div>
+                        </div>
+                        <div class="col-span-2 space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary">Initial Status</label>
+                            <div class="flex gap-2">
+                                <span class="bg-status-info/10 text-status-info border border-status-info/20 px-3 py-1 rounded-full text-badge-label font-badge-label flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-status-info"></span>
+                                    New / In-Stock
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Card -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[20px]">description</span>
+                    <h3 class="font-card-header text-card-header text-on-surface">Documents</h3>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-surface-canvas rounded-lg border border-border-default">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-secondary">picture_as_pdf</span>
+                            <div>
+                                <p class="text-body-medium font-medium text-on-surface">Purchase_Order_772.pdf</p>
+                                <p class="text-label-small text-secondary">2.4 MB • Uploaded 2m ago</p>
+                            </div>
+                        </div>
+                        <button class="text-error hover:bg-error-container p-1 rounded transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+                    <button class="w-full border-2 border-dashed border-border-strong rounded-lg py-3 flex items-center justify-center gap-2 text-secondary hover:text-primary hover:border-primary transition-all">
+                        <span class="material-symbols-outlined">add</span>
+                        <span class="text-body-medium">Add Invoice or Receipt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-between items-center pt-2 pb-6">
+                <button class="px-6 py-2 text-secondary font-body-medium hover:text-on-surface transition-colors">Cancel</button>
+                <div class="flex gap-3">
+                    <button class="px-6 py-2 border border-border-strong text-on-surface-variant font-body-medium rounded-lg hover:bg-surface-canvas transition-colors">Save as Draft</button>
+                    <button class="px-8 py-2 bg-primary text-on-primary font-body-medium rounded-lg hover:bg-brand-primary-dark transition-all shadow-sm">Register Asset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Asset Preview Card (4 columns) -->
+        <div class="col-span-4 space-y-6">
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden sticky top-6">
+                <div class="p-5 border-b border-border-default">
+                    <h3 class="font-card-header text-card-header text-on-surface text-center">Real-Time Tag Preview</h3>
+                </div>
+                <div class="p-5 flex flex-col items-center">
+                    <!-- Physical Tag Simulation -->
+                    <div class="w-full bg-surface-card rounded-xl border border-border-default overflow-hidden">
+                        <div class="h-1.5 w-full bg-primary"></div>
+                        <div class="p-5 flex flex-col items-center">
+                            <!-- QR Code Placeholder -->
+                            <div class="w-32 h-32 bg-white p-2 border border-border-default rounded-xl shadow-inner flex items-center justify-center mb-5">
+                                <div class="w-full h-full bg-[#151b29] p-2 relative">
+                                    <div class="grid grid-cols-4 grid-rows-4 gap-1 w-full h-full">
+                                        <div class="bg-white"></div><div class="bg-transparent"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                        <div class="bg-transparent"></div><div class="bg-white"></div><div class="bg-transparent"></div><div class="bg-white"></div>
+                                        <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-transparent"></div>
+                                        <div class="bg-white"></div><div class="bg-transparent"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                    </div>
+                                    <div class="absolute inset-0 border-[6px] border-[#151b29]"></div>
+                                    <div class="absolute top-1 left-1 w-5 h-5 border-2 border-white"></div>
+                                    <div class="absolute top-1 right-1 w-5 h-5 border-2 border-white"></div>
+                                    <div class="absolute bottom-1 left-1 w-5 h-5 border-2 border-white"></div>
+                                </div>
+                            </div>
+                            <div class="text-center space-y-1 mb-6">
+                                <p class="text-[10px] text-secondary font-nav-group uppercase tracking-widest">Global Asset ID</p>
+                                <p class="font-technical-data text-2xl font-bold text-primary tracking-tight">AST-2026-00847</p>
+                            </div>
+                            <div class="w-full space-y-4 pt-4 border-t border-border-default">
+                                <div class="flex justify-between">
+                                    <span class="text-label-small text-secondary">Asset Name</span>
+                                    <span class="text-body-medium font-medium text-on-surface">Dell Latitude 5530</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-label-small text-secondary">Category</span>
+                                    <span class="text-body-medium font-medium text-on-surface">IT &gt; Laptop</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-label-small text-secondary">Department</span>
+                                    <span class="text-body-medium font-medium text-on-surface">Engineering</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-inverse-surface py-3 px-5 flex justify-between">
+                            <span class="text-[9px] font-technical-data text-white/50">JUSTJAVA FAMS v2.0</span>
+                            <span class="text-[9px] font-technical-data text-white/50">VERIFIED SYSTEM RECORD</span>
+                        </div>
+                    </div>
+
+                    <!-- Preview Controls -->
+                    <div class="grid grid-cols-2 gap-3 w-full mt-6">
+                        <button class="flex flex-col items-center gap-2 p-3 bg-surface-card rounded-xl border border-border-default hover:border-primary transition-all group">
+                            <div class="w-10 h-10 rounded-full bg-surface-canvas flex items-center justify-center text-on-surface group-hover:bg-brand-primary-light group-hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">qr_code_2</span>
+                            </div>
+                            <span class="text-body-medium font-medium">Preview QR</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-2 p-3 bg-surface-card rounded-xl border border-border-default hover:border-primary transition-all group">
+                            <div class="w-10 h-10 rounded-full bg-surface-canvas flex items-center justify-center text-on-surface group-hover:bg-brand-primary-light group-hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined">print</span>
+                            </div>
+                            <span class="text-body-medium font-medium">Print Tag</span>
+                        </button>
+                    </div>
+
+                    <!-- Contextual Tip -->
+                    <div class="mt-6 p-4 bg-status-info/5 rounded-xl border border-status-info/20 flex gap-3">
+                        <span class="material-symbols-outlined text-status-info shrink-0">lightbulb</span>
+                        <p class="text-label-small leading-relaxed text-secondary italic">Ensure the asset serial number is checked against the physical plate to prevent duplicate registration in the FAMS ledger.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple preview update script (non-intrusive) -->
+    <script>
+        // Live update asset name in preview
+        const nameField = document.querySelector('input[value="Dell Latitude 5530"]');
+        const previewNameSpan = document.querySelector('.border-t.border-border-default .flex.justify-between span.text-body-medium.font-medium.text-on-surface');
+        if (nameField && previewNameSpan) {
+            nameField.addEventListener('input', (e) => {
+                previewNameSpan.textContent = e.target.value || 'Untitled Asset';
+            });
+        }
+    </script>
+</main>
+</body>
+</html>

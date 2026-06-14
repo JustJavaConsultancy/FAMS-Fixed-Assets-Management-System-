@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Notifications Center | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Notifications Center</h2>
+            <nav class="flex items-center text-label-small text-secondary gap-2 mt-1">
+                <span>FAMS</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span>System Alerts</span>
+            </nav>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="h-[38px] px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">done_all</span>
+                Mark All Read
+            </button>
+            <button class="h-[38px] px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+                Last 30 Days
+                <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </button>
+            <a href="#" class="text-primary hover:underline font-body-medium flex items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">settings</span>
+                Notification Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs (dashboard style) -->
+    <div class="border-b border-border-default flex gap-6 overflow-x-auto">
+        <button class="pb-3 px-1 border-b-2 border-primary text-primary font-bold font-body-medium whitespace-nowrap">All</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Unread (4)</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Warranty</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Maintenance</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Audit</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Assignments</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Approvals</button>
+        <button class="pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary font-body-medium transition-colors whitespace-nowrap">Disposals</button>
+    </div>
+
+    <!-- Notification List -->
+    <div class="space-y-3">
+        <!-- Urgent / Disposal (Error - Unread) -->
+        <div class="group flex bg-primary/5 border border-border-default border-l-4 border-l-error p-5 rounded-lg cursor-pointer hover:border-border-strong transition-all relative">
+            <div class="mr-4 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-error border border-error/20">
+                    <span class="material-symbols-outlined">report_problem</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <h4 class="font-card-header text-card-header text-on-surface font-bold">Critical: Laptop #0042 reported stolen</h4>
+                    <span class="text-label-small text-secondary shrink-0">2 hours ago</span>
+                </div>
+                <p class="text-body-default text-secondary mb-2">Security protocol initiated. Asset was last seen active at 09:45 AM from IP 192.168.1.102. Please review recovery steps.</p>
+                <span class="font-technical-data text-technical-data text-primary font-medium hover:underline cursor-pointer">ASSET_ID: LAP-7729-HQ</span>
+            </div>
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="material-symbols-outlined text-secondary">chevron_right</span>
+            </div>
+        </div>
+
+        <!-- Maintenance (Warning - Read) -->
+        <div class="group flex bg-surface-card border border-border-default border-l-4 border-l-status-warning p-5 rounded-lg cursor-pointer hover:border-border-strong transition-all">
+            <div class="mr-4 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-surface-canvas flex items-center justify-center text-status-warning">
+                    <span class="material-symbols-outlined">engineering</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <h4 class="font-card-header text-card-header text-on-surface font-bold">Preventive maintenance due for Server R-402 in 3 days</h4>
+                    <span class="text-label-small text-secondary shrink-0">5 hours ago</span>
+                </div>
+                <p class="text-body-default text-secondary mb-2">Quarterly hardware inspection and UPS battery testing required. Please schedule with the IT Infrastructure team.</p>
+                <span class="font-technical-data text-technical-data text-primary font-medium hover:underline cursor-pointer">ASSET_ID: SRV-0402-DC</span>
+            </div>
+        </div>
+
+        <!-- Assignment (Info - Unread) -->
+        <div class="group flex bg-primary/5 border border-border-default border-l-4 border-l-status-info p-5 rounded-lg cursor-pointer hover:border-border-strong transition-all relative">
+            <div class="mr-4 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-status-info border border-status-info/20">
+                    <span class="material-symbols-outlined">move_up</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <h4 class="font-card-header text-card-header text-on-surface font-bold">Transfer Request: Dell Latitude 5530 moving to HR Department</h4>
+                    <span class="text-label-small text-secondary shrink-0">Yesterday</span>
+                </div>
+                <p class="text-body-default text-secondary mb-2">Originating: Finance Dept. Recipient: HR Dept (Sarah Jenkins). Approval required to update global registry.</p>
+                <span class="font-technical-data text-technical-data text-primary font-medium hover:underline cursor-pointer">ASSET_ID: LPT-5530-HR</span>
+            </div>
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="material-symbols-outlined text-secondary">chevron_right</span>
+            </div>
+        </div>
+
+        <!-- Completed (Success - Read) -->
+        <div class="group flex bg-surface-card border border-border-default border-l-4 border-l-status-success p-5 rounded-lg cursor-pointer hover:border-border-strong transition-all">
+            <div class="mr-4 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-surface-canvas flex items-center justify-center text-status-success">
+                    <span class="material-symbols-outlined">check_circle</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <h4 class="font-card-header text-card-header text-on-surface font-bold">Disposal Approved: Old Desk Unit #882</h4>
+                    <span class="text-label-small text-secondary shrink-0">2 days ago</span>
+                </div>
+                <p class="text-body-default text-secondary mb-2">Final disposal certificate uploaded. Asset status updated to 'Retired'. Physical removal scheduled for Friday.</p>
+                <span class="font-technical-data text-technical-data text-primary font-medium hover:underline cursor-pointer">ASSET_ID: FUR-0882-OF</span>
+            </div>
+        </div>
+
+        <!-- Warranty (Warning - Unread) -->
+        <div class="group flex bg-primary/5 border border-border-default border-l-4 border-l-status-warning p-5 rounded-lg cursor-pointer hover:border-border-strong transition-all relative">
+            <div class="mr-4 shrink-0">
+                <div class="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-status-warning border border-status-warning/20">
+                    <span class="material-symbols-outlined">assignment_late</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2 mb-1">
+                    <h4 class="font-card-header text-card-header text-on-surface font-bold">Warranty Expiry Warning: Precision T7920 Workstation</h4>
+                    <span class="text-label-small text-secondary shrink-0">3 days ago</span>
+                </div>
+                <p class="text-body-default text-secondary mb-2">Standard manufacturer warranty expires in 14 days. Suggest immediate renewal or replacement cycle assessment.</p>
+                <span class="font-technical-data text-technical-data text-primary font-medium hover:underline cursor-pointer">ASSET_ID: WKS-7920-EN</span>
+            </div>
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="material-symbols-outlined text-secondary">chevron_right</span>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

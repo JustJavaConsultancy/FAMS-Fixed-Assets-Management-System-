@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Asset Transfer | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Breadcrumbs (matches dashboard style) -->
+    <nav class="flex items-center gap-2 text-label-small text-secondary">
+        <span class="hover:text-primary transition-colors cursor-pointer">Asset Management</span>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <span class="text-on-surface font-medium">Asset Transfer</span>
+    </nav>
+
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Initiate Asset Transfer</h2>
+            <p class="text-body-default text-secondary mt-1">Movement of <span class="font-technical-data text-on-surface font-semibold">AST-2026-00847</span> (Dell Precision 5570)</p>
+        </div>
+        <div class="flex gap-3">
+            <button class="h-[38px] px-6 rounded-lg border border-border-strong text-on-surface font-body-medium hover:bg-surface-canvas transition-colors">Cancel</button>
+            <button class="h-[38px] px-6 rounded-lg bg-primary text-on-primary font-body-medium hover:bg-brand-primary-dark transition-colors shadow-sm">Submit Transfer Request</button>
+        </div>
+    </div>
+
+    <!-- 1. Transfer Type Selector -->
+    <div class="space-y-4">
+        <h3 class="font-section-header text-section-header text-on-surface">Select Transfer Type</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Employee -> Employee (selected) -->
+            <div class="bg-primary text-on-primary p-5 rounded-xl cursor-pointer border-2 border-primary shadow-md">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined text-2xl">badge</span>
+                    <span class="material-symbols-outlined text-lg">check_circle</span>
+                </div>
+                <p class="font-card-header text-card-header leading-snug">Employee to Employee</p>
+                <p class="text-on-primary/70 text-label-small mt-1">Reassigning custody between staff members.</p>
+            </div>
+            <!-- Dept -> Dept -->
+            <div class="bg-surface-card p-5 rounded-xl cursor-pointer border border-border-default hover:border-primary/50 transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined text-2xl text-secondary">corporate_fare</span>
+                </div>
+                <p class="font-card-header text-card-header leading-snug text-on-surface">Department to Department</p>
+                <p class="text-secondary text-label-small mt-1">Inter-departmental asset reallocation.</p>
+            </div>
+            <!-- Branch -> Branch -->
+            <div class="bg-surface-card p-5 rounded-xl cursor-pointer border border-border-default hover:border-primary/50 transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined text-2xl text-secondary">domain</span>
+                </div>
+                <p class="font-card-header text-card-header leading-snug text-on-surface">Branch to Branch</p>
+                <p class="text-secondary text-label-small mt-1">Moving physical assets between regional offices.</p>
+            </div>
+            <!-- Storage -> Location -->
+            <div class="bg-surface-card p-5 rounded-xl cursor-pointer border border-border-default hover:border-primary/50 transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined text-2xl text-secondary">location_on</span>
+                </div>
+                <p class="font-card-header text-card-header leading-snug text-on-surface">Storage to Location</p>
+                <p class="text-secondary text-label-small mt-1">Movement from warehouse to functional floor.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Main Transfer Form Card -->
+    <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+        <div class="p-6 space-y-6">
+            <!-- Source & Destination Row -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+                <!-- Source (Left) - 2 cols -->
+                <div class="md:col-span-2">
+                    <label class="text-label-small font-label-small text-secondary mb-2 block">Current Asset Holder</label>
+                    <div class="border border-primary/20 bg-primary/5 rounded-xl p-4 flex items-center gap-3 relative">
+                        <div class="absolute left-0 top-0 w-1 h-full bg-primary rounded-l-xl"></div>
+                        <img class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_pCKgr-CpVEyWBndCMOyy9m40pY3mh2S9qbxrbyqnqQW9B7-ctmxnd6EvZToN_gHDcMwXydNC3GgAgpn1VOGzHsNj_uyxUqd3WFs-9v3UexsfChR8V6n2LvJdKM7jUZZ_yu5va6jnEBhQWGzdLnB2SDbtc80uCVRt2YBGnmV0AQJPh7sODUlnXkaVgQSFdP83GIP0OCZx8AncQLNKKDm49a9SCUGEsXSd8PVOdUEOZoUh7mLbvzjx">
+                        <div>
+                            <p class="font-card-header text-card-header text-on-surface">Kazeem Olatunji</p>
+                            <p class="text-body-default text-secondary text-label-small">IT Dept — Lagos HQ</p>
+                            <p class="text-label-small text-primary font-technical-data mt-1">AST-2026-00847</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-center text-status-success gap-1 text-label-small">
+                        <span class="material-symbols-outlined text-[16px]">verified</span>
+                        <span>Custody Verified &amp; Active</span>
+                    </div>
+                </div>
+
+                <!-- Visual Connector (Center) - 1 col -->
+                <div class="md:col-span-1 flex flex-col items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-3xl">arrow_forward</span>
+                    <span class="text-[10px] font-nav-group text-primary uppercase tracking-wider mt-1">Transferring</span>
+                </div>
+
+                <!-- Destination (Right) - 2 cols -->
+                <div class="md:col-span-2">
+                    <label class="text-label-small font-label-small text-secondary mb-2 block">New Asset Holder</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">person_search</span>
+                        <input type="text" placeholder="Search for employee by name or ID..." class="w-full h-[48px] pl-10 pr-4 border border-border-default rounded-lg bg-surface-canvas text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div class="mt-3 flex items-center text-secondary gap-1 text-label-small italic">
+                        <span class="material-symbols-outlined text-[16px]">info</span>
+                        <span>Searching will display employee eligibility status</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border-default">
+                <div class="space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-label-small font-label-small text-secondary block">Planned Transfer Date</label>
+                        <input type="date" value="2024-05-24" class="w-full h-[38px] px-3 border border-border-default rounded-lg bg-surface-canvas text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-label-small font-label-small text-secondary block">Transfer Reason / Justification</label>
+                        <textarea rows="4" placeholder="Please provide detailed reasoning for this asset movement (e.g., Staff relocation, Project reassignment)..." class="w-full px-3 py-2 border border-border-default rounded-lg bg-surface-canvas text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-label-small font-label-small text-secondary block">Supporting Documentation (Optional)</label>
+                    <div class="border-2 border-dashed border-border-strong rounded-xl p-6 flex flex-col items-center justify-center text-center bg-surface-canvas hover:bg-surface-canvas/80 hover:border-primary transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-secondary text-3xl mb-2">cloud_upload</span>
+                        <p class="text-body-medium font-medium text-on-surface">Click to upload or drag &amp; drop</p>
+                        <p class="text-secondary text-label-small mt-1">PDF, JPG, PNG (Max 5MB per file)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Approval Notice Banner (matches dashboard alert style) -->
+    <div class="bg-surface-card border-l-4 border-status-info rounded-lg p-5 flex items-start gap-3 shadow-sm">
+        <span class="material-symbols-outlined text-status-info shrink-0">gavel</span>
+        <div>
+            <p class="font-card-header text-card-header text-on-surface">Workflow Protocol Notice</p>
+            <p class="text-body-default text-secondary mt-1">This transfer request will be routed for dual authorization. Both the <span class="font-semibold text-on-surface">Department Head</span> and the <span class="font-semibold text-on-surface">Global Asset Manager</span> must provide digital approval before the asset custody record is updated in the ledger.</p>
+        </div>
+    </div>
+
+    <!-- 4. Transfer Status Timeline -->
+    <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+        <div class="p-6 border-b border-border-default">
+            <h4 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">timeline</span>
+                Authorization Workflow
+            </h4>
+        </div>
+        <div class="p-6">
+            <div class="flex items-center w-full">
+                <!-- Step 1: Requested -->
+                <div class="relative flex flex-col items-center flex-1">
+                    <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center z-10 shadow-md">
+                        <span class="material-symbols-outlined text-[20px]">assignment_late</span>
+                    </div>
+                    <div class="absolute top-5 left-1/2 w-full h-0.5 bg-border-default -z-0"></div>
+                    <p class="mt-3 font-body-medium text-body-medium text-primary">Requested</p>
+                    <p class="text-label-small text-secondary mt-0.5">Action Active</p>
+                </div>
+                <!-- Step 2: Dept Head Approval -->
+                <div class="relative flex flex-col items-center flex-1">
+                    <div class="w-10 h-10 rounded-full bg-surface-canvas border-2 border-border-default text-secondary flex items-center justify-center z-10">
+                        <span class="material-symbols-outlined text-[20px]">account_balance</span>
+                    </div>
+                    <div class="absolute top-5 left-1/2 w-full h-0.5 bg-border-default -z-0"></div>
+                    <p class="mt-3 font-body-medium text-body-medium text-secondary">Dept Head Approval</p>
+                    <p class="text-label-small text-secondary mt-0.5">Pending</p>
+                </div>
+                <!-- Step 3: Asset Manager Approval -->
+                <div class="relative flex flex-col items-center flex-1">
+                    <div class="w-10 h-10 rounded-full bg-surface-canvas border-2 border-border-default text-secondary flex items-center justify-center z-10">
+                        <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                    </div>
+                    <div class="absolute top-5 left-1/2 w-full h-0.5 bg-border-default -z-0"></div>
+                    <p class="mt-3 font-body-medium text-body-medium text-secondary">Asset Manager Approval</p>
+                    <p class="text-label-small text-secondary mt-0.5">Pending</p>
+                </div>
+                <!-- Step 4: Completed -->
+                <div class="relative flex flex-col items-center flex-initial">
+                    <div class="w-10 h-10 rounded-full bg-surface-canvas border-2 border-border-default text-secondary flex items-center justify-center z-10">
+                        <span class="material-symbols-outlined text-[20px]">task_alt</span>
+                    </div>
+                    <p class="mt-3 font-body-medium text-body-medium text-secondary">Completed</p>
+                    <p class="text-label-small text-secondary mt-0.5">Final Sync</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
