@@ -1,18 +1,17 @@
-package com.example.fams.aau;
+package com.example.fams.core.config;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Component("coreAuthenticationManager")
 public class AuthenticationManager {
     public Object get(String fieldName){
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return null;
         DefaultOidcUser defaultOidcUser = (DefaultOidcUser) authentication.getPrincipal();
 //        System.out.println(" The token here =="+defaultOidcUser.getClaims());
         return defaultOidcUser.getClaims().get(fieldName);
@@ -24,6 +23,39 @@ public class AuthenticationManager {
             return false;
         }
         return groups.contains("/employees");
+    }
+    public boolean isFinancialOfficer() {
+        List<String> groups = (List<String>) this.get("groups");
+        if (groups == null) {
+            return false;
+        }
+        return groups.contains("/financialOfficers");
+    }
+    public boolean isAdmin() {
+        List<String> groups = (List<String>) this.get("groups");
+        if (groups == null) {
+            return false;
+        }
+        return groups.contains("/admin");
+    }
+    public boolean isHumanResource() {
+        List<String> groups = (List<String>) this.get("groups");
+        if (groups == null) {
+            return false;
+        }
+        return groups.contains("/humanResource");
+    }
+    public boolean isJobHR() {
+        List<String> groups = (List<String>) this.get("groups");
+        if (groups == null) {
+            return false;
+        }
+        return groups.contains("/jobHR");
+    }
+    public boolean isRestrictedHr() {
+        List<String> groups = (List<String>) this.get("groups");
+        if (groups == null) return false;
+        return groups.contains("/restrictedHr");
     }
 
     public Object getAllAttributes() {
