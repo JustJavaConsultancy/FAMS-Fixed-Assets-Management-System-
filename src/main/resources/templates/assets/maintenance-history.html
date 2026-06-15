@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head>
+    <title>Maintenance History | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
+    <nav class="flex items-center gap-2 text-secondary font-label-small text-label-small">
+        <a class="hover:text-primary transition-colors" th:href="@{/assets}">All Assets</a>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <a class="hover:text-primary transition-colors" th:href="@{/assets/maintenance}">Maintenance</a>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        <span class="text-on-surface font-medium" th:text="${asset.assetCode}">AST-2026-00001</span>
+    </nav>
+
+    <div class="bg-surface-card rounded-xl card-shadow border border-border-default p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div class="flex items-center gap-4 min-w-0">
+            <div class="w-16 h-16 rounded-xl bg-surface-variant overflow-hidden border border-border-default flex items-center justify-center shrink-0">
+                <img th:if="${asset.imageUrl}" th:src="${asset.imageUrl}" th:alt="${asset.name}" class="w-full h-full object-cover">
+                <span th:unless="${asset.imageUrl}" class="material-symbols-outlined text-primary text-[34px]">inventory_2</span>
+            </div>
+            <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-surface-variant text-primary font-technical-data text-technical-data px-2 py-0.5 rounded font-medium" th:text="${asset.assetCode}">AST-2026-00001</span>
+                    <span class="bg-status-info/10 text-status-info font-badge-label text-badge-label px-2 py-0.5 rounded-full" th:text="${asset.status}">Assigned</span>
+                </div>
+                <h2 class="font-page-title text-page-title text-on-surface mt-1 truncate" th:text="${asset.name}">Asset name</h2>
+                <p class="text-body-default text-secondary mt-1" th:text="${asset.category + ' / ' + asset.department + ' / ' + asset.custodian}">Category</p>
+            </div>
+        </div>
+        <a th:href="@{/assets/maintenance}"
+           class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Maintenance
+        </a>
+    </div>
+
+    <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+        <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
+            <div>
+                <h3 class="font-card-header text-card-header text-on-surface">Asset Maintenance History</h3>
+                <p class="text-label-small text-secondary mt-1">Preventive and corrective records for this asset, including dates, cost, and status.</p>
+            </div>
+            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
+                  th:text="${#lists.size(records)} + ' records'">0 records</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(records)}" class="p-12 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-[34px]">history</span>
+            </div>
+            <h3 class="font-card-header text-card-header text-on-surface">No maintenance history</h3>
+            <p class="text-body-default text-secondary mt-2">Preventive and corrective maintenance records will appear here once saved.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(records)}" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[780px]">
+                <thead>
+                <tr class="bg-surface-canvas border-b border-border-default">
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Type</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Description</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Provider</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Date</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Resolution</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Status</th>
+                    <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase text-right">Cost</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-border-default">
+                <tr th:each="record : ${records}" class="hover:bg-surface-canvas/60 transition-colors">
+                    <td class="px-5 py-3">
+                        <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label"
+                              th:classappend="${record.type.name() == 'PREVENTIVE'} ? ' bg-status-info/10 text-status-info' : ' bg-error-container text-error'"
+                              th:text="${record.type}">CORRECTIVE</span>
+                    </td>
+                    <td class="px-5 py-3 text-body-default text-on-surface max-w-md" th:text="${record.issueDescription}">Description</td>
+                    <td class="px-5 py-3 text-body-default text-secondary" th:text="${record.serviceProvider ?: 'Unassigned'}">Provider</td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${record.maintenanceDate}">2026-06-15</td>
+                    <td class="px-5 py-3 font-technical-data text-secondary" th:text="${record.resolutionDate ?: 'Pending'}">Pending</td>
+                    <td class="px-5 py-3">
+                        <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-surface-variant text-on-surface-variant" th:text="${record.status}">COMPLETED</span>
+                    </td>
+                    <td class="px-5 py-3 text-right font-technical-data text-primary font-bold"
+                        th:utext="'&#8358;' + ${#numbers.formatDecimal(record.maintenanceCost ?: 0, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

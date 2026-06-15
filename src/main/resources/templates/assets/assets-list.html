@@ -89,7 +89,8 @@
                 <tr th:each="asset : ${assets}"
                     class="asset-row hover:bg-surface-canvas/70 transition-colors bg-surface-card cursor-pointer group"
                     th:data-asset-id="${asset.id}"
-                    th:data-asset-name="${asset.name}">
+                    th:data-asset-name="${asset.name}"
+                    th:data-asset-code="${asset.assetCode}">
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-lg bg-surface-variant overflow-hidden border border-border-default flex items-center justify-center shrink-0">
@@ -161,9 +162,9 @@
                     <span class="material-symbols-outlined text-4xl">qr_code</span>
                     <span class="text-sm font-medium">QR Code</span>
                 </button>
-                <button onclick="performAction('barcode')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">barcode_scanner</span>
-                    <span class="text-sm font-medium">Barcode</span>
+                <button onclick="performAction('maintenance')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl">home_repair_service</span>
+                    <span class="text-sm font-medium">Maintenance</span>
                 </button>
             </div>
 
@@ -226,7 +227,7 @@
             if (action === 'view') window.location.href = `/assets/${currentAssetId}`;
             else if (action === 'edit') window.location.href = `/assets/${currentAssetId}/edit`;
             else if (action === 'qr') alert(`QR Code for asset ${currentAssetId}`);
-            else if (action === 'barcode') alert(`Barcode for asset ${currentAssetId}`);
+            else if (action === 'maintenance') window.location.href = `/assets/${currentAssetId}/maintenance`;
         }
 
         function deleteAsset() {
@@ -242,9 +243,7 @@
             if (row) {
                 const assetId = row.dataset.assetId;
                 const assetName = row.dataset.assetName;
-                const assetCodeEl = row.querySelector('span[th\\:text]');
-                const assetCode = assetCodeEl ? assetCodeEl.textContent.trim() : '';
-                showActionsSheet(assetId, assetName, assetCode);
+                showActionsSheet(assetId, assetName, row.dataset.assetCode);
             }
         });
 

@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Year;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AssetService {
@@ -25,6 +26,12 @@ public class AssetService {
     @Transactional(readOnly = true)
     public List<Asset> findAll() {
         return assetRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public Asset findById(Long id) {
+        return assetRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Asset not found: " + id));
     }
 
     @Transactional

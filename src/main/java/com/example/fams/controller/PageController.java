@@ -1,9 +1,6 @@
 package com.example.fams.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -47,11 +44,6 @@ public class PageController {
     @GetMapping("/assets/depreciation")
     public String depreciationManagement() {
         return "assets/depreciation-management";
-    }
-
-    @GetMapping("/assets/maintenance")
-    public String maintenanceManagement() {
-        return "assets/maintainance-management";
     }
 
     @GetMapping("/audit")

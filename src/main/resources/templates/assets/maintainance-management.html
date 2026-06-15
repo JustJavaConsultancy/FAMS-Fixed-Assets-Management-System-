@@ -2,239 +2,491 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
 <head>
     <title>Maintenance Management | JustJava FAMS</title>
+    <style>
+        .modal-panel {
+            max-height: calc(100vh - 48px);
+        }
+        @media (max-width: 640px) {
+            .modal-panel {
+                max-height: 92vh;
+                width: calc(100vw - 24px);
+            }
+        }
+    </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6" layout:fragment="content">
-    <!-- Page Title Row (matches Dashboard) -->
-    <div class="flex justify-between items-end">
+<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
+    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
         <div>
-            <h2 class="font-page-title text-page-title text-on-background">Maintenance Management</h2>
-            <p class="text-body-default text-secondary mt-1">Orchestrate lifecycle maintenance and emergency repairs.</p>
+            <div class="flex items-center gap-3 flex-wrap">
+                <h2 class="font-page-title text-page-title text-on-background">Maintenance Management</h2>
+                <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
+                      th:text="${#lists.size(schedules)} + ' schedules'">0 schedules</span>
+            </div>
+            <p class="text-body-default text-secondary mt-1">Plan preventive work, record corrective repairs, and track asset maintenance costs.</p>
         </div>
-        <div class="flex gap-2">
-            <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                Export Report
+        <div class="flex flex-wrap gap-2">
+            <button type="button" data-modal-target="schedule-modal"
+                    class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all shadow-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">event_repeat</span>
+                New Schedule
+            </button>
+            <button type="button" data-modal-target="corrective-modal"
+                    class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">build_circle</span>
+                Log Corrective
             </button>
         </div>
     </div>
 
-    <!-- Tabs (dashboard style) -->
-    <div class="border-b border-border-default flex gap-6">
-        <button class="pb-3 px-1 text-secondary font-body-medium hover:text-primary transition-colors relative cursor-pointer" id="tab-preventive">Preventive Schedules</button>
-        <button class="pb-3 px-1 text-primary font-bold border-b-2 border-primary relative cursor-pointer" id="tab-corrective">Corrective Requests</button>
+    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p class="font-body-medium" th:text="${successMessage}">Maintenance action completed.</p>
     </div>
 
-    <!-- Corrective Requests Tab Content -->
-    <div id="corrective-content">
-        <!-- Empty State Hero (initially shown) -->
-        <div class="bg-surface-card border border-border-default rounded-xl card-shadow p-12 flex flex-col items-center justify-center text-center" id="empty-state-hero">
-            <div class="w-48 h-48 mb-6">
-                <img alt="Workshop Bench Illustration" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHIYV45njyjkkhnQBtO90OhQFnDwDNmSUW4IgOVPyceJOLlLRY1g-KD67EkVi8GljWdkFXoBuRj4-SeHSVfTMzIUrS0_UkyO6iIdzBoNGLKrA6VmrcHjEI8XsFkp8jT3m_NuoocjCcxBzt02IVls5S4nu7K1Pebfv62oPjebZ5pxqPchFKu1hd1uFFSTlhgbZiGLTHdWVfcD9IOyzWxYrwv2TkJjFu6ZePvQRaNiqIi9YxVj6gOL9h">
-            </div>
-            <h3 class="font-section-header text-section-header text-on-surface">No Active Maintenance Requests</h3>
-            <p class="text-body-default text-secondary mt-2 max-w-md">
-                The corrective queue is currently clear. Log a new issue to begin tracking repairs, spare parts procurement, and work orders.
-            </p>
-            <button class="mt-6 h-[38px] px-6 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all shadow-sm flex items-center gap-2" onclick="showKanban()">
-                <span class="material-symbols-outlined text-[18px]">add_circle</span>
-                Log Issue
-            </button>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
+            <p class="text-label-small text-secondary">Preventive Schedules</p>
+            <p class="text-2xl font-semibold text-on-surface mt-2" th:text="${#lists.size(schedules)}">0</p>
         </div>
-
-        <!-- Kanban Board (hidden by default) -->
-        <div class="hidden" id="kanban-view">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Open Column -->
-                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-status-info"></span>
-                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">Open (3)</h4>
-                        </div>
-                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
-                    </div>
-                    <div class="space-y-4">
-                        <!-- Card 1 -->
-                        <div class="bg-surface-card border border-border-default rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-grab">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="px-2 py-0.5 bg-error-container text-error rounded-full text-badge-label font-badge-label">CRITICAL</span>
-                                <span class="font-technical-data text-secondary text-label-small">#JJ-7729</span>
-                            </div>
-                            <h5 class="font-card-header text-card-header text-on-surface">Honda HR-V (Logistics)</h5>
-                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Brake system failure reported during morning inspection. Vehicle grounded.</p>
-                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
-                                <div class="flex -space-x-1">
-                                    <img class="w-6 h-6 rounded-full border-2 border-surface-card object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_qt9Y2n8-44fhksYSz04VgVWxttrCoUoeZyGMQaHO88JZWX8eiIVpgnNpcwfHa44xHtF39GH_5g2SNN96bUPZcyPaj1Sv0ICSMnqjJVcIiFdsQTqvjnQ3GRWY_ta7QIAFuvg4nxOl1j_lMvhcbsHY4F72UU6NeO0c6fN0mMJ9J-3H5l9fxonZPWSm4YPiSyO6GnsP1DbprCMDSTNn02bpBPPXufuHAsV1QtW2epdH7Ox_gprTIHri">
-                                </div>
-                                <span class="text-label-small text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">history</span>2h ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- In Progress Column -->
-                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-status-warning"></span>
-                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">In Progress (2)</h4>
-                        </div>
-                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-surface-card border border-border-default rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant rounded-full text-badge-label font-badge-label">MEDIUM</span>
-                                <span class="font-technical-data text-secondary text-label-small">#JJ-8801</span>
-                            </div>
-                            <h5 class="font-card-header text-card-header text-on-surface">Konica Minolta bizhub</h5>
-                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Drum unit replacement in progress. Waiting for part arrival from vendor.</p>
-                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
-                                <img class="w-6 h-6 rounded-full border border-border-default object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8L0IAP6b6bC4MdyWEf0y7_gAxWYYMZwnmUH5tBYXp-igaRn_6GPdai3WrmeO-gqpoTiBpXDPnhzIUlC-AdrfEmgg1QLaLbNgMM6fZkVXD49YGu-6ohzt1MxLqbOgovBrQ5C9oEp7eH8nFPuBI8BkyAMc56p460X5CpXF3i6zetBgmAxP39MVagion-Pg5u62B80i75u0Of9vfLgFuvOtRD-PbYYK89GMuEXhGQXkeZoPMNDn2NlsF">
-                                <span class="text-label-small text-status-warning flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">timer</span>Awaiting Part</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Completed Column -->
-                <div class="bg-surface-canvas/30 rounded-xl p-4 border border-border-default">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-status-success"></span>
-                            <h4 class="font-section-header text-label-small uppercase tracking-wider text-secondary">Completed (12)</h4>
-                        </div>
-                        <button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-surface-card border border-border-default rounded-xl p-4 opacity-75 shadow-sm">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant rounded-full text-badge-label font-badge-label">LOW</span>
-                                <span class="font-technical-data text-secondary text-label-small">#JJ-9012</span>
-                            </div>
-                            <h5 class="font-card-header text-card-header text-on-surface">Dell Latitude 5530</h5>
-                            <p class="text-label-small text-secondary mt-1 line-clamp-2">Screen flickering resolved via cable reseat. Asset returned to user.</p>
-                            <div class="mt-4 flex items-center justify-between border-t border-border-default pt-3">
-                                <span class="text-label-small text-status-success font-bold">VERIFIED</span>
-                                <span class="text-label-small text-secondary">Today, 09:15 AM</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
+            <p class="text-label-small text-secondary">Corrective Events</p>
+            <p class="text-2xl font-semibold text-on-surface mt-2" th:text="${correctiveCount}">0</p>
+        </div>
+        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
+            <p class="text-label-small text-secondary">Due Tasks</p>
+            <p class="text-2xl font-semibold text-primary mt-2" th:text="${dueTaskCount}">0</p>
+        </div>
+        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
+            <p class="text-label-small text-secondary">Report Cost</p>
+            <p class="text-2xl font-semibold text-on-surface mt-2"
+               th:utext="'&#8358;' + ${#numbers.formatDecimal(reportTotal, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</p>
         </div>
     </div>
 
-    <!-- Preventive Schedules Tab Content (hidden by default) -->
-    <div class="hidden" id="preventive-content">
-        <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-            <div class="p-5 border-b border-border-default flex justify-between items-center flex-wrap gap-3">
-                <h3 class="font-card-header text-card-header text-on-surface">Preventive Maintenance Log</h3>
-                <button class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
-                    Schedule Maintenance
+    <div class="border-b border-border-default flex gap-6 overflow-x-auto">
+        <button type="button" data-tab-button="schedules" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-primary font-bold border-b-2 border-primary text-body-medium">Preventive Schedules</button>
+        <button type="button" data-tab-button="corrective" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Corrective Events</button>
+        <button type="button" data-tab-button="tasks" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Due Tasks</button>
+        <button type="button" data-tab-button="reports" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Reports</button>
+    </div>
+
+    <section data-tab-panel="schedules" class="space-y-4">
+        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                    <h3 class="font-card-header text-card-header text-on-surface">Preventive Maintenance Schedules</h3>
+                    <p class="text-label-small text-secondary mt-1">Schedules can target a single asset or a full asset category.</p>
+                </div>
+                <button type="button" data-modal-target="schedule-modal" class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    Schedule
                 </button>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+
+            <div th:if="${#lists.isEmpty(schedules)}" class="p-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[34px]">event_busy</span>
+                </div>
+                <h3 class="font-card-header text-card-header text-on-surface">No preventive schedules yet</h3>
+                <p class="text-body-default text-secondary mt-2">Create a recurring schedule to start planning maintenance work.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(schedules)}" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[860px]">
                     <thead>
                     <tr class="bg-surface-canvas border-b border-border-default">
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset Name &amp; ID</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Service Type</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Frequency</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Next Due</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Technician</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider text-center">Actions</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Target</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Service</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Frequency</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Start</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Next Due</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Responsible</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Status</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase text-right">History</th>
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-border-default">
-                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                    <tr th:each="schedule : ${schedules}" class="hover:bg-surface-canvas/60 transition-colors">
                         <td class="px-5 py-3">
                             <div class="flex flex-col">
-                                <span class="font-body-medium text-on-surface">Cisco Catalyst 9300</span>
-                                <span class="font-technical-data text-secondary text-label-small">NW-SW-998</span>
+                                <span class="font-body-medium text-on-surface"
+                                      th:text="${schedule.asset != null ? schedule.asset.name : schedule.assetCategory}">Asset target</span>
+                                <span class="font-technical-data text-secondary text-label-small"
+                                      th:text="${schedule.asset != null ? schedule.asset.assetCode : 'CATEGORY'}">AST-2026-00001</span>
                             </div>
                         </td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Firmware Update</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Quarterly</td>
-                        <td class="px-5 py-3 font-technical-data text-on-surface">2023-11-15</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${schedule.serviceType}">Inspection</td>
+                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${schedule.frequency.displayName()}">Monthly</td>
+                        <td class="px-5 py-3 font-technical-data text-secondary" th:text="${schedule.startDate}">2026-06-15</td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${schedule.nextDueDate}">2026-07-15</td>
                         <td class="px-5 py-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-surface-variant text-[10px] flex items-center justify-center font-bold text-primary border border-primary/20">AM</div>
-                                <span class="text-body-default text-on-surface">Alan Miller</span>
-                            </div>
+                            <p class="text-body-default text-on-surface" th:text="${schedule.responsibleParty}">Operations</p>
+                            <p class="text-label-small text-secondary" th:text="${schedule.responsibleRole}">Asset Manager</p>
                         </td>
-                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-surface-variant text-status-info rounded-full text-badge-label font-badge-label uppercase">Scheduled</span></td>
-                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">edit</span></button></td>
-                    </tr>
-                    <tr class="hover:bg-surface-canvas/50 transition-colors border-l-4 border-primary">
                         <td class="px-5 py-3">
-                            <div class="flex flex-col">
-                                <span class="font-body-medium text-on-surface">HVAC Unit Block B</span>
-                                <span class="font-technical-data text-secondary text-label-small">FAC-HV-002</span>
-                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info"
+                                  th:text="${schedule.status}">SCHEDULED</span>
                         </td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Filter Clean</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Monthly</td>
-                        <td class="px-5 py-3 font-technical-data text-error font-bold">2023-10-01</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">External Vendor</td>
-                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-error-container text-error rounded-full text-badge-label font-badge-label uppercase">Overdue</span></td>
-                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">warning</span></button></td>
-                    </tr>
-                    <tr class="hover:bg-surface-canvas/50 transition-colors">
-                        <td class="px-5 py-3">
-                            <div class="flex flex-col">
-                                <span class="font-body-medium text-on-surface">Server Rack R1</span>
-                                <span class="font-technical-data text-secondary text-label-small">IT-SR-01</span>
-                            </div>
+                        <td class="px-5 py-3 text-right">
+                            <a th:if="${schedule.asset != null}" th:href="@{/assets/{id}/maintenance(id=${schedule.asset.id})}" class="inline-flex w-8 h-8 items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-canvas">
+                                <span class="material-symbols-outlined text-[18px]">history</span>
+                            </a>
                         </td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Power Audit</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Annually</td>
-                        <td class="px-5 py-3 font-technical-data text-on-surface">2023-10-30</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface">Unassigned</td>
-                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-status-warning/10 text-status-warning rounded-full text-badge-label font-badge-label uppercase">Due Soon</span></td>
-                        <td class="px-5 py-3 text-center"><button class="text-secondary hover:text-primary"><span class="material-symbols-outlined text-[18px]">person_add</span></button></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </section>
+
+    <section data-tab-panel="corrective" class="hidden space-y-4">
+        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                    <h3 class="font-card-header text-card-header text-on-surface">Corrective Maintenance Events</h3>
+                    <p class="text-label-small text-secondary mt-1">Faults, repairs, providers, costs, and resolution dates.</p>
+                </div>
+                <button type="button" data-modal-target="corrective-modal" class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    Log Event
+                </button>
+            </div>
+
+            <div th:if="${#lists.isEmpty(correctiveRecords)}" class="p-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[34px]">construction</span>
+                </div>
+                <h3 class="font-card-header text-card-header text-on-surface">No corrective events recorded</h3>
+                <p class="text-body-default text-secondary mt-2">Record a fault when an asset needs repair or service intervention.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(correctiveRecords)}" class="divide-y divide-border-default">
+                <div th:each="record : ${correctiveRecords}" class="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-surface-canvas/60 transition-colors">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="font-card-header text-card-header text-on-surface hover:text-primary" th:text="${record.asset.name}">Asset</a>
+                            <span class="px-2 py-0.5 rounded text-technical-data bg-surface-variant text-primary" th:text="${record.asset.assetCode}">AST-2026-00001</span>
+                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-error-container text-error" th:text="${record.status}">OPEN</span>
+                        </div>
+                        <p class="text-body-default text-secondary mt-2 max-w-3xl" th:text="${record.issueDescription}">Issue description</p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm shrink-0">
+                        <div>
+                            <p class="text-label-small text-secondary">Provider</p>
+                            <p class="font-body-medium text-on-surface" th:text="${record.serviceProvider ?: 'Unassigned'}">Provider</p>
+                        </div>
+                        <div>
+                            <p class="text-label-small text-secondary">Date</p>
+                            <p class="font-technical-data text-on-surface" th:text="${record.maintenanceDate}">2026-06-15</p>
+                        </div>
+                        <div>
+                            <p class="text-label-small text-secondary">Resolution</p>
+                            <p class="font-technical-data text-on-surface" th:text="${record.resolutionDate ?: 'Pending'}">Pending</p>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <p class="text-label-small text-secondary">Cost</p>
+                            <p class="font-technical-data text-primary font-bold"
+                               th:utext="'&#8358;' + ${#numbers.formatDecimal(record.maintenanceCost ?: 0, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section data-tab-panel="tasks" class="hidden space-y-4">
+        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                    <h3 class="font-card-header text-card-header text-on-surface">Generated Maintenance Tasks</h3>
+                    <p class="text-label-small text-secondary mt-1">Due schedules generate task records and RabbitMQ events for asynchronous notification handling.</p>
+                </div>
+                <form th:action="@{/assets/maintenance/due-check}" method="post">
+                    <button type="submit" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">sync</span>
+                        Run Due Check
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(recentTasks)}" class="p-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[34px]">task_alt</span>
+                </div>
+                <h3 class="font-card-header text-card-header text-on-surface">No generated tasks yet</h3>
+                <p class="text-body-default text-secondary mt-2">Tasks appear here when a schedule reaches its due date.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(recentTasks)}" class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5">
+                <article th:each="task : ${recentTasks}" class="border border-border-default rounded-xl p-4 bg-surface-canvas/40">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="font-card-header text-card-header text-on-surface" th:text="${task.serviceType}">Service</p>
+                            <p class="text-label-small text-secondary mt-1"
+                               th:text="${task.asset != null ? task.asset.name + ' (' + task.asset.assetCode + ')' : task.assetCategory}">Target</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-warning/10 text-status-warning" th:text="${task.status}">DUE</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-border-default">
+                        <div>
+                            <p class="text-label-small text-secondary">Due</p>
+                            <p class="font-technical-data text-on-surface" th:text="${task.dueDate}">2026-06-15</p>
+                        </div>
+                        <div>
+                            <p class="text-label-small text-secondary">Role</p>
+                            <p class="font-body-medium text-on-surface" th:text="${task.responsibleRole}">Role</p>
+                        </div>
+                        <div>
+                            <p class="text-label-small text-secondary">RabbitMQ</p>
+                            <p class="font-body-medium" th:classappend="${task.eventPublished} ? ' text-status-success' : ' text-status-warning'"
+                               th:text="${task.eventPublished ? 'Published' : 'Pending'}">Published</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section data-tab-panel="reports" class="hidden space-y-4">
+        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+            <div class="p-5 border-b border-border-default flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                    <h3 class="font-card-header text-card-header text-on-surface">Maintenance Cost Report</h3>
+                    <p class="text-label-small text-secondary mt-1">Filter maintenance activities by stored maintenance date.</p>
+                </div>
+                <form th:action="@{/assets/maintenance}" method="get" class="flex flex-col sm:flex-row gap-3">
+                    <div>
+                        <label for="report-start" class="block text-label-small text-secondary mb-1">Start</label>
+                        <input id="report-start" name="start" type="date" th:value="${reportStart}" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label for="report-end" class="block text-label-small text-secondary mb-1">End</label>
+                        <input id="report-end" name="end" type="date" th:value="${reportEnd}" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <button type="submit" class="h-[38px] px-4 mt-0 sm:mt-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                        Run Report
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${#lists.isEmpty(reportRows)}" class="p-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[34px]">bar_chart</span>
+                </div>
+                <h3 class="font-card-header text-card-header text-on-surface">No activities in selected period</h3>
+                <p class="text-body-default text-secondary mt-2">Adjust the report dates or record maintenance events.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(reportRows)}" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[820px]">
+                    <thead>
+                    <tr class="bg-surface-canvas border-b border-border-default">
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Asset</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Type</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Provider</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Date</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Resolution</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Status</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase text-right">Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-default">
+                    <tr th:each="row : ${reportRows}" class="hover:bg-surface-canvas/60 transition-colors">
+                        <td class="px-5 py-3">
+                            <a th:href="@{/assets/{id}/maintenance(id=${row.assetId()})}" class="font-body-medium text-on-surface hover:text-primary" th:text="${row.assetName()}">Asset</a>
+                            <p class="font-technical-data text-label-small text-secondary" th:text="${row.assetCode()}">AST-2026-00001</p>
+                        </td>
+                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${row.type()}">CORRECTIVE</td>
+                        <td class="px-5 py-3 text-body-default text-secondary" th:text="${row.serviceProvider() ?: 'Unassigned'}">Provider</td>
+                        <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${row.maintenanceDate()}">2026-06-15</td>
+                        <td class="px-5 py-3 font-technical-data text-secondary" th:text="${row.resolutionDate() ?: 'Pending'}">Pending</td>
+                        <td class="px-5 py-3">
+                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-surface-variant text-on-surface-variant" th:text="${row.status()}">COMPLETED</span>
+                        </td>
+                        <td class="px-5 py-3 text-right font-technical-data text-primary font-bold"
+                            th:utext="'&#8358;' + ${#numbers.formatDecimal(row.cost() ?: 0, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div id="schedule-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
+            <div class="p-5 border-b border-border-default flex items-center justify-between">
+                <div>
+                    <h3 class="font-section-header text-section-header text-on-surface">Create Preventive Schedule</h3>
+                    <p class="text-label-small text-secondary mt-1">Define frequency, start date, and responsible party.</p>
+                </div>
+                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form th:action="@{/assets/maintenance/schedules}" method="post" class="p-5 space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label for="schedule-asset" class="text-label-small text-secondary">Asset</label>
+                        <select id="schedule-asset" name="assetId" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option value="">Use asset category instead</option>
+                            <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="schedule-category" class="text-label-small text-secondary">Asset Category</label>
+                        <select id="schedule-category" name="assetCategory" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option value="">Select category</option>
+                            <option value="IT Equipment">IT Equipment</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Office Equipment">Office Equipment</option>
+                            <option value="Vehicle">Vehicle</option>
+                            <option value="Machinery">Machinery</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="service-type" class="text-label-small text-secondary">Service Type <span class="text-error">*</span></label>
+                        <input id="service-type" name="serviceType" required placeholder="e.g. Safety inspection" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="frequency" class="text-label-small text-secondary">Frequency <span class="text-error">*</span></label>
+                        <select id="frequency" name="frequency" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option th:each="frequency : ${frequencies}" th:value="${frequency}" th:text="${frequency.displayName()}">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="start-date" class="text-label-small text-secondary">Start Date <span class="text-error">*</span></label>
+                        <input id="start-date" name="startDate" type="date" required class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="responsible-role" class="text-label-small text-secondary">Responsible Role <span class="text-error">*</span></label>
+                        <select id="responsible-role" name="responsibleRole" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option value="Asset Manager">Asset Manager</option>
+                            <option value="Maintenance Officer">Maintenance Officer</option>
+                            <option value="Operations Lead">Operations Lead</option>
+                            <option value="External Vendor">External Vendor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label for="responsible-party" class="text-label-small text-secondary">Responsible Party <span class="text-error">*</span></label>
+                    <input id="responsible-party" name="responsibleParty" required placeholder="Person, team, or vendor name" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Schedule
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="corrective-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
+            <div class="p-5 border-b border-border-default flex items-center justify-between">
+                <div>
+                    <h3 class="font-section-header text-section-header text-on-surface">Record Corrective Maintenance</h3>
+                    <p class="text-label-small text-secondary mt-1">Capture fault details, provider, cost, and resolution date.</p>
+                </div>
+                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form th:action="@{/assets/maintenance/corrective}" method="post" class="p-5 space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="corrective-asset" class="text-label-small text-secondary">Asset <span class="text-error">*</span></label>
+                        <select id="corrective-asset" name="assetId" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                            <option value="">Select asset</option>
+                            <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="service-provider" class="text-label-small text-secondary">Service Provider <span class="text-error">*</span></label>
+                        <input id="service-provider" name="serviceProvider" required placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
+                            <input id="maintenance-cost" name="maintenanceCost" type="number" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="resolution-date" class="text-label-small text-secondary">Resolution Date</label>
+                        <input id="resolution-date" name="resolutionDate" type="date" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label for="issue-description" class="text-label-small text-secondary">Issue Description <span class="text-error">*</span></label>
+                    <textarea id="issue-description" name="issueDescription" required rows="4" placeholder="Describe the fault, symptoms, and repair outcome..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Event
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
-        function toggleTab(tab) {
-            const preventiveBtn = document.getElementById('tab-preventive');
-            const correctiveBtn = document.getElementById('tab-corrective');
-            const preventiveContent = document.getElementById('preventive-content');
-            const correctiveContent = document.getElementById('corrective-content');
+        const tabButtons = Array.from(document.querySelectorAll('[data-tab-button]'));
+        const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
-            if (tab === 'preventive') {
-                preventiveBtn.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-bold');
-                preventiveBtn.classList.remove('text-secondary', 'font-body-medium');
-                correctiveBtn.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-bold');
-                correctiveBtn.classList.add('text-secondary', 'font-body-medium');
-                preventiveContent.classList.remove('hidden');
-                correctiveContent.classList.add('hidden');
-            } else {
-                correctiveBtn.classList.add('border-b-2', 'border-primary', 'text-primary', 'font-bold');
-                correctiveBtn.classList.remove('text-secondary', 'font-body-medium');
-                preventiveBtn.classList.remove('border-b-2', 'border-primary', 'text-primary', 'font-bold');
-                preventiveBtn.classList.add('text-secondary', 'font-body-medium');
-                correctiveContent.classList.remove('hidden');
-                preventiveContent.classList.add('hidden');
+        function activateTab(tabName) {
+            tabButtons.forEach((button) => {
+                const active = button.dataset.tabButton === tabName;
+                button.classList.toggle('text-primary', active);
+                button.classList.toggle('font-bold', active);
+                button.classList.toggle('border-primary', active);
+                button.classList.toggle('text-secondary', !active);
+                button.classList.toggle('font-body-medium', !active);
+                button.classList.toggle('border-transparent', !active);
+            });
+            tabPanels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.tabPanel !== tabName));
+        }
+
+        tabButtons.forEach((button) => {
+            button.addEventListener('click', () => activateTab(button.dataset.tabButton));
+        });
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.querySelectorAll('[data-modal-target]').forEach((button) => {
+            button.addEventListener('click', () => openModal(button.dataset.modalTarget));
+        });
+
+        document.querySelectorAll('[data-modal-close]').forEach((button) => {
+            button.addEventListener('click', () => closeModal(button.closest('[role="dialog"]')));
+        });
+
+        document.querySelectorAll('[role="dialog"]').forEach((modal) => {
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) closeModal(modal);
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('[role="dialog"]').forEach(closeModal);
             }
-        }
-
-        function showKanban() {
-            document.getElementById('empty-state-hero').classList.add('hidden');
-            document.getElementById('kanban-view').classList.remove('hidden');
-        }
-
-        // Attach tab click handlers
-        document.getElementById('tab-preventive').onclick = () => toggleTab('preventive');
-        document.getElementById('tab-corrective').onclick = () => toggleTab('corrective');
+        });
     </script>
 </main>
 </body>
