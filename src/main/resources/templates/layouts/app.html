@@ -356,7 +356,6 @@
 
     <!-- Navigation -->
     <nav class="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-        <p class="px-3 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">General</p>
 
         <div class="nav-link-wrap">
             <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
@@ -367,82 +366,15 @@
             </a>
             <span class="nav-tooltip">Dashboard</span>
         </div>
-
-        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Assets</p>
-
         <div class="nav-link-wrap">
             <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:classappend="${#strings.startsWith(currentPath, '/assets')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
                th:href="@{/assets}">
                 <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">inventory_2</span>
                 <span class="sidebar-label">All Assets</span>
             </a>
             <span class="nav-tooltip">All Assets</span>
         </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/register'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/register}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">add_box</span>
-                <span class="sidebar-label">Register Asset</span>
-            </a>
-            <span class="nav-tooltip">Register Asset</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/details'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/details}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">visibility</span>
-                <span class="sidebar-label">Asset Details</span>
-            </a>
-            <span class="nav-tooltip">Asset Details</span>
-        </div>
-
-        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Operations</p>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/assignment'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/assignment}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">assignment_ind</span>
-                <span class="sidebar-label">Assignment</span>
-            </a>
-            <span class="nav-tooltip">Assignment</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/transfer'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/transfer}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">swap_horiz</span>
-                <span class="sidebar-label">Transfer</span>
-            </a>
-            <span class="nav-tooltip">Transfer</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/disposal'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/disposal}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">delete</span>
-                <span class="sidebar-label">Disposal</span>
-            </a>
-            <span class="nav-tooltip">Disposal</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/assets/maintenance'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/maintenance}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">build</span>
-                <span class="sidebar-label">Maintenance</span>
-            </a>
-            <span class="nav-tooltip">Maintenance</span>
-        </div>
-
-        <p class="px-3 pt-4 text-nav-group font-nav-group text-secondary uppercase mb-2 sidebar-section-label">Finance &amp; Compliance</p>
 
         <div class="nav-link-wrap">
             <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"

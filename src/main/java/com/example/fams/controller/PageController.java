@@ -9,11 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PageController {
 
-    @ModelAttribute
-    public void addCurrentPath(Model model, HttpServletRequest request) {
-        model.addAttribute("currentPath", request.getRequestURI());
-    }
-
     @GetMapping("/")
     public String landingPage() {
         return "landing-page";

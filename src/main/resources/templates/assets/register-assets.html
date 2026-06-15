@@ -2,47 +2,74 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
 <head>
     <title>Register Asset | JustJava FAMS</title>
+    <style>
+        @media (max-width: 1280px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-card {
+            position: sticky;
+            top: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .preview-card {
+                position: static;
+            }
+        }
+
+        /* Better mobile form spacing */
+        .form-section {
+            padding: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .form-section {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6" layout:fragment="content">
-    <div id="page-loader" class="fixed inset-0 bg-white/70 backdrop-blur-sm z-[100] hidden items-center justify-center">
-        <div class="bg-surface-card border border-border-default rounded-xl card-shadow px-6 py-5 flex items-center gap-4">
-            <span class="w-9 h-9 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></span>
-            <div>
-                <p class="font-body-medium text-on-surface">Registering asset</p>
-                <p class="text-label-small text-secondary">Saving the record and uploading the image...</p>
-            </div>
-        </div>
-    </div>
+<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8 py-6" layout:fragment="content">
 
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
             <h2 class="font-page-title text-page-title text-on-background">Register New Asset</h2>
             <p class="text-body-default text-secondary mt-1">Create a fixed asset record with custody, location, purchase, and image details.</p>
         </div>
-        <a th:href="@{/assets}" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        <a th:href="@{/assets}"
+           class="h-[42px] px-5 bg-surface-card border border-border-default text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2 whitespace-nowrap">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
             All Assets
         </a>
     </div>
 
-    <form id="asset-form" th:action="@{/assets}" th:object="${asset}" method="post" enctype="multipart/form-data" class="grid grid-cols-12 gap-6">
-        <div class="col-span-12 xl:col-span-8 space-y-6">
-            <section class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+    <form id="asset-form" th:action="@{/assets}" th:object="${asset}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+        <!-- Main Form -->
+        <div class="xl:col-span-8 space-y-6">
+
+            <!-- Basic Information -->
+            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">info</span>
+                    <span class="material-symbols-outlined text-primary text-[22px]">info</span>
                     <h3 class="font-card-header text-card-header text-on-surface">Basic Information</h3>
                 </div>
-                <div class="p-5 space-y-5">
+                <div class="form-section space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
-                            <label for="name" class="font-label-small text-label-small text-secondary">Asset Name</label>
+                            <label for="name" class="font-label-small text-label-small text-secondary">Asset Name <span class="text-error">*</span></label>
                             <input id="name" th:field="*{name}" type="text" required placeholder="e.g. Dell Latitude 5530"
-                                   class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
                         <div class="space-y-1.5">
-                            <label for="category" class="font-label-small text-label-small text-secondary">Category</label>
-                            <select id="category" th:field="*{category}" required class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <label for="category" class="font-label-small text-label-small text-secondary">Category <span class="text-error">*</span></label>
+                            <select id="category" th:field="*{category}" required
+                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                                 <option value="">Select category</option>
                                 <option value="IT Equipment">IT Equipment</option>
                                 <option value="Furniture">Furniture</option>
@@ -51,96 +78,103 @@
                                 <option value="Machinery">Machinery</option>
                             </select>
                         </div>
-                        <div class="md:col-span-2 space-y-1.5">
-                            <label for="description" class="font-label-small text-label-small text-secondary">Description</label>
-                            <textarea id="description" th:field="*{description}" rows="3" placeholder="Short asset description"
-                                      class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
-                        </div>
-                        <div class="md:col-span-2 space-y-1.5">
-                            <label for="image" class="font-label-small text-label-small text-secondary">Asset Image</label>
-                            <label class="border-2 border-dashed border-primary/30 rounded-xl p-6 flex flex-col items-center justify-center bg-surface-canvas/50 hover:bg-surface-canvas transition-colors cursor-pointer">
-                                <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only">
-                                <span class="material-symbols-outlined text-primary text-[32px] mb-2">cloud_upload</span>
-                                <p id="image-upload-label" class="text-body-medium font-medium text-on-surface">Click to upload asset image</p>
-                                <p class="text-label-small text-secondary mt-1">PNG, JPG or WEBP up to 20MB</p>
-                            </label>
-                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="description" class="font-label-small text-label-small text-secondary">Description</label>
+                        <textarea id="description" th:field="*{description}" rows="3" placeholder="Short asset description..."
+                                  class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">Asset Image</label>
+                        <label class="border-2 border-dashed border-primary/30 hover:border-primary/50 rounded-2xl p-8 flex flex-col items-center justify-center bg-surface-canvas/60 hover:bg-surface-canvas transition-all cursor-pointer">
+                            <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only">
+                            <span class="material-symbols-outlined text-primary text-5xl mb-3">cloud_upload</span>
+                            <p id="image-upload-label" class="font-medium text-on-surface">Click or drag image to upload</p>
+                            <p class="text-label-small text-secondary mt-1">PNG, JPG, WEBP • Max 20MB</p>
+                        </label>
                     </div>
                 </div>
             </section>
 
-            <section class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+            <!-- Identification -->
+            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">fingerprint</span>
+                    <span class="material-symbols-outlined text-primary text-[22px]">fingerprint</span>
                     <h3 class="font-card-header text-card-header text-on-surface">Identification</h3>
                 </div>
-                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
                         <label for="serialNumber" class="font-label-small text-label-small text-secondary">Serial Number</label>
                         <input id="serialNumber" th:field="*{serialNumber}" type="text" placeholder="XXXX-XXXX-XXXX"
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg font-technical-data text-technical-data text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none uppercase">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data uppercase focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary">Generated Asset ID</label>
-                        <div class="h-[38px] px-3 bg-surface-variant border border-primary/20 rounded-lg flex items-center">
-                            <span class="font-technical-data text-primary font-medium">Generated after save</span>
-                            <span class="ml-auto material-symbols-outlined text-primary text-[16px]">lock</span>
+                        <div class="h-11 px-4 bg-surface-variant border border-primary/20 rounded-xl flex items-center text-secondary">
+                            <span class="font-technical-data">Generated after save</span>
+                            <span class="ml-auto material-symbols-outlined text-primary">lock</span>
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label for="manufacturer" class="font-label-small text-label-small text-secondary">Manufacturer</label>
                         <input id="manufacturer" th:field="*{manufacturer}" type="text" placeholder="e.g. Dell Inc."
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
                         <label for="model" class="font-label-small text-label-small text-secondary">Model</label>
                         <input id="model" th:field="*{model}" type="text" placeholder="e.g. Latitude 5530"
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                 </div>
             </section>
 
-            <section class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+            <!-- Financial Details -->
+            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">payments</span>
+                    <span class="material-symbols-outlined text-primary text-[22px]">payments</span>
                     <h3 class="font-card-header text-card-header text-on-surface">Financial Details</h3>
                 </div>
-                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
                         <label for="purchaseDate" class="font-label-small text-label-small text-secondary">Purchase Date</label>
                         <input id="purchaseDate" th:field="*{purchaseDate}" type="date"
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
-                        <label for="purchaseCost" class="font-label-small text-label-small text-secondary">Purchase Cost (NGN)</label>
+                        <label for="purchaseCost" class="font-label-small text-label-small text-secondary">Purchase Cost (₦)</label>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary font-technical-data">&#8358;</span>
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">₦</span>
                             <input id="purchaseCost" th:field="*{purchaseCost}" type="number" min="0" step="0.01" placeholder="0.00"
-                                   class="w-full h-[38px] pl-8 pr-3 bg-surface-canvas border border-border-default rounded-lg font-technical-data text-technical-data text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                   class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label for="vendor" class="font-label-small text-label-small text-secondary">Vendor</label>
                         <input id="vendor" th:field="*{vendor}" type="text" placeholder="e.g. JustJava Supplies"
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
                         <label for="warrantyExpiry" class="font-label-small text-label-small text-secondary">Warranty Expiry</label>
                         <input id="warrantyExpiry" th:field="*{warrantyExpiry}" type="date"
-                               class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                 </div>
             </section>
 
-            <section class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+            <!-- Location & Custody -->
+            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[20px]">location_on</span>
+                    <span class="material-symbols-outlined text-primary text-[22px]">location_on</span>
                     <h3 class="font-card-header text-card-header text-on-surface">Location &amp; Custody</h3>
                 </div>
-                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
-                        <label for="department" class="font-label-small text-label-small text-secondary">Department</label>
-                        <select id="department" th:field="*{department}" required class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <label for="department" class="font-label-small text-label-small text-secondary">Department <span class="text-error">*</span></label>
+                        <select id="department" th:field="*{department}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             <option value="">Select department</option>
                             <option value="Finance">Finance</option>
                             <option value="Operations">Operations</option>
@@ -150,8 +184,9 @@
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label for="branch" class="font-label-small text-label-small text-secondary">Branch</label>
-                        <select id="branch" th:field="*{branch}" required class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <label for="branch" class="font-label-small text-label-small text-secondary">Branch <span class="text-error">*</span></label>
+                        <select id="branch" th:field="*{branch}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             <option value="">Select branch</option>
                             <option value="Lagos HQ">Lagos HQ</option>
                             <option value="Abuja Branch">Abuja Branch</option>
@@ -160,8 +195,9 @@
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label for="custodian" class="font-label-small text-label-small text-secondary">Custodian</label>
-                        <select id="custodian" th:field="*{custodian}" required class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <label for="custodian" class="font-label-small text-label-small text-secondary">Custodian <span class="text-error">*</span></label>
+                        <select id="custodian" th:field="*{custodian}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             <option value="">Select custodian</option>
                             <option value="Amina Bello">Amina Bello</option>
                             <option value="Chinedu Okafor">Chinedu Okafor</option>
@@ -172,7 +208,8 @@
                     </div>
                     <div class="space-y-1.5">
                         <label for="status" class="font-label-small text-label-small text-secondary">Initial Status</label>
-                        <select id="status" th:field="*{status}" required class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <select id="status" th:field="*{status}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             <option value="In Stock">In Stock</option>
                             <option value="Assigned">Assigned</option>
                             <option value="Maintenance">Maintenance</option>
@@ -181,46 +218,53 @@
                 </div>
             </section>
 
-            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2 pb-6">
-                <a th:href="@{/assets}" class="h-[38px] px-6 border border-border-strong text-on-surface-variant font-body-medium rounded-lg hover:bg-surface-canvas transition-colors flex items-center justify-center">Cancel</a>
-                <button type="submit" class="h-[38px] px-8 bg-primary text-on-primary font-body-medium rounded-lg hover:bg-brand-primary-dark transition-all shadow-sm flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <a th:href="@{/assets}"
+                   class="h-12 px-6 border border-border-strong text-on-surface-variant font-medium rounded-2xl hover:bg-surface-canvas transition-all flex items-center justify-center">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="flex-1 h-12 bg-primary text-on-primary font-medium rounded-2xl hover:bg-brand-primary-dark transition-all shadow-sm flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
                     Register Asset
                 </button>
             </div>
         </div>
 
-        <aside class="col-span-12 xl:col-span-4 space-y-6">
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden sticky top-6">
-                <div class="p-5 border-b border-border-default">
+        <!-- Preview Sidebar -->
+        <aside class="xl:col-span-4">
+            <div class="preview-card bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-6 border-b border-border-default">
                     <h3 class="font-card-header text-card-header text-on-surface text-center">Asset Preview</h3>
                 </div>
-                <div class="p-5 flex flex-col items-center">
-                    <div class="w-full aspect-[4/3] bg-surface-canvas rounded-xl border border-border-default overflow-hidden flex items-center justify-center">
+                <div class="p-6">
+                    <div class="w-full aspect-video bg-surface-canvas rounded-2xl border border-border-default overflow-hidden flex items-center justify-center relative">
                         <img id="image-preview" alt="Asset preview" class="hidden w-full h-full object-cover">
                         <div id="image-placeholder" class="text-center px-6">
-                            <span class="material-symbols-outlined text-primary text-[42px]">inventory_2</span>
-                            <p class="text-body-medium font-medium text-on-surface mt-2">Image preview</p>
-                            <p class="text-label-small text-secondary mt-1">Selected image appears here before upload.</p>
+                            <span class="material-symbols-outlined text-primary text-6xl">inventory_2</span>
+                            <p class="text-body-medium font-medium text-on-surface mt-4">Image preview</p>
+                            <p class="text-label-small text-secondary mt-1">Selected image will appear here</p>
                         </div>
                     </div>
 
-                    <div class="w-full mt-5 space-y-4">
-                        <div class="flex justify-between gap-4">
-                            <span class="text-label-small text-secondary">Asset Name</span>
-                            <span id="preview-name" class="text-body-medium font-medium text-on-surface text-right">Untitled Asset</span>
+                    <div class="mt-8 space-y-5 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-secondary">Asset Name</span>
+                            <span id="preview-name" class="font-medium text-right">Untitled Asset</span>
                         </div>
-                        <div class="flex justify-between gap-4">
-                            <span class="text-label-small text-secondary">Category</span>
-                            <span id="preview-category" class="text-body-medium font-medium text-on-surface text-right">Not selected</span>
+                        <div class="flex justify-between">
+                            <span class="text-secondary">Category</span>
+                            <span id="preview-category" class="font-medium text-right">Not selected</span>
                         </div>
-                        <div class="flex justify-between gap-4">
-                            <span class="text-label-small text-secondary">Department</span>
-                            <span id="preview-department" class="text-body-medium font-medium text-on-surface text-right">Not selected</span>
+                        <div class="flex justify-between">
+                            <span class="text-secondary">Department</span>
+                            <span id="preview-department" class="font-medium text-right">Not selected</span>
                         </div>
-                        <div class="flex justify-between gap-4 pt-4 border-t border-border-default">
-                            <span class="text-label-small text-secondary">Purchase Cost</span>
-                            <span id="preview-cost" class="font-technical-data text-primary font-bold">&#8358;0.00</span>
+                        <div class="pt-4 border-t border-border-default flex justify-between">
+                            <span class="text-secondary">Purchase Cost</span>
+                            <span id="preview-cost" class="font-technical-data text-primary font-bold">₦0.00</span>
                         </div>
                     </div>
                 </div>
@@ -228,7 +272,19 @@
         </aside>
     </form>
 
+    <!-- Loader -->
+    <div id="page-loader" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100]">
+        <div class="bg-surface-card border border-border-default rounded-2xl card-shadow px-8 py-6 flex items-center gap-5 max-w-xs w-full">
+            <span class="w-9 h-9 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></span>
+            <div>
+                <p class="font-body-medium text-on-surface">Registering asset...</p>
+                <p class="text-label-small text-secondary">Please wait</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Existing script + improvements
         const form = document.getElementById('asset-form');
         const loader = document.getElementById('page-loader');
         const imageInput = document.getElementById('image');
@@ -239,7 +295,7 @@
         const syncText = (sourceId, targetId, fallback) => {
             const source = document.getElementById(sourceId);
             const target = document.getElementById(targetId);
-            const update = () => target.textContent = source.value || fallback;
+            const update = () => target.textContent = source.value.trim() || fallback;
             source.addEventListener('input', update);
             source.addEventListener('change', update);
             update();
@@ -249,21 +305,25 @@
         syncText('category', 'preview-category', 'Not selected');
         syncText('department', 'preview-department', 'Not selected');
 
-        document.getElementById('purchaseCost').addEventListener('input', (event) => {
-            const value = Number(event.target.value || 0);
-            document.getElementById('preview-cost').textContent = new Intl.NumberFormat('en-NG', {
-                style: 'currency',
-                currency: 'NGN'
-            }).format(value);
+        document.getElementById('purchaseCost').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) || 0;
+            document.getElementById('preview-cost').textContent =
+                new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(val);
         });
 
         imageInput.addEventListener('change', () => {
-            const file = imageInput.files && imageInput.files[0];
+            const file = imageInput.files[0];
             if (!file) return;
-            imageLabel.textContent = file.name;
-            imagePreview.src = URL.createObjectURL(file);
-            imagePreview.classList.remove('hidden');
-            imagePlaceholder.classList.add('hidden');
+
+            imageLabel.textContent = file.name.length > 35 ? file.name.substring(0, 32) + '...' : file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                imagePlaceholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
         });
 
         form.addEventListener('submit', () => {
