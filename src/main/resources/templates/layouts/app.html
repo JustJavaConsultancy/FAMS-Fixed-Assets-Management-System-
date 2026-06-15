@@ -388,8 +388,8 @@
 
         <div class="nav-link-wrap">
             <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${#strings.startsWith(currentPath, '/assets/maintenance') || #strings.contains(currentPath, '/maintenance')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets/maintenance}">
+               th:classappend="${#strings.startsWith(currentPath, '/maintenance') || #strings.contains(currentPath, '/maintenance')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
+               th:href="@{/maintenance}">
                 <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">home_repair_service</span>
                 <span class="sidebar-label">Maintenance</span>
             </a>

@@ -32,7 +32,7 @@ public class Oauth2SecurityConfig {
                 )
                 .csrf(CsrfConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/oauth2/authorization/keycloak")
                         .authorizationEndpoint(Customizer.withDefaults())
                         .tokenEndpoint(Customizer.withDefaults())
                         .userInfoEndpoint(Customizer.withDefaults())

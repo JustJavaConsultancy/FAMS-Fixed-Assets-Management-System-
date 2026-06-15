@@ -227,7 +227,7 @@
             if (action === 'view') window.location.href = `/assets/${currentAssetId}`;
             else if (action === 'edit') window.location.href = `/assets/${currentAssetId}/edit`;
             else if (action === 'qr') alert(`QR Code for asset ${currentAssetId}`);
-            else if (action === 'maintenance') window.location.href = `/assets/${currentAssetId}/maintenance`;
+            else if (action === 'maintenance') window.location.href = `/maintenance/${currentAssetId}`;
         }
 
         function deleteAsset() {

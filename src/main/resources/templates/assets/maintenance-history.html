@@ -8,7 +8,7 @@
     <nav class="flex items-center gap-2 text-secondary font-label-small text-label-small">
         <a class="hover:text-primary transition-colors" th:href="@{/assets}">All Assets</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <a class="hover:text-primary transition-colors" th:href="@{/assets/maintenance}">Maintenance</a>
+        <a class="hover:text-primary transition-colors" th:href="@{/maintenance}">Maintenance</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
         <span class="text-on-surface font-medium" th:text="${asset.assetCode}">AST-2026-00001</span>
     </nav>
@@ -28,7 +28,7 @@
                 <p class="text-body-default text-secondary mt-1" th:text="${asset.category + ' / ' + asset.department + ' / ' + asset.custodian}">Category</p>
             </div>
         </div>
-        <a th:href="@{/assets/maintenance}"
+        <a th:href="@{/maintenance}"
            class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
             Maintenance

@@ -25,7 +25,7 @@ public class MaintenanceController {
         this.maintenanceService = maintenanceService;
     }
 
-    @GetMapping("/assets/maintenance")
+    @GetMapping("/maintenance")
     public String maintenanceManagement(@RequestParam(value = "start", required = false) LocalDate start,
                                         @RequestParam(value = "end", required = false) LocalDate end,
                                         Model model) {
@@ -57,7 +57,7 @@ public class MaintenanceController {
                                  RedirectAttributes redirectAttributes) {
         maintenanceService.createSchedule(assetId, assetCategory, serviceType, frequency, startDate, responsibleParty, responsibleRole);
         redirectAttributes.addFlashAttribute("successMessage", "Preventive maintenance schedule stored successfully.");
-        return "redirect:/assets/maintenance";
+        return "redirect:/maintenance";
     }
 
     @PostMapping("/assets/maintenance/corrective")
@@ -69,17 +69,17 @@ public class MaintenanceController {
                                    RedirectAttributes redirectAttributes) {
         maintenanceService.recordCorrective(assetId, issueDescription, serviceProvider, maintenanceCost, resolutionDate);
         redirectAttributes.addFlashAttribute("successMessage", "Corrective maintenance event saved to asset history.");
-        return "redirect:/assets/maintenance";
+        return "redirect:/maintenance";
     }
 
     @PostMapping("/assets/maintenance/due-check")
     public String generateDueTasks(RedirectAttributes redirectAttributes) {
         int generated = maintenanceService.generateDueTasks();
         redirectAttributes.addFlashAttribute("successMessage", generated + " due maintenance task(s) generated.");
-        return "redirect:/assets/maintenance";
+        return "redirect:/maintenance";
     }
 
-    @GetMapping("/assets/{assetId}/maintenance")
+    @GetMapping("/maintenance/{assetId}")
     public String assetMaintenanceHistory(@PathVariable Long assetId, Model model) {
         Asset asset = assetService.findById(assetId);
         model.addAttribute("asset", asset);
