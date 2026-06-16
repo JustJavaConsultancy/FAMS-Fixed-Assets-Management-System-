@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
     <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">JustJava FAMS</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -120,16 +121,25 @@
         }
     </script>
     <style>
+        /* ── Variables ── */
         :root {
             --sidebar-w: 260px;
             --sidebar-collapsed-w: 72px;
             --sidebar-margin: 20px;
             --transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+            --topbar-h: 64px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             background-color: #F4F5F7;
             font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
 
         .material-symbols-outlined {
@@ -143,76 +153,268 @@
             left: var(--sidebar-margin);
             bottom: var(--sidebar-margin);
             width: var(--sidebar-w);
-            transition: width var(--transition);
-            overflow: hidden;
+            transition: width var(--transition), left var(--transition), top var(--transition), bottom var(--transition);
             z-index: 50;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+            /* ← critical: allow tooltips to escape */;
         }
 
-        #sidebar.collapsed {
-            width: var(--sidebar-collapsed-w);
+        /* Inner wrapper for scroll & clipping */
+        #sidebar-inner {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 16px;
+            height: 100%;
+            width: 100%;
         }
 
-        /* Sidebar labels fade out when collapsed */
-        #sidebar .sidebar-label,
-        #sidebar .sidebar-brand-text,
-        #sidebar .sidebar-user-text,
-        #sidebar .sidebar-section-label {
+        /* Scrollable nav area */
+        #sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 12px 8px;
+            scrollbar-width: thin;
+        }
+        #sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        #sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sidebar-nav::-webkit-scrollbar-thumb {
+            background: #CBD0D8;
+            border-radius: 10px;
+        }
+
+        /* Brand */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px 16px 16px;
+            flex-shrink: 0;
+            transition: padding var(--transition);
+        }
+        .sidebar-brand .brand-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            background: #c0182a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-brand .brand-icon .material-symbols-outlined {
+            color: #fff;
+            font-size: 24px;
+            font-variation-settings: 'FILL' 1;
+        }
+        .sidebar-brand .brand-text {
+            overflow: hidden;
+            transition: opacity var(--transition), max-width var(--transition), margin var(--transition);
+            opacity: 1;
+            max-width: 180px;
+            white-space: nowrap;
+        }
+        .sidebar-brand .brand-text h1 {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1A1D23;
+            letter-spacing: -0.3px;
+            margin: 0;
+        }
+        .sidebar-brand .brand-text p {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #5d5e65;
+            margin: 0;
+        }
+
+        /* Nav links */
+        .nav-link-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1A1D23;
+            transition: background 150ms, color 150ms, padding var(--transition);
+            text-decoration: none;
+            gap: 12px;
+            min-height: 44px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+        }
+        .nav-link .nav-icon {
+            flex-shrink: 0;
+            font-size: 22px;
+            color: #5d5e65;
+            transition: color 150ms;
+            width: 24px;
+            text-align: center;
+        }
+        .nav-link .nav-label {
             transition: opacity var(--transition), max-width var(--transition);
             opacity: 1;
-            max-width: 200px;
+            max-width: 180px;
             white-space: nowrap;
             overflow: hidden;
         }
-
-        #sidebar.collapsed .sidebar-label,
-        #sidebar.collapsed .sidebar-brand-text,
-        #sidebar.collapsed .sidebar-user-text,
-        #sidebar.collapsed .sidebar-section-label {
-            opacity: 0;
-            max-width: 0;
+        .nav-link:hover:not(.sidebar-active) {
+            background: #F4F5F7;
         }
-
-        .sidebar-active {
-            background-color: #C0182A;
-            color: white !important;
-        }
-        .sidebar-active .material-symbols-outlined {
-            color: white !important;
-        }
-
-        .nav-item-hover:hover {
-            background-color: #F4F5F7;
+        .nav-link:hover:not(.sidebar-active) .nav-icon {
             color: #1A1D23;
         }
-
-        #sidebar.collapsed .nav-link {
-            padding-left: 0;
-            padding-right: 0;
-            justify-content: center;
+        .sidebar-active {
+            background: #c0182a !important;
+            color: #fff !important;
+        }
+        .sidebar-active .nav-icon {
+            color: #fff !important;
         }
 
+        /* Tooltip – positioned outside sidebar overflow */
         .nav-tooltip {
-            position: absolute;
-            left: calc(var(--sidebar-collapsed-w) + 8px);
+            position: fixed;
+            /* will be positioned via JS */
             background: #1A1D23;
             color: #fff;
             font-size: 12px;
-            padding: 5px 10px;
+            font-weight: 500;
+            padding: 5px 12px;
             border-radius: 6px;
             white-space: nowrap;
-            opacity: 0;
             pointer-events: none;
-            transition: opacity 150ms;
-            z-index: 200;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 160ms ease, transform 160ms ease;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: 0.2px;
         }
-        #sidebar.collapsed .nav-link-wrap:hover .nav-tooltip {
+        .nav-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: #1A1D23;
+        }
+        .nav-tooltip.visible {
             opacity: 1;
+            transform: scale(1);
         }
-        .nav-link-wrap {
-            position: relative;
+
+        /* ── Sidebar collapsed state ── */
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-w);
+        }
+        #sidebar.collapsed .brand-text {
+            opacity: 0;
+            max-width: 0;
+            margin: 0;
+        }
+        #sidebar.collapsed .brand-icon {
+            width: 40px;
+            height: 40px;
+        }
+        #sidebar.collapsed .sidebar-brand {
+            padding: 6px 16px 16px 16px;
+            justify-content: center;
+        }
+        #sidebar.collapsed .nav-link {
+            padding: 10px 0;
+            justify-content: center;
+            gap: 0;
+        }
+        #sidebar.collapsed .nav-link .nav-label {
+            opacity: 0;
+            max-width: 0;
+        }
+        #sidebar.collapsed .nav-link .nav-icon {
+            margin: 0;
+        }
+        /* User profile in footer */
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px 4px 16px;
+            border-top: 1px solid rgba(228, 230, 234, 0.5);
+            transition: padding var(--transition), gap var(--transition);
+            flex-shrink: 0;
+        }
+        .sidebar-user .avatar {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid #E4E6EA;
+        }
+        .sidebar-user .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .sidebar-user .user-text {
+            overflow: hidden;
+            transition: opacity var(--transition), max-width var(--transition);
+            opacity: 1;
+            max-width: 140px;
+            white-space: nowrap;
+        }
+        .sidebar-user .user-text p {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1A1D23;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-user .user-text span {
+            font-size: 10px;
+            color: #5d5e65;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #sidebar.collapsed .sidebar-user {
+            padding: 12px 0 4px 0;
+            justify-content: center;
+            gap: 0;
+        }
+        #sidebar.collapsed .sidebar-user .user-text {
+            opacity: 0;
+            max-width: 0;
+        }
+        #sidebar.collapsed .sidebar-user .avatar {
+            width: 32px;
+            height: 32px;
         }
 
         /* ── Topbar ── */
@@ -221,20 +423,19 @@
             top: var(--sidebar-margin);
             left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
             right: var(--sidebar-margin);
-            height: 64px;
-            transition: left var(--transition);
+            height: var(--topbar-h);
+            transition: left var(--transition), right var(--transition), top var(--transition), padding var(--transition), border-radius var(--transition);
             z-index: 40;
             border-radius: 16px;
             border: 1px solid #E4E6EA;
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             display: flex;
             align-items: center;
-            padding: 0 1.25rem;
-            gap: 1rem;
+            padding: 0 20px;
+            gap: 16px;
         }
-
         body.sidebar-collapsed #topbar {
             left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
         }
@@ -242,69 +443,93 @@
         /* ── Main content ── */
         #main-content {
             margin-left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
-            margin-top: calc(64px + var(--sidebar-margin) * 2);
-            padding: 1.25rem;
-            transition: margin-left var(--transition);
-            min-height: 100vh;
+            margin-top: calc(var(--topbar-h) + var(--sidebar-margin) * 2);
+            padding: 20px;
+            transition: margin-left var(--transition), margin-top var(--transition), padding var(--transition);
+            min-height: calc(100vh - var(--topbar-h) - var(--sidebar-margin) * 2);
         }
-
         body.sidebar-collapsed #main-content {
             margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
         }
 
-        /* Toggle button */
+        /* ── Toggle button ── */
         #toggle-btn {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid #E4E6EA;
             background: #fff;
             cursor: pointer;
             flex-shrink: 0;
-            transition: background 150ms;
+            transition: background 150ms, transform 150ms;
             position: relative;
+            color: #5d5e65;
         }
-        #toggle-btn:hover { background: #F4F5F7; }
+        #toggle-btn:hover {
+            background: #F4F5F7;
+        }
+        #toggle-btn:active {
+            transform: scale(0.94);
+        }
         #toggle-btn .icon-open,
         #toggle-btn .icon-close {
             transition: opacity var(--transition), transform var(--transition);
+            font-size: 22px;
+            position: absolute;
+        }
+        #toggle-btn .icon-open {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+        #toggle-btn .icon-close {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.6);
         }
         body.sidebar-collapsed #toggle-btn .icon-open {
             opacity: 0;
-            transform: scale(0.7) rotate(-90deg);
+            transform: rotate(-90deg) scale(0.6);
         }
         body.sidebar-collapsed #toggle-btn .icon-close {
             opacity: 1;
-            transform: scale(1) rotate(0deg);
-        }
-        #toggle-btn .icon-close {
-            position: absolute;
-            opacity: 0;
-            transform: scale(0.7) rotate(90deg);
+            transform: rotate(0deg) scale(1);
         }
 
-        /* Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD0D8; border-radius: 10px; }
+        /* ── Responsive ── */
 
-        .card-shadow {
-            border: 1px solid #E4E6EA;
-            transition: box-shadow 0.2s ease-in-out;
-        }
-        .card-shadow:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-
-        /* 📱 Responsive: Auto‑collapse sidebar on smaller screens */
+        /* Tablets & small laptops: auto‑collapse */
         @media (max-width: 1023px) {
             :root {
-                --sidebar-margin: 12px;
+                --sidebar-margin: 14px;
             }
             body:not(.manual-override) #sidebar,
             body:not(.manual-override) #sidebar.collapsed {
                 width: var(--sidebar-collapsed-w);
+            }
+            body:not(.manual-override) #sidebar .brand-text {
+                opacity: 0;
+                max-width: 0;
+                margin: 0;
+            }
+            body:not(.manual-override) #sidebar .nav-link .nav-label {
+                opacity: 0;
+                max-width: 0;
+            }
+            body:not(.manual-override) #sidebar .nav-link {
+                padding: 10px 0;
+                justify-content: center;
+                gap: 0;
+            }
+            body:not(.manual-override) #sidebar .sidebar-user .user-text {
+                opacity: 0;
+                max-width: 0;
+            }
+            body:not(.manual-override) #sidebar .sidebar-user {
+                padding: 12px 0 4px 0;
+                justify-content: center;
+                gap: 0;
             }
             body:not(.manual-override) #topbar {
                 left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
@@ -312,219 +537,695 @@
             body:not(.manual-override) #main-content {
                 margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
             }
-            body:not(.manual-override) .sidebar-label,
-            body:not(.manual-override) .sidebar-brand-text,
-            body:not(.manual-override) .sidebar-user-text,
-            body:not(.manual-override) .sidebar-section-label {
-                opacity: 0;
-                max-width: 0;
+            /* Hide toggle on auto-collapse (show on manual override) */
+            body:not(.manual-override) #toggle-btn {
+                opacity: 0.5;
+                pointer-events: none;
             }
-            body:not(.manual-override) .nav-link {
-                padding-left: 0;
-                padding-right: 0;
+        }
+
+        /* Phones */
+        @media (max-width: 640px) {
+            :root {
+                --sidebar-margin: 8px;
+                --topbar-h: 56px;
+            }
+            #topbar {
+                padding: 0 12px;
+                gap: 10px;
+                border-radius: 12px;
+                height: var(--topbar-h);
+            }
+            #main-content {
+                padding: 12px;
+                margin-top: calc(var(--topbar-h) + var(--sidebar-margin) * 2);
+            }
+            #sidebar {
+                border-radius: 12px;
+                top: var(--sidebar-margin);
+                left: var(--sidebar-margin);
+                bottom: var(--sidebar-margin);
+            }
+            #sidebar-inner {
+                border-radius: 12px;
+            }
+            .nav-link {
+                min-height: 40px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .nav-link .nav-icon {
+                font-size: 20px;
+                width: 20px;
+            }
+            #sidebar.collapsed .nav-link {
+                padding: 8px 0;
+            }
+            .sidebar-brand .brand-icon {
+                width: 34px;
+                height: 34px;
+            }
+            .sidebar-brand .brand-icon .material-symbols-outlined {
+                font-size: 20px;
+            }
+            .sidebar-brand {
+                padding: 4px 12px 12px 12px;
+            }
+            #sidebar.collapsed .sidebar-brand {
+                padding: 4px 12px 12px 12px;
+            }
+            .sidebar-user {
+                padding: 10px 12px 2px 12px;
+            }
+            .sidebar-user .avatar {
+                width: 28px;
+                height: 28px;
+            }
+            #sidebar.collapsed .sidebar-user {
+                padding: 10px 0 2px 0;
+            }
+            #sidebar.collapsed .sidebar-user .avatar {
+                width: 28px;
+                height: 28px;
+            }
+            #toggle-btn {
+                width: 32px;
+                height: 32px;
+            }
+            #toggle-btn .icon-open,
+            #toggle-btn .icon-close {
+                font-size: 18px;
+            }
+            /* Hide "Register Asset" text on small screens, keep icon */
+            .topbar-register span.label {
+                display: none;
+            }
+            .topbar-register {
+                padding: 0 10px !important;
+                min-width: 36px;
                 justify-content: center;
             }
-            /* Optional: reduce top/bottom margins on very small devices */
-            @media (max-width: 640px) {
-                :root {
-                    --sidebar-margin: 8px;
-                }
-                #topbar {
-                    padding: 0 0.75rem;
-                }
-                #main-content {
-                    padding: 0.75rem;
-                }
+            .topbar-register .material-symbols-outlined {
+                font-size: 20px !important;
             }
+            /* reduce search width */
+            #topbar .search-wrap {
+                max-width: 140px;
+            }
+            #topbar .search-wrap input {
+                font-size: 12px;
+                height: 34px;
+                padding-left: 32px;
+                padding-right: 10px;
+            }
+            #topbar .search-wrap .material-symbols-outlined {
+                font-size: 18px !important;
+                left: 8px !important;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 400px) {
+            :root {
+                --sidebar-margin: 6px;
+                --sidebar-collapsed-w: 60px;
+                --topbar-h: 50px;
+            }
+            #topbar .search-wrap {
+                max-width: 100px;
+            }
+            #topbar .search-wrap input {
+                font-size: 11px;
+                height: 30px;
+                padding-left: 28px;
+                padding-right: 8px;
+            }
+            #topbar .search-wrap .material-symbols-outlined {
+                font-size: 16px !important;
+                left: 6px !important;
+            }
+            .nav-link .nav-icon {
+                font-size: 18px;
+                width: 18px;
+            }
+            #sidebar.collapsed .nav-link {
+                padding: 6px 0;
+            }
+            #sidebar.collapsed {
+                width: var(--sidebar-collapsed-w);
+            }
+            body.sidebar-collapsed #topbar {
+                left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+            }
+            body.sidebar-collapsed #main-content {
+                margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
+            }
+            .sidebar-brand .brand-icon {
+                width: 30px;
+                height: 30px;
+            }
+            .sidebar-brand .brand-icon .material-symbols-outlined {
+                font-size: 18px;
+            }
+            .sidebar-user .avatar {
+                width: 24px;
+                height: 24px;
+            }
+            #sidebar.collapsed .sidebar-user .avatar {
+                width: 24px;
+                height: 24px;
+            }
+            .topbar-register .material-symbols-outlined {
+                font-size: 18px !important;
+            }
+        }
+
+        /* ── Utility ── */
+        .card-shadow {
+            border: 1px solid #E4E6EA;
+            transition: box-shadow 0.2s ease-in-out;
+        }
+        .card-shadow:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .search-wrap {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        .search-wrap .material-symbols-outlined {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5d5e65;
+            font-size: 20px;
+            transition: color 150ms;
+            pointer-events: none;
+        }
+        .search-wrap input:focus+.material-symbols-outlined,
+        .search-wrap input:focus~.material-symbols-outlined {
+            color: #98001a;
+        }
+        .search-wrap input {
+            width: 100%;
+            height: 38px;
+            padding-left: 40px;
+            padding-right: 14px;
+            background: #F4F5F7;
+            border: 1px solid #E4E6EA;
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: #1A1D23;
+            transition: border-color 150ms, box-shadow 150ms;
+            outline: none;
+        }
+        .search-wrap input:focus {
+            border-color: #98001a;
+            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.12);
+            background: #fff;
+        }
+        .search-wrap input::placeholder {
+            color: #9aa0aa;
+        }
+
+        /* topbar actions */
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .topbar-actions .divider {
+            width: 1px;
+            height: 28px;
+            background: #E4E6EA;
+            flex-shrink: 0;
+        }
+        .topbar-actions .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #5d5e65;
+            transition: background 150ms, color 150ms;
+            text-decoration: none;
+            position: relative;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .topbar-actions .icon-btn:hover {
+            background: #f0f2f8;
+            color: #1A1D23;
+        }
+        .topbar-actions .icon-btn .badge-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: #c0182a;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+        .topbar-actions .icon-btn .material-symbols-outlined {
+            font-size: 22px;
+        }
+        .topbar-register {
+            background: #c0182a;
+            color: #fff;
+            height: 36px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: background 150ms, transform 150ms;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .topbar-register:hover {
+            background: #8F0F1E;
+        }
+        .topbar-register:active {
+            transform: scale(0.96);
+        }
+        .topbar-register .material-symbols-outlined {
+            font-size: 18px;
         }
     </style>
 </head>
-<body class="text-on-surface">
+<body>
 
-<!-- ══ Sidebar ══ -->
-<aside id="sidebar" class="bg-white flex flex-col py-6 rounded-2xl shadow-sm">
-    <!-- Brand -->
-    <div class="px-4 mb-8 flex items-center gap-3">
-        <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center flex-shrink-0">
-            <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1;">inventory_2</span>
-        </div>
-        <div class="sidebar-brand-text">
-            <h1 class="text-body-medium text-nav-text font-bold tracking-tight leading-none">FAMS</h1>
-            <p class="text-nav-group font-nav-group text-secondary uppercase">Asset Management</p>
-        </div>
-    </div>
+<!-- ══ SIDEBAR ══ -->
+<aside id="sidebar">
+    <div id="sidebar-inner">
 
-    <!-- Navigation -->
-    <nav class="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/dashboard'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/dashboard}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">dashboard</span>
-                <span class="sidebar-label">Dashboard</span>
-            </a>
-            <span class="nav-tooltip">Dashboard</span>
-        </div>
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${#strings.startsWith(currentPath, '/assets')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/assets}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">inventory_2</span>
-                <span class="sidebar-label">All Assets</span>
-            </a>
-            <span class="nav-tooltip">All Assets</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${#strings.startsWith(currentPath, '/depreciation')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/depreciation}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">payments</span>
-                <span class="sidebar-label">Depreciation</span>
-            </a>
-            <span class="nav-tooltip">Depreciation</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${#strings.startsWith(currentPath, '/maintenance') || #strings.contains(currentPath, '/maintenance')} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/maintenance}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">home_repair_service</span>
-                <span class="sidebar-label">Maintenance</span>
-            </a>
-            <span class="nav-tooltip">Maintenance</span>
-        </div>
-
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/audit'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/audit}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">verified_user</span>
-                <span class="sidebar-label">Audit</span>
-            </a>
-            <span class="nav-tooltip">Audit</span>
-        </div>
-    </nav>
-
-    <!-- Footer -->
-    <div class="mt-auto px-3 pt-4 border-t border-border-default">
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/reports'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/reports}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">bar_chart</span>
-                <span class="sidebar-label">Reports</span>
-            </a>
-            <span class="nav-tooltip">Reports</span>
-        </div>
-        <div class="nav-link-wrap">
-            <a class="nav-link flex items-center px-4 py-2.5 rounded-xl text-body-default font-body-medium transition-all"
-               th:classappend="${currentPath == '/notifications'} ? ' sidebar-active' : ' text-nav-text nav-item-hover'"
-               th:href="@{/notifications}">
-                <span class="material-symbols-outlined flex-shrink-0 mr-3 text-secondary">notifications</span>
-                <span class="sidebar-label">Notifications</span>
-            </a>
-            <span class="nav-tooltip">Notifications</span>
-        </div>
-
-        <div class="mt-4 px-3 py-3 flex items-center gap-3 border-t border-border-default/50">
-            <div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-border-default flex-shrink-0">
-                <img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhbCXvzswGoJF8h-HsFCH12MQjSLKu9IFrwp7CP67H_YxsQeutuCJ3R3rXaRqdyZ-oxOaVcMmNawHGZvOSMPHAq4g8c7waAA1wKrEfzGfjtu2t3-MRCbzvZJXDguDmDAl93uKKn1eW4qKc9L-LfZ8azL_gJNgbQn9aiwkDUG6jVMAQnsaYhoUdOwzf2ixqvwaRotkqjScNQnNoZU3a9SJfyvUfrzLFrnn4Lr29vjJHBaKHwru8t63K"/>
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <span class="material-symbols-outlined">inventory_2</span>
             </div>
-            <div class="overflow-hidden sidebar-user-text">
-                <p class="text-nav-text text-xs font-semibold truncate">Alex Asset</p>
-                <p class="text-secondary text-[10px] truncate">Admin Account</p>
+            <div class="brand-text">
+                <h1>FAMS</h1>
+                <p>Asset Management</p>
             </div>
         </div>
+
+        <!-- Navigation -->
+        <nav id="sidebar-nav">
+            <div class="space-y-1">
+
+                <!-- Dashboard -->
+                <div class="nav-link-wrap" data-label="Dashboard">
+                    <a class="nav-link" th:classappend="${currentPath == '/dashboard'} ? ' sidebar-active' : ''" th:href="@{/dashboard}">
+                        <span class="nav-icon material-symbols-outlined">dashboard</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </div>
+
+                <!-- All Assets -->
+                <div class="nav-link-wrap" data-label="All Assets">
+                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets')} ? ' sidebar-active' : ''" th:href="@{/assets}">
+                        <span class="nav-icon material-symbols-outlined">inventory_2</span>
+                        <span class="nav-label">All Assets</span>
+                    </a>
+                </div>
+
+                <!-- Depreciation -->
+                <div class="nav-link-wrap" data-label="Depreciation">
+                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/depreciation')} ? ' sidebar-active' : ''" th:href="@{/depreciation}">
+                        <span class="nav-icon material-symbols-outlined">payments</span>
+                        <span class="nav-label">Depreciation</span>
+                    </a>
+                </div>
+
+                <!-- Maintenance -->
+                <div class="nav-link-wrap" data-label="Maintenance">
+                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/maintenance') || #strings.contains(currentPath, '/maintenance')} ? ' sidebar-active' : ''" th:href="@{/maintenance}">
+                        <span class="nav-icon material-symbols-outlined">home_repair_service</span>
+                        <span class="nav-label">Maintenance</span>
+                    </a>
+                </div>
+
+                <!-- Audit -->
+                <div class="nav-link-wrap" data-label="Audit">
+                    <a class="nav-link" th:classappend="${currentPath == '/audit'} ? ' sidebar-active' : ''" th:href="@{/audit}">
+                        <span class="nav-icon material-symbols-outlined">verified_user</span>
+                        <span class="nav-label">Audit</span>
+                    </a>
+                </div>
+
+                <!-- Reports (footer) -->
+                <div class="pt-4 mt-2 border-t border-border-default/40">
+                    <div class="nav-link-wrap" data-label="Reports">
+                        <a class="nav-link" th:classappend="${currentPath == '/reports'} ? ' sidebar-active' : ''" th:href="@{/reports}">
+                            <span class="nav-icon material-symbols-outlined">bar_chart</span>
+                            <span class="nav-label">Reports</span>
+                        </a>
+                    </div>
+                    <div class="nav-link-wrap" data-label="Notifications">
+                        <a class="nav-link" th:classappend="${currentPath == '/notifications'} ? ' sidebar-active' : ''" th:href="@{/notifications}">
+                            <span class="nav-icon material-symbols-outlined">notifications</span>
+                            <span class="nav-label">Notifications</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- User profile -->
+        <div class="sidebar-user">
+            <div class="avatar">
+                <img alt="User Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhbCXvzswGoJF8h-HsFCH12MQjSLKu9IFrwp7CP67H_YxsQeutuCJ3R3rXaRqdyZ-oxOaVcMmNawHGZvOSMPHAq4g8c7waAA1wKrEfzGfjtu2t3-MRCbzvZJXDguDmDAl93uKKn1eW4qKc9L-LfZ8azL_gJNgbQn9aiwkDUG6jVMAQnsaYhoUdOwzf2ixqvwaRotkqjScNQnNoZU3a9SJfyvUfrzLFrnn4Lr29vjJHBaKHwru8t63K" />
+            </div>
+            <div class="user-text">
+                <p>Alex Asset</p>
+                <span>Admin Account</span>
+            </div>
+        </div>
+
     </div>
 </aside>
 
-<!-- ══ Topbar ══ -->
+<!-- ══ TOPBAR ══ -->
 <header id="topbar">
     <button id="toggle-btn" aria-label="Toggle sidebar">
-        <span class="material-symbols-outlined text-secondary icon-open" style="font-size:20px;">menu_open</span>
-        <span class="material-symbols-outlined text-secondary icon-close" style="font-size:20px;">menu</span>
+        <span class="material-symbols-outlined icon-open">menu_open</span>
+        <span class="material-symbols-outlined icon-close">menu</span>
     </button>
 
-    <div class="flex-1 max-w-xl">
-        <div class="relative group">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" style="font-size:20px;">search</span>
-            <input class="w-full h-[38px] pl-10 pr-4 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search assets, locations, or personnel..." type="text"/>
-        </div>
+    <div class="search-wrap">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search assets, locations, or personnel…" />
     </div>
 
-    <div class="flex items-center gap-3 ml-auto">
-        <a class="bg-primary text-on-primary h-[36px] px-5 rounded-lg font-body-medium flex items-center gap-2 hover:bg-brand-primary-dark transition-colors active:scale-95 shadow-sm text-[13px]"
-           th:href="@{/assets/register}">
-            <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
-            Register Asset
+    <div class="topbar-actions">
+        <a class="topbar-register" th:href="@{/assets/register}">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span class="label">Register Asset</span>
         </a>
-        <div class="h-6 w-px bg-border-default"></div>
-        <a class="w-8 h-8 flex items-center justify-center text-secondary hover:bg-surface-variant rounded-full transition-colors relative"
-           th:href="@{/notifications}" aria-label="Notifications">
-            <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
-            <span class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+        <div class="divider"></div>
+        <a class="icon-btn" th:href="@{/notifications}" aria-label="Notifications">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="badge-dot"></span>
         </a>
-        <button class="w-8 h-8 flex items-center justify-center text-secondary hover:bg-surface-variant rounded-full transition-colors">
-            <span class="material-symbols-outlined" style="font-size:20px;">account_circle</span>
+        <button class="icon-btn" aria-label="Account">
+            <span class="material-symbols-outlined">account_circle</span>
         </button>
     </div>
 </header>
 
-<!-- ══ Main Content (fragment placeholder) ══ -->
-<main id="main-content" class="space-y-6" layout:fragment="content"></main>
+<!-- ══ MAIN CONTENT ══ -->
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <!-- Page content goes here -->
+    <div class="bg-white rounded-2xl border border-border-default p-6 card-shadow">
+        <h2 class="text-page-title">Dashboard</h2>
+        <p class="text-body-default text-secondary mt-2">Welcome back, Alex. Here's your asset overview.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                <p class="text-label-small text-secondary">Total Assets</p>
+                <p class="text-2xl font-bold text-nav-text">1,284</p>
+            </div>
+            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                <p class="text-label-small text-secondary">In Maintenance</p>
+                <p class="text-2xl font-bold text-status-warning">23</p>
+            </div>
+            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                <p class="text-label-small text-secondary">Pending Audit</p>
+                <p class="text-2xl font-bold text-status-info">12</p>
+            </div>
+            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                <p class="text-label-small text-secondary">Depreciated Value</p>
+                <p class="text-2xl font-bold text-status-success">$48.2K</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ══ GLOBAL TOOLTIP CONTAINER ══ -->
+<div id="tooltip-container" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999;"></div>
 
 <script>
     (function() {
+        'use strict';
+
         const sidebar = document.getElementById('sidebar');
         const body = document.body;
         const toggleBtn = document.getElementById('toggle-btn');
+        const tooltipContainer = document.getElementById('tooltip-container');
+        let tooltipEl = null;
         let isManualOverride = false;
+        let isCollapsed = false;
+        let resizeTimer = null;
 
-        function applyCollapse(forceCollapse) {
-            if (forceCollapse) {
+        // ── Create tooltip element ──
+        function createTooltip() {
+            if (!tooltipContainer) return;
+            const el = document.createElement('div');
+            el.className = 'nav-tooltip';
+            el.textContent = '';
+            tooltipContainer.appendChild(el);
+            return el;
+        }
+        tooltipEl = createTooltip();
+
+        // ── Apply collapse state ──
+        function applyCollapse(collapse) {
+            isCollapsed = collapse;
+            if (collapse) {
                 body.classList.add('sidebar-collapsed');
                 sidebar.classList.add('collapsed');
             } else {
                 body.classList.remove('sidebar-collapsed');
                 sidebar.classList.remove('collapsed');
             }
+            // hide tooltip on toggle
+            if (tooltipEl) {
+                tooltipEl.classList.remove('visible');
+            }
         }
 
+        // ── Position tooltip ──
+        function positionTooltip(anchor, label) {
+            if (!tooltipEl || !anchor) return;
+            const rect = anchor.getBoundingClientRect();
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            if (!isCollapsed) {
+                tooltipEl.classList.remove('visible');
+                return;
+            }
+            // position to the right of the anchor
+            const gap = 10;
+            const left = rect.right + gap;
+            const top = rect.top + rect.height / 2;
+            tooltipEl.textContent = label || anchor.getAttribute('data-label') || '';
+
+            // get dimensions
+            const tw = tooltipEl.offsetWidth || 0;
+            const th = tooltipEl.offsetHeight || 0;
+
+            // adjust for viewport
+            let finalLeft = left;
+            let finalTop = top - th / 2;
+
+            // keep in viewport horizontally
+            if (finalLeft + tw > window.innerWidth - 12) {
+                finalLeft = rect.left - tw - gap;
+                // flip arrow
+                tooltipEl.style.setProperty('--arrow-left', 'auto');
+                tooltipEl.style.setProperty('--arrow-right', '-6px');
+                tooltipEl.style.setProperty('--arrow-border-right', 'transparent');
+                tooltipEl.style.setProperty('--arrow-border-left', '#1A1D23');
+            } else {
+                tooltipEl.style.setProperty('--arrow-left', '-6px');
+                tooltipEl.style.setProperty('--arrow-right', 'auto');
+                tooltipEl.style.setProperty('--arrow-border-right', '#1A1D23');
+                tooltipEl.style.setProperty('--arrow-border-left', 'transparent');
+            }
+            // keep in viewport vertically
+            if (finalTop < 8) finalTop = 8;
+            if (finalTop + th > window.innerHeight - 8) {
+                finalTop = window.innerHeight - th - 8;
+            }
+
+            tooltipEl.style.left = finalLeft + 'px';
+            tooltipEl.style.top = finalTop + 'px';
+            tooltipEl.classList.add('visible');
+
+            // fix arrow pseudo
+            const pseudoStyle = document.createElement('style');
+            pseudoStyle.id = 'tooltip-arrow-style';
+            const oldStyle = document.getElementById('tooltip-arrow-style');
+            if (oldStyle) oldStyle.remove();
+            const arrowDir = finalLeft === left ? 'right' : 'left';
+            pseudoStyle.textContent = `
+                            .nav-tooltip::before {
+                                left: ${arrowDir === 'right' ? '-6px' : 'auto'} !important;
+                                right: ${arrowDir === 'left' ? '-6px' : 'auto'} !important;
+                                border-right-color: ${arrowDir === 'right' ? '#1A1D23' : 'transparent'} !important;
+                                border-left-color: ${arrowDir === 'left' ? '#1A1D23' : 'transparent'} !important;
+                            }
+                        `;
+            document.head.appendChild(pseudoStyle);
+        }
+
+        // ── Setup hover for nav links ──
+        function setupTooltips() {
+            const wraps = document.querySelectorAll('.nav-link-wrap');
+            wraps.forEach(wrap => {
+                const link = wrap.querySelector('.nav-link');
+                if (!link) return;
+
+                const label = wrap.getAttribute('data-label') ||
+                    link.querySelector('.nav-label')?.textContent?.trim() ||
+                    '';
+
+                wrap.addEventListener('mouseenter', function(e) {
+                    if (!sidebar.classList.contains('collapsed')) return;
+                    const rect = link.getBoundingClientRect();
+                    // only show if the label is hidden (collapsed)
+                    const labelEl = link.querySelector('.nav-label');
+                    if (labelEl && labelEl.offsetWidth > 0) return;
+                    positionTooltip(link, label);
+                });
+
+                wrap.addEventListener('mouseleave', function() {
+                    if (tooltipEl) {
+                        tooltipEl.classList.remove('visible');
+                    }
+                });
+
+                // also handle link hover directly
+                link.addEventListener('mouseenter', function(e) {
+                    if (!sidebar.classList.contains('collapsed')) return;
+                    const labelEl = link.querySelector('.nav-label');
+                    if (labelEl && labelEl.offsetWidth > 0) return;
+                    const lbl = wrap.getAttribute('data-label') ||
+                        labelEl?.textContent?.trim() ||
+                        '';
+                    positionTooltip(link, lbl);
+                });
+
+                link.addEventListener('mouseleave', function() {
+                    if (tooltipEl) {
+                        tooltipEl.classList.remove('visible');
+                    }
+                });
+            });
+        }
+
+        // ── Handle resize ──
         function handleResize() {
             const isSmallScreen = window.innerWidth < 1024;
+
             if (isSmallScreen) {
-                // Auto-collapse on small screens, remove manual override flag
+                // auto-collapse
                 if (!body.classList.contains('sidebar-collapsed')) {
                     applyCollapse(true);
                 }
                 isManualOverride = false;
                 body.classList.remove('manual-override');
-                // Disable toggle button visually/functionally? keep it but it will be overridden on next resize.
             } else {
-                // On large screens, if there is no manual override, expand.
+                // large screen: if no manual override, expand
                 if (!isManualOverride && body.classList.contains('sidebar-collapsed')) {
                     applyCollapse(false);
                 }
             }
+            // hide tooltip on resize
+            if (tooltipEl) {
+                tooltipEl.classList.remove('visible');
+            }
         }
 
-        // Manual toggle – only works on large screens (>=1024px)
+        // ── Toggle click ──
         toggleBtn.addEventListener('click', function(e) {
-            if (window.innerWidth >= 1024) {
+            const isSmallScreen = window.innerWidth < 1024;
+            if (isSmallScreen) {
+                // On small screens, manual toggle overrides auto-collapse
                 isManualOverride = true;
                 body.classList.add('manual-override');
-                const isCollapsed = body.classList.contains('sidebar-collapsed');
-                applyCollapse(!isCollapsed);
+                const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
+                applyCollapse(!currentlyCollapsed);
+                return;
             }
+            // large screen
+            isManualOverride = true;
+            body.classList.add('manual-override');
+            const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
+            applyCollapse(!currentlyCollapsed);
         });
 
+        // ── Window resize ──
         window.addEventListener('resize', function() {
-            handleResize();
+            if (resizeTimer) cancelAnimationFrame(resizeTimer);
+            resizeTimer = requestAnimationFrame(function() {
+                handleResize();
+                resizeTimer = null;
+            });
         });
-        handleResize();
+
+        // ── Init ──
+        function init() {
+            // start collapsed on small screens
+            if (window.innerWidth < 1024) {
+                applyCollapse(true);
+                body.classList.remove('manual-override');
+            } else {
+                applyCollapse(false);
+            }
+            setupTooltips();
+            // re-check on load
+            setTimeout(handleResize, 100);
+        }
+
+        // Also reposition tooltip on scroll
+        window.addEventListener('scroll', function() {
+            if (tooltipEl && tooltipEl.classList.contains('visible')) {
+                // find which link is being hovered
+                const activeWrap = document.querySelector('.nav-link-wrap:hover');
+                if (activeWrap) {
+                    const link = activeWrap.querySelector('.nav-link');
+                    const label = activeWrap.getAttribute('data-label') || '';
+                    if (link) positionTooltip(link, label);
+                } else {
+                    tooltipEl.classList.remove('visible');
+                }
+            }
+        }, { passive: true });
+
+        // Re-run on DOM changes (for Thymeleaf fragments)
+        if (window.MutationObserver) {
+            const observer = new MutationObserver(function() {
+                setupTooltips();
+            });
+            observer.observe(document.getElementById('sidebar-nav'), {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        init();
+
+        // ── Expose for debugging ──
+        window.__sidebar = {
+            toggle: function() { toggleBtn.click(); },
+            collapse: function(v) { applyCollapse(v); },
+            state: function() { return isCollapsed; }
+        };
+
     })();
 </script>
+
 </body>
 </html>
