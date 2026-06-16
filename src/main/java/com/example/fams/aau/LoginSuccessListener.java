@@ -16,7 +16,7 @@ public class LoginSuccessListener {
     public void onLoginSuccess(InteractiveAuthenticationSuccessEvent event) {
         Object principal = event.getAuthentication().getPrincipal();
         if (principal instanceof DefaultOidcUser oidcUser) {
-            Object group = oidcUser.getClaims().get("group");
+            Object group = oidcUser.getClaims().get("groups");
             String name = (String) oidcUser.getClaims().get("name");
             System.out.println("=== User logged in: " + name + " | group(s): " + group + " ===");
         } else {

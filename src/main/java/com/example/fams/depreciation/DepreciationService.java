@@ -394,7 +394,7 @@ public class DepreciationService {
     }
 
     /**
-     * Get dashboard data for the depreciation management page
+     * Get dashboard.html data for the depreciation management page
      */
     @Transactional(readOnly = true)
     public DepreciationDashboardData getDashboardData(int postsToShow) {

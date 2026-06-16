@@ -38,7 +38,7 @@ public class DepreciationController {
     }
 
     /**
-     * Get dashboard data (summary, latest postings, etc.)
+     * Get dashboard.html data (summary, latest postings, etc.)
      */
     @GetMapping("/dashboard")
     public ResponseEntity<DepreciationDashboardData> getDashboardData(

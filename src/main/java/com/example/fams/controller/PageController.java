@@ -18,7 +18,7 @@ public class PageController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard";
+        return "dashboard.html";
     }
 
     @GetMapping("/assets/details")

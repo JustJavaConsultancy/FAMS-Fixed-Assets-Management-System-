@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/employee-layout}">
+<head>
+    <title>Employee Dashboard | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">My Dashboard</h2>
+            <p class="text-body-default text-secondary">Overview of your assigned assets and activity</p>
+        </div>
+        <div>
+            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label">Employee</span>
+        </div>
+    </div>
+
+    <!-- KPI Strip (4 cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border-l-4 border-primary">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-label-small text-secondary uppercase tracking-wider font-medium">My Assigned Assets</p>
+                <span class="material-symbols-outlined text-primary opacity-60">inventory_2</span>
+            </div>
+            <p class="text-[28px] font-bold leading-none">12</p>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border-l-4 border-status-info">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-label-small text-secondary uppercase tracking-wider font-medium">Pending Requests</p>
+                <span class="material-symbols-outlined text-status-info opacity-60">swap_horiz</span>
+            </div>
+            <p class="text-[28px] font-bold leading-none">03</p>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border-l-4 border-status-warning">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-label-small text-secondary uppercase tracking-wider font-medium">Next Maintenance</p>
+                <span class="material-symbols-outlined text-status-warning opacity-60">build</span>
+            </div>
+            <p class="text-[28px] font-bold leading-none">Oct 24</p>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow border-l-4 border-error">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-label-small text-secondary uppercase tracking-wider font-medium">Warranty Status</p>
+                <span class="material-symbols-outlined text-error opacity-60">verified</span>
+            </div>
+            <p class="text-[28px] font-bold leading-none text-error">Expiring</p>
+        </div>
+    </div>
+
+    <!-- Main 2‑column layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: My Asset Inventory (8 cols) -->
+        <div class="lg:col-span-8 bg-surface-card rounded-xl card-shadow overflow-hidden">
+            <div class="p-5 border-b border-border-default flex justify-between items-center flex-wrap gap-3">
+                <h3 class="font-section-header text-section-header text-on-surface">My Asset Inventory</h3>
+                <button class="text-primary font-body-medium text-sm flex items-center gap-1 hover:underline">
+                    View All Assets
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                    <tr class="border-b border-border-default">
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset Name</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Asset ID</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Category</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-default">
+                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">laptop_mac</span>
+                                </div>
+                                <span class="font-body-medium text-on-surface">MacBook Pro 16"</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 font-technical-data text-secondary">JJ-LAP-2024-089</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Hardware</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-badge-label font-badge-label uppercase">Active</span></td>
+                        <td class="px-5 py-3 text-right">
+                            <button class="p-1 text-secondary hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-status-info">
+                                    <span class="material-symbols-outlined">smartphone</span>
+                                </div>
+                                <span class="font-body-medium text-on-surface">iPhone 15 Pro</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 font-technical-data text-secondary">JJ-MOB-2023-412</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Mobile</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-badge-label font-badge-label uppercase">Active</span></td>
+                        <td class="px-5 py-3 text-right">
+                            <button class="p-1 text-secondary hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-surface-canvas/50 transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-status-warning">
+                                    <span class="material-symbols-outlined">monitor</span>
+                                </div>
+                                <span class="font-body-medium text-on-surface">LG UltraFine 5K</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3 font-technical-data text-secondary">JJ-DIS-2022-015</td>
+                        <td class="px-5 py-3 text-body-default text-secondary">Display</td>
+                        <td class="px-5 py-3"><span class="px-2 py-0.5 bg-surface-variant text-secondary rounded-full text-badge-label font-badge-label uppercase">Maintenance</span></td>
+                        <td class="px-5 py-3 text-right">
+                            <button class="p-1 text-secondary hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right: Quick Actions (4 cols) -->
+        <div class="lg:col-span-4 space-y-6">
+            <!-- Quick Actions Card -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default">
+                    <h3 class="font-section-header text-section-header text-on-surface">Quick Actions</h3>
+                </div>
+                <div class="p-5 space-y-3">
+                    <button class="w-full flex items-center justify-between p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors border border-border-default group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">swap_horiz</span>
+                            <span class="font-body-medium text-on-surface">Request Transfer</span>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors border border-border-default group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">report_problem</span>
+                            <span class="font-body-medium text-on-surface">Report Issue</span>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors border border-border-default group">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">print</span>
+                            <span class="font-body-medium text-on-surface">Print Asset Tags</span>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Support Banner -->
+            <div class="relative overflow-hidden rounded-xl h-40 group cursor-pointer card-shadow">
+                <img alt="Support Team" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8yiCMUUCT42aoR-ZSq2vXzEfUfOv2iJ4spDIPr41UBn0svI_6qMEyysIe5XSlyIHNdvZdu1ReVy43_J3LLC4X7-3NDMrcgWQRwcw8jkoRk9L2unxBv8WQtbA1JHNnZE--HGFhpDyRCu1HneTvpz2J7GPpASiyflsnORMG5n8a8Nc119yofZ7hTBXMzDdm1g6P4Fn4VF5HjpX_MwpOiTJiJRKW9uR55IFNPdigQjv5ad7QBMNHYLFi1myWhRXKsspKnrEX7mF9lUo" />
+                <div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent flex flex-col justify-end p-6">
+                    <p class="text-white font-headline-md text-lg">Need Assistance?</p>
+                    <p class="text-on-primary-container text-sm">Contact the IT Helpdesk</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section: Activity & Tasks -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- My Activity History (7 cols) -->
+        <div class="lg:col-span-7 bg-surface-card rounded-xl card-shadow overflow-hidden">
+            <div class="p-5 border-b border-border-default">
+                <h3 class="font-section-header text-section-header text-on-surface">My Activity History</h3>
+            </div>
+            <div class="p-5 relative space-y-5 before:absolute before:left-[11px] before:top-4 before:bottom-4 before:w-[2px] before:bg-border-default">
+                <div class="relative flex gap-4 items-start pl-6">
+                    <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary ring-4 ring-surface-card">
+                        <span class="material-symbols-outlined text-[14px]">done</span>
+                    </div>
+                    <div>
+                        <p class="font-body-medium text-on-surface">Annual Verification Completed</p>
+                        <p class="text-body-default text-secondary">Verified status of 12 assigned assets.</p>
+                        <span class="text-label-small text-primary mt-1 block">Yesterday, 14:30 PM</span>
+                    </div>
+                </div>
+                <div class="relative flex gap-4 items-start pl-6">
+                    <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-surface-card flex items-center justify-center text-secondary ring-4 ring-surface-card border border-border-default">
+                        <span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+                    </div>
+                    <div>
+                        <p class="font-body-medium text-on-surface">New Asset Assigned</p>
+                        <p class="text-body-default text-secondary">iPhone 15 Pro (JJ-MOB-2023-412) assigned to your profile.</p>
+                        <span class="text-label-small text-secondary mt-1 block">Oct 12, 2024</span>
+                    </div>
+                </div>
+                <div class="relative flex gap-4 items-start pl-6">
+                    <div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-surface-card flex items-center justify-center text-secondary ring-4 ring-surface-card border border-border-default">
+                        <span class="material-symbols-outlined text-[14px]">build</span>
+                    </div>
+                    <div>
+                        <p class="font-body-medium text-on-surface">Maintenance Request Submitted</p>
+                        <p class="text-body-default text-secondary">Requested screen repair for LG UltraFine 5K.</p>
+                        <span class="text-label-small text-secondary mt-1 block">Oct 08, 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks (5 cols) -->
+        <div class="lg:col-span-5 bg-surface-card rounded-xl card-shadow overflow-hidden">
+            <div class="p-5 border-b border-border-default">
+                <h3 class="font-section-header text-section-header text-on-surface">Upcoming Tasks</h3>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="p-4 rounded-xl bg-surface-canvas border border-border-default">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-2 py-0.5 bg-error/10 text-error text-[10px] font-bold uppercase rounded">Critical</span>
+                        <span class="text-label-small text-secondary">Due in 2 days</span>
+                    </div>
+                    <p class="font-body-medium text-on-surface mb-1">Periodic Verification Check</p>
+                    <p class="text-body-default text-secondary mb-4">Confirm possession of all high-value hardware items.</p>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                            <div class="w-1/3 h-full bg-primary"></div>
+                        </div>
+                        <span class="text-label-small font-technical-data text-primary">33%</span>
+                    </div>
+                </div>
+                <div class="p-4 rounded-xl bg-surface-card border border-border-default opacity-70">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-2 py-0.5 bg-status-info/10 text-status-info text-[10px] font-bold uppercase rounded">Routine</span>
+                        <span class="text-label-small text-secondary">Due in 1 week</span>
+                    </div>
+                    <p class="font-body-medium text-on-surface mb-1">Software Audit Sync</p>
+                    <p class="text-body-default text-secondary">Run the JustJava sync tool for license compliance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

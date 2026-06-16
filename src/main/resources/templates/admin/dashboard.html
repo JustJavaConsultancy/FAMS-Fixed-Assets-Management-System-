@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>Super Admin Dashboard | JustJava FAMS</title>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+
+    <!-- Page Title Row (matches Dashboard) -->
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="font-page-title text-page-title text-on-background">Super Admin Dashboard</h2>
+            <p class="text-body-default text-secondary">System‑wide asset oversight, health, and compliance metrics</p>
+        </div>
+        <div>
+            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label">Super Admin</span>
+        </div>
+    </div>
+
+    <!-- KPI Strip (4 cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-surface-card p-5 rounded-xl card-shadow">
+            <div class="flex justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">inventory_2</span>
+                </div>
+                <span class="text-status-success font-badge-label text-badge-label bg-[#D1E7DD] px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span>+12%
+                </span>
+            </div>
+            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Total Assets</p>
+            <p class="text-[28px] font-bold leading-none">1,247</p>
+            <div class="w-full bg-surface-canvas h-1.5 mt-4 rounded-full overflow-hidden">
+                <div class="bg-primary h-full w-[72%] rounded-full"></div>
+            </div>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow">
+            <div class="flex justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-brand-primary-light flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <span class="text-secondary font-label-small text-label-small">Active Portfolio</span>
+            </div>
+            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Net Book Value</p>
+            <p class="text-[28px] font-bold leading-none">$4.2M</p>
+            <div class="w-full bg-surface-canvas h-1.5 mt-4 rounded-full overflow-hidden">
+                <div class="bg-primary h-full w-[85%] rounded-full"></div>
+            </div>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow">
+            <div class="flex justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-status-info">
+                    <span class="material-symbols-outlined">heart_plus</span>
+                </div>
+                <span class="text-primary font-label-small text-label-small">Stable</span>
+            </div>
+            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Maint. Health</p>
+            <p class="text-[28px] font-bold leading-none">94%</p>
+            <div class="w-full bg-surface-canvas h-1.5 mt-4 rounded-full overflow-hidden">
+                <div class="bg-primary h-full w-[94%] rounded-full"></div>
+            </div>
+        </div>
+
+        <div class="bg-surface-card p-5 rounded-xl card-shadow">
+            <div class="flex justify-between mb-4">
+                <div class="w-10 h-10 rounded-lg bg-status-success/10 flex items-center justify-center text-status-success">
+                    <span class="material-symbols-outlined">verified</span>
+                </div>
+                <span class="text-status-success font-badge-label text-badge-label bg-[#D1E7DD] px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span class="material-symbols-outlined" style="font-size:14px;">verified</span>Verified
+                </span>
+            </div>
+            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Compliance</p>
+            <p class="text-[28px] font-bold leading-none">98.2%</p>
+            <div class="w-full bg-surface-canvas h-1.5 mt-4 rounded-full overflow-hidden">
+                <div class="bg-status-success h-full w-[98%] rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main 2‑column layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left column (8) -->
+        <div class="lg:col-span-8 space-y-6">
+
+            <!-- System‑Wide Asset Value (Line Chart) -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default flex justify-between items-center flex-wrap gap-3">
+                    <div>
+                        <h3 class="font-section-header text-section-header text-on-surface">System‑Wide Asset Value</h3>
+                        <p class="text-label-small text-secondary mt-1">Growth projection for the fiscal year 2024</p>
+                    </div>
+                    <select class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <option>Last 12 Months</option>
+                        <option>YTD Performance</option>
+                    </select>
+                </div>
+                <div class="p-5">
+                    <div class="h-64 w-full relative">
+                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
+                            <defs>
+                                <linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
+                                    <stop offset="0%" stop-color="#98001a" stop-opacity="0.1" />
+                                    <stop offset="100%" stop-color="#98001a" stop-opacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M0 160 Q 100 140, 200 150 T 400 110 T 600 120 T 800 80 V 200 H 0 Z" fill="url(#chartFill)" />
+                            <path d="M0 160 Q 100 140, 200 150 T 400 110 T 600 120 T 800 80" fill="none" stroke="#98001a" stroke-width="3" />
+                            <circle cx="200" cy="150" fill="#98001a" r="4" />
+                            <circle cx="400" cy="110" fill="#98001a" r="4" />
+                            <circle cx="600" cy="120" fill="#98001a" r="4" />
+                            <circle cx="800" cy="80" fill="#98001a" r="4" />
+                        </svg>
+                        <div class="absolute bottom-0 w-full flex justify-between px-2 text-[10px] uppercase tracking-tight text-secondary font-medium font-technical-data">
+                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                            <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent System Logs Table -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default flex justify-between items-center">
+                    <h3 class="font-section-header text-section-header text-on-surface">Recent System Logs</h3>
+                    <button class="text-primary font-body-medium text-sm hover:underline flex items-center gap-1">
+                        View All Logs
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                        <tr class="bg-surface-canvas border-b border-border-default">
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Action</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Operator</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Timestamp</th>
+                            <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-default">
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-body-medium text-on-surface">New User Invited (Analyst)</td>
+                            <td class="px-5 py-3 font-technical-data text-secondary">ADMIN_082</td>
+                            <td class="px-5 py-3 text-secondary text-body-default">Oct 24, 09:12 AM</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 bg-status-success/10 text-status-success rounded-full text-badge-label font-badge-label">COMPLETED</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-body-medium text-on-surface">Asset Disposed: #JJ-2024-X4</td>
+                            <td class="px-5 py-3 font-technical-data text-secondary">OPS_MGR_4</td>
+                            <td class="px-5 py-3 text-secondary text-body-default">Oct 24, 08:45 AM</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-badge-label font-badge-label">PENDING</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-body-medium text-on-surface">Financial Audit Completed</td>
+                            <td class="px-5 py-3 font-technical-data text-secondary">FIN_SUP_1</td>
+                            <td class="px-5 py-3 text-secondary text-body-default">Oct 23, 05:30 PM</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 bg-status-success/10 text-status-success rounded-full text-badge-label font-badge-label">COMPLETED</span></td>
+                        </tr>
+                        <tr class="hover:bg-surface-canvas/50 transition-colors">
+                            <td class="px-5 py-3 font-body-medium text-on-surface">Asset Tag Re-assignment</td>
+                            <td class="px-5 py-3 font-technical-data text-secondary">SYS_AUTO</td>
+                            <td class="px-5 py-3 text-secondary text-body-default">Oct 23, 02:15 PM</td>
+                            <td class="px-5 py-3"><span class="px-2 py-0.5 bg-status-warning/10 text-status-warning rounded-full text-badge-label font-badge-label">WARNING</span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column (4) -->
+        <div class="lg:col-span-4 space-y-6">
+
+            <!-- System Health Card -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default">
+                    <h3 class="font-card-header text-card-header text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">analytics</span>
+                        System Health
+                    </h3>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-body-default text-secondary">Server Status</span>
+                        <span class="flex items-center text-xs font-bold text-status-success">
+                            <span class="w-2 h-2 bg-status-success rounded-full mr-2 animate-pulse"></span>
+                            OPTIMAL
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-body-default text-secondary">Last Daily Backup</span>
+                        <span class="text-technical-data text-on-surface">02:00 AM Today</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-body-default text-secondary">API Latency</span>
+                        <span class="text-technical-data text-on-surface">24ms</span>
+                    </div>
+                    <div class="pt-4 border-t border-border-default">
+                        <div class="flex justify-between text-label-small text-secondary mb-1">
+                            <span>Cloud Storage Used</span>
+                            <span>68%</span>
+                        </div>
+                        <div class="w-full bg-surface-canvas h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full w-[68%] rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Admin Actions -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default">
+                    <h3 class="font-card-header text-card-header text-on-surface">Quick Admin Actions</h3>
+                </div>
+                <div class="p-5 space-y-3">
+                    <button class="flex items-center w-full p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors group border border-border-default">
+                        <span class="material-symbols-outlined p-2 bg-surface-card rounded-lg text-primary mr-4 group-hover:bg-primary group-hover:text-white transition-all">person_add</span>
+                        <div class="text-left">
+                            <p class="font-body-medium text-on-surface">Invite New User</p>
+                            <p class="text-label-small text-secondary">Assign global permissions</p>
+                        </div>
+                    </button>
+                    <button class="flex items-center w-full p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors group border border-border-default">
+                        <span class="material-symbols-outlined p-2 bg-surface-card rounded-lg text-primary mr-4 group-hover:bg-primary group-hover:text-white transition-all">location_on</span>
+                        <div class="text-left">
+                            <p class="font-body-medium text-on-surface">Manage Locations</p>
+                            <p class="text-label-small text-secondary">Update site registry</p>
+                        </div>
+                    </button>
+                    <button class="flex items-center w-full p-3 bg-surface-canvas hover:bg-primary/5 rounded-xl transition-colors group border border-border-default">
+                        <span class="material-symbols-outlined p-2 bg-surface-card rounded-lg text-primary mr-4 group-hover:bg-primary group-hover:text-white transition-all">history_edu</span>
+                        <div class="text-left">
+                            <p class="font-body-medium text-on-surface">Audit Logs</p>
+                            <p class="text-label-small text-secondary">Export system reports</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Disposal Queue Summary -->
+            <div class="bg-surface-card rounded-xl card-shadow overflow-hidden border-l-4 border-l-primary">
+                <div class="p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-card-header text-card-header text-on-surface">Disposal Queue</h3>
+                        <span class="bg-primary text-on-primary px-2 py-0.5 rounded-full text-badge-label font-badge-label">5 PENDING</span>
+                    </div>
+                    <p class="text-body-default text-secondary mb-4">Assets awaiting final Super Admin approval for terminal disposal.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 border border-border-default rounded-lg">
+                            <div class="w-10 h-10 bg-surface-canvas flex items-center justify-center rounded-lg mr-3 text-primary">
+                                <span class="material-symbols-outlined">laptop_mac</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-label-small font-bold text-on-surface">MAC-PRO-992</p>
+                                <p class="text-[10px] text-secondary uppercase tracking-tighter">EOL - Hardware Failure</p>
+                            </div>
+                            <button class="text-primary hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center p-3 border border-border-default rounded-lg opacity-80">
+                            <div class="w-10 h-10 bg-surface-canvas flex items-center justify-center rounded-lg mr-3 text-primary">
+                                <span class="material-symbols-outlined">router</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-label-small font-bold text-on-surface">NET-CIS-001</p>
+                                <p class="text-[10px] text-secondary uppercase tracking-tighter">Security Redundancy</p>
+                            </div>
+                            <button class="text-primary hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 py-2 border border-primary text-primary hover:bg-primary hover:text-white transition-all rounded-lg font-body-medium text-sm">
+                        Review Full Queue
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+</body>
+</html>
