@@ -976,16 +976,17 @@
 
         <!-- User profile -->
         <div class="sidebar-user">
-            <div class="avatar">
-                <img alt="Auditor Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7g8mVmAXgBuwiQYIe1S15PPUoNHNbifMaG0ZdXFc11fcQ37Ih6vnIq0yFtHPxkOygYO8ylTncBPXhetEl4R7NKpA25jL-Wn9BLTEs8ZwDbTWfOyZnukMNtsldH7-CIUODAJO-JCZHXYGu5_fCUBPATdhw3KcUHZK30NOHHI9nN0kU5wmYcc1RcdddE075YgTtIU9BoXUenuA57LtG3j2yVodYcZzbz2Q6AVxux9L3m0FwNtPOagrazOKZRHYpfAyj5A6EAUlbhI4" />
+            <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
+                <!-- initials derived from authenticated user via GlobalControllerAdvice -->
+                <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
             </div>
             <div class="user-text">
-                <p>Auditor</p>
-                <span>Compliance Team</span>
+                <p th:text="${currentUserDisplayName}">User Name</p>
+                <span th:text="${'Auditor'}">username</span>
             </div>
-                <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
-                    <span class="material-symbols-outlined">logout</span>
-                </button>
+            <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
         </div>
 
     </div>

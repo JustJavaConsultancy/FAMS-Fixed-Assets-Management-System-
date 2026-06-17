@@ -879,12 +879,13 @@
 
     <!-- User profile (department head) -->
     <div class="sidebar-user">
-      <div class="avatar">
-        <img alt="Department Head Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7P6Jb4nvZtGaRVjpBjtZtITf2ntf_UOo_YK6dP6-6D-whtFEoV4efkbLvkclT6i-McMSR3ebk7k69XCbqQD_HTpxIHDeaI-OPXiXjkCYwuoxUNphS-Ohoxz92Ad9P1-1eJetKJU9XKHXgl63emFEVnOq5tXjy7-IziaaPBuJ3EMYFq9J8AlydIP8hI7TPqeqZXIxZvG7ON4zIZu2BaevFx1BXjQhaw3fD3SPT-k2MckU55FD2fkaGkTtN82anQou5HkCpdSavt_A" />
+      <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
+        <!-- initials derived from authenticated user via GlobalControllerAdvice -->
+        <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
       </div>
       <div class="user-text">
-        <p>Department Head</p>
-        <span>Dept. Head</span>
+        <p th:text="${currentUserDisplayName}">User Name</p>
+        <span th:text="${'Department Head'}">username</span>
       </div>
       <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
         <span class="material-symbols-outlined">logout</span>

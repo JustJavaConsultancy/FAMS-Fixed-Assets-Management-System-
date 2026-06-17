@@ -870,12 +870,13 @@
 
         <!-- User profile (employee) -->
         <div class="sidebar-user">
-            <div class="avatar">
-                <img alt="Employee Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuPfi0QV_pE7TsUdnxB57Vml-2bixApiWoQw4V_cubZqlr0AXnXNWTzyEmrcxueh9Xo76fHpnx14OD_h6gE4UrX316u38FOMsB_jU3TFIGuFKXAkVApYRQIdSDvwakUjNUcDQHJb5jTedAI300vlzsA_L-dFgLFbmV0DEMWReJ13BanPGoVZ7O9Cs7_9Z9naivw5u7S7sm_m-ZGkW3jICES_1L1-G_tPmJ0-cqMh7SrdaHryG5dk2UyaMHKIdEFbqriKN_rZgawsY" />
+            <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
+                <!-- initials derived from authenticated user via GlobalControllerAdvice -->
+                <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
             </div>
             <div class="user-text">
-                <p>Employee</p>
-                <span>Team Member</span>
+                <p th:text="${currentUserDisplayName}">User Name</p>
+                <span th:text="${'Employee'}">username</span>
             </div>
             <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
                 <span class="material-symbols-outlined">logout</span>

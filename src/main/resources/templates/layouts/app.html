@@ -1099,14 +1099,15 @@
             </div>
         </nav>
 
-        <!-- User profile -->
+        <!-- User profile: show initials and logged-in username -->
         <div class="sidebar-user">
-            <div class="avatar">
-                <img alt="User Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhbCXvzswGoJF8h-HsFCH12MQjSLKu9IFrwp7CP67H_YxsQeutuCJ3R3rXaRqdyZ-oxOaVcMmNawHGZvOSMPHAq4g8c7waAA1wKrEfzGfjtu2t3-MRCbzvZJXDguDmDAl93uKKn1eW4qKc9L-LfZ8azL_gJNgbQn9aiwkDUG6jVMAQnsaYhoUdOwzf2ixqvwaRotkqjScNQnNoZU3a9SJfyvUfrzLFrnn4Lr29vjJHBaKHwru8t63K" />
+            <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
+                <!-- initials derived from authenticated user via GlobalControllerAdvice -->
+                <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
             </div>
             <div class="user-text">
-                <p>Alex Asset</p>
-                <span>Admin Account</span>
+                <p th:text="${currentUserDisplayName}">User Name</p>
+                <span th:text="${'Asset Manager'}">username</span>
             </div>
             <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
                 <span class="material-symbols-outlined">logout</span>
@@ -1149,7 +1150,7 @@
     <!-- Page content goes here -->
     <div class="bg-white rounded-2xl border border-border-default p-6 card-shadow">
         <h2 class="text-page-title">Dashboard</h2>
-        <p class="text-body-default text-secondary mt-2">Welcome back, Alex. Here's your asset overview.</p>
+        <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
             <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
                 <p class="text-label-small text-secondary">Total Assets</p>
