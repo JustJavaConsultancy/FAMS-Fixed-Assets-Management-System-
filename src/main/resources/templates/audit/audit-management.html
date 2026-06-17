@@ -2,303 +2,688 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
 <head>
     <title>Audit Management | JustJava FAMS</title>
+    <style>
+        .scan-frame {
+            position: relative;
+            min-height: 260px;
+            background: #151b29;
+            overflow: hidden;
+        }
+        .scan-frame video {
+            width: 100%;
+            min-height: 260px;
+            max-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+        .scan-reticle {
+            position: absolute;
+            inset: 18%;
+            border: 2px solid rgba(255, 255, 255, 0.88);
+            border-radius: 14px;
+            box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34);
+            pointer-events: none;
+        }
+        .scan-reticle::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 50%;
+            height: 2px;
+            background: #c0182a;
+            box-shadow: 0 0 12px rgba(192, 24, 42, 0.8);
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 9999px;
+            animation: spin 700ms linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6" layout:fragment="content">
-    <!-- Page Title Row (matches Dashboard) -->
-    <div class="flex justify-between items-end">
+<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
+    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
         <div>
-            <h2 class="font-page-title text-page-title text-on-background">Audit Management</h2>
-            <p class="text-body-default text-secondary">Conduct physical verification and track asset discrepancies</p>
+            <div class="flex items-center gap-3">
+                <h2 class="font-page-title text-page-title text-on-background">Asset Audit</h2>
+                <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
+                      th:text="${activeSession != null ? activeSession.status : 'No active session'}">ACTIVE</span>
+            </div>
+            <p class="text-body-default text-secondary mt-1">Scan asset QR codes or barcodes to verify existence, condition, and location.</p>
         </div>
-        <button class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2 shadow-sm">
-            <span class="material-symbols-outlined text-[18px]">add_circle</span>
-            Start New Audit
-        </button>
-    </div>
-
-    <!-- Main Content Grid (12 columns) -->
-    <div class="grid grid-cols-12 gap-6">
-        <!-- Left Panel: Audit Sessions List (3 columns) -->
-        <div class="col-span-12 lg:col-span-3 bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-border-default">
-                <h3 class="font-card-header text-card-header text-on-surface">Audit Sessions</h3>
-            </div>
-            <div class="flex-1 overflow-y-auto max-h-[calc(100vh-250px)]">
-                <div class="p-4 space-y-4">
-                    <p class="font-nav-group text-label-small text-secondary uppercase tracking-wider px-2">Active Sessions</p>
-                    <!-- Active Audit Item -->
-                    <div class="p-3 bg-primary/5 border-l-4 border-primary rounded-r-lg cursor-pointer transition-all hover:bg-primary/10">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-body-medium text-primary truncate">Q2 IT Equipment - Lagos HQ</h4>
-                            <span class="bg-primary text-on-primary text-[9px] px-1.5 py-0.5 rounded font-bold">LIVE</span>
-                        </div>
-                        <p class="text-label-small text-secondary mb-3 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px]">calendar_today</span> May 24, 2024
-                        </p>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-label-small">
-                                <span class="text-secondary">Progress</span>
-                                <span class="text-primary font-bold">71%</span>
-                            </div>
-                            <div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-                                <div class="bg-primary h-full rounded-full" style="width: 71%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="font-nav-group text-label-small text-secondary uppercase tracking-wider px-2 pt-4">Recent Completed</p>
-                    <!-- Past Audit Item 1 -->
-                    <div class="p-3 bg-surface-card border border-border-default rounded-lg cursor-pointer transition-all hover:bg-surface-canvas group">
-                        <div class="flex justify-between items-start mb-1">
-                            <h4 class="font-body-medium text-on-surface truncate group-hover:text-primary transition-colors">Workshop Tools - PH</h4>
-                            <span class="bg-status-success/10 text-status-success text-[10px] px-2 py-0.5 rounded-full font-medium border border-status-success/20">Verified</span>
-                        </div>
-                        <p class="text-label-small text-secondary mb-2 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px]">person</span> Sarah Jenkins
-                        </p>
-                        <div class="flex justify-between items-center text-label-small">
-                            <span class="text-secondary">Completed: May 12</span>
-                            <span class="text-on-surface font-technical-data font-medium">100% (450/450)</span>
-                        </div>
-                    </div>
-                    <!-- Past Audit Item 2 -->
-                    <div class="p-3 bg-surface-card border border-border-default rounded-lg cursor-pointer transition-all hover:bg-surface-canvas group">
-                        <div class="flex justify-between items-start mb-1">
-                            <h4 class="font-body-medium text-on-surface truncate group-hover:text-primary transition-colors">Fleet Vehicles - Abuja</h4>
-                            <span class="bg-status-warning/10 text-status-warning text-[10px] px-2 py-0.5 rounded-full font-medium border border-status-warning/20">Pending Flag</span>
-                        </div>
-                        <p class="text-label-small text-secondary mb-2 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px]">person</span> Mike Bello
-                        </p>
-                        <div class="flex justify-between items-center text-label-small">
-                            <span class="text-secondary">Completed: May 08</span>
-                            <span class="text-on-surface font-technical-data font-medium">98% (88/90)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Panel: Active Audit Workspace (9 columns) -->
-        <div class="col-span-12 lg:col-span-9 space-y-6">
-            <!-- Audit Header Card -->
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default">
-                    <div class="flex flex-wrap justify-between items-start gap-4">
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
-                                <h2 class="font-section-header text-section-header text-on-surface">Active Audit: Q2 IT Equipment - Lagos HQ</h2>
-                            </div>
-                            <div class="flex flex-wrap gap-4 text-label-small text-secondary">
-                                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_month</span> May 24, 2024</div>
-                                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">badge</span> Auditor: Alex Okafor</div>
-                                <div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">corporate_fare</span> Dept: IT / Ops</div>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <button class="h-[38px] px-5 border border-border-strong rounded-lg font-body-medium text-on-surface hover:bg-surface-canvas transition-colors">Pause Session</button>
-                            <button class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all shadow-sm">Complete Audit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Bar Card -->
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 flex flex-wrap items-center gap-6">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-body-medium text-secondary">Overall Verification Progress</span>
-                            <span class="font-technical-data font-bold text-on-surface">142 / 200 Assets (71%)</span>
-                        </div>
-                        <div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
-                            <div class="bg-primary h-full rounded-full transition-all" style="width: 71%"></div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 bg-error/5 text-error px-4 py-2 rounded-lg border border-error/20">
-                        <span class="material-symbols-outlined text-[18px]">warning</span>
-                        <div>
-                            <p class="font-bold leading-none text-error">12 Discrepancies</p>
-                            <p class="text-label-small uppercase tracking-wider opacity-70">Requires Attention</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Scan Area Card -->
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-8 flex flex-col items-center justify-center text-center">
-                    <div class="relative w-32 h-32 mb-6">
-                        <div class="absolute inset-0 bg-primary/10 rounded-full animate-pulse"></div>
-                        <div class="relative z-10 w-full h-full flex items-center justify-center bg-primary/20 rounded-full border-2 border-primary/30">
-                            <span class="material-symbols-outlined text-primary text-5xl">qr_code_scanner</span>
-                        </div>
-                    </div>
-                    <h3 class="font-section-header text-section-header text-on-surface mb-2">Ready to Scan</h3>
-                    <p class="text-secondary mb-6 max-w-sm">Position the asset QR or Barcode within the camera frame to automatically verify information.</p>
-                    <div class="w-full max-w-md flex gap-2">
-                        <div class="relative flex-1">
-                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">keyboard</span>
-                            <input type="text" placeholder="Or enter Asset ID manually..." class="w-full h-[38px] pl-10 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        </div>
-                        <button class="h-[38px] px-5 bg-secondary/10 text-on-surface rounded-lg font-body-medium hover:bg-secondary/20 transition-colors">Submit</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live Verification Feed -->
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-section-header text-section-header text-on-surface">Live Verification Feed</h3>
-                    <div class="flex gap-3">
-                        <span class="flex items-center gap-1.5 text-label-small text-secondary"><span class="w-2 h-2 rounded-full bg-status-success"></span> Verified</span>
-                        <span class="flex items-center gap-1.5 text-label-small text-secondary"><span class="w-2 h-2 rounded-full bg-primary"></span> Misplaced</span>
-                        <span class="flex items-center gap-1.5 text-label-small text-secondary"><span class="w-2 h-2 rounded-full bg-status-warning"></span> Damaged</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <!-- Verified Card -->
-                    <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden border-l-4 border-l-status-success">
-                        <div class="flex p-4 gap-4">
-                            <img class="w-16 h-16 rounded-lg object-cover bg-surface-canvas border border-border-default" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZXdW9Z7hEafDzx_szSqN2OYAUJScuuutBiUMZEEW67xrB9wmpxbFwILoiSxPM4Jjo3yLjj2f1ogPAK9Q4vCgFmC49XP7VXFf9PB_G8i8vG31tYKmPxHELuB6vop9xysQ2tqIVPI7TFb4vG4aeZILTUejlK5-9-sRl4vWMu3qfhBUnTq-bvOFnDv0XJvTZJYSj7Kr8W9I0f8Ob3npp4QyDHKYrdO_L7Z1wuXi4GTjAkSWCHp6kTgZa">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-card-header text-card-header text-on-surface truncate">MacBook Pro M2 14"</h4>
-                                    <span class="material-symbols-outlined text-status-success">check_circle</span>
-                                </div>
-                                <p class="font-technical-data text-secondary text-label-small mb-2 uppercase tracking-tighter">ID: IT-MBP-2024-041</p>
-                                <span class="inline-block bg-status-success/10 text-status-success text-badge-label font-badge-label px-2 py-0.5 rounded-full">VERIFIED</span>
-                            </div>
-                        </div>
-                        <div class="bg-surface-canvas/50 px-4 py-2 border-t border-border-default flex justify-between text-label-small">
-                            <span class="text-secondary">Expected: <span class="text-on-surface font-medium">IT Lab A</span></span>
-                            <span class="text-secondary">Actual: <span class="text-on-surface font-medium">IT Lab A</span></span>
-                        </div>
-                    </div>
-                    <!-- Misplaced Card -->
-                    <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden border-l-4 border-l-primary">
-                        <div class="flex p-4 gap-4">
-                            <img class="w-16 h-16 rounded-lg object-cover bg-surface-canvas border border-border-default" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu5nhlevMiCaBVEvjRJyGKrSBq9DBj1A-Efvkxlk4uiamlrEZUPMrp1mI-Akbl-sqmqE3C7OCqr0WVdYgHqreYsosaMb3dVZauvJTNeUWRJPyso6ae5cwOldbEaBy4MV201j9csaLneTWHVO5uhoc40Q4Dpf9RK-FtXUr3yoAfbEhtM5mEwjk7K1Yz94_cgNRakjQr2QxWxS9A-rN0hs8OMIpBf62_gqTafJZQ_jss8YmlJAPTRoYj">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-card-header text-card-header text-on-surface truncate">Dell UltraSharp 27"</h4>
-                                    <span class="material-symbols-outlined text-primary">warning</span>
-                                </div>
-                                <p class="font-technical-data text-secondary text-label-small mb-2 uppercase tracking-tighter">ID: IT-MON-2023-118</p>
-                                <span class="inline-block bg-primary/10 text-primary text-badge-label font-badge-label px-2 py-0.5 rounded-full">MISPLACED</span>
-                            </div>
-                        </div>
-                        <div class="bg-error/5 px-4 py-2 border-t border-border-default flex justify-between text-label-small">
-                            <span class="text-secondary">Expected: <span class="text-on-surface font-medium">Fin Dept</span></span>
-                            <span class="text-primary font-medium">Found: Marketing</span>
-                        </div>
-                    </div>
-                    <!-- Damaged Card -->
-                    <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden border-l-4 border-l-status-warning">
-                        <div class="flex p-4 gap-4">
-                            <img class="w-16 h-16 rounded-lg object-cover bg-surface-canvas border border-border-default" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQxHCW5w_dP3FNR42JWYYzulUczP9pWj12LiZsPUoABqf19OS1AUT2EOlCW5B49mwUZZSmHqGhkzge0duJycBlXjgu591eNa7QonfpCtKjkut8mwB76_6bAMtsYwULR2uQN-q7tV7nztuNUs1kO9Qu19wUUENyufWMS_qh2DcnnIGSUY6a3laocImwddp0nSAD3NiA1gQkXG47yyyxklXYIsoHz5to3oaN_JjmIZI-G-eP7s-bdXHa">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-card-header text-card-header text-on-surface truncate">Cisco IP Phone 8845</h4>
-                                    <span class="material-symbols-outlined text-status-warning">construction</span>
-                                </div>
-                                <p class="font-technical-data text-secondary text-label-small mb-2 uppercase tracking-tighter">ID: IT-TEL-2022-802</p>
-                                <span class="inline-block bg-status-warning/10 text-status-warning text-badge-label font-badge-label px-2 py-0.5 rounded-full">DAMAGED</span>
-                            </div>
-                        </div>
-                        <div class="bg-status-warning/5 px-4 py-2 border-t border-border-default flex justify-between text-label-small">
-                            <span class="text-secondary">Status: <span class="text-status-warning font-medium italic">Broken Screen</span></span>
-                            <span class="text-secondary">Action: <span class="text-on-surface font-medium">Maint. Ticket</span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Slide-over Panel: Discrepancy Report (hidden by default, toggle with JS) -->
-    <div class="fixed inset-y-0 right-0 w-[400px] bg-surface-card shadow-2xl z-50 transform translate-x-full transition-transform duration-300 border-l border-border-default flex flex-col" id="discrepancy-panel">
-        <div class="p-5 border-b border-border-default flex justify-between items-center bg-surface-canvas">
+        <form th:action="@{/audit/sessions}" method="post" class="bg-surface-card border border-border-default rounded-xl p-3 card-shadow flex flex-col md:flex-row gap-3 md:items-end">
             <div>
-                <h3 class="font-section-header text-section-header text-on-surface">Discrepancy Report</h3>
-                <p class="text-label-small text-secondary">Found 12 issues during current session</p>
+                <label class="block text-label-small text-secondary mb-1">Session title</label>
+                <input name="title" required maxlength="160" th:value="${defaultAuditTitle}"
+                       class="h-[38px] w-full md:w-64 px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
             </div>
-            <button class="p-1 hover:bg-surface-variant rounded-full transition-colors" onclick="document.getElementById('discrepancy-panel').classList.add('translate-x-full')">
-                <span class="material-symbols-outlined">close</span>
+            <div>
+                <label class="block text-label-small text-secondary mb-1">Scope / location</label>
+                <input name="scopeLocation" maxlength="160" placeholder="Branch, floor, department"
+                       class="h-[38px] w-full md:w-56 px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+            </div>
+            <button type="submit" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                <span class="material-symbols-outlined text-[18px]">add_task</span>
+                Start Audit
             </button>
-        </div>
-        <div class="flex-1 overflow-y-auto">
-            <table class="w-full text-left">
-                <thead class="bg-surface-canvas border-b border-border-default">
-                <tr>
-                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Asset ID</th>
-                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Issue</th>
-                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Action</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-border-default">
-                <tr class="hover:bg-surface-canvas/50 transition-colors">
-                    <td class="px-4 py-3 font-technical-data text-on-surface">IT-MBP-022</td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">Missing</span></td>
-                    <td class="px-4 py-3"><button class="text-primary hover:underline text-label-small font-bold">Resolve</button></td>
-                </tr>
-                <tr class="hover:bg-surface-canvas/50 transition-colors">
-                    <td class="px-4 py-3 font-technical-data text-on-surface">IT-MON-118</td>
-                    <td class="px-4 py-3"><span class="bg-status-warning/10 text-status-warning text-[10px] font-bold px-2 py-0.5 rounded uppercase">Relocated</span></td>
-                    <td class="px-4 py-3"><button class="text-primary hover:underline text-label-small font-bold">Approve</button></td>
-                </tr>
-                <tr class="hover:bg-surface-canvas/50 transition-colors">
-                    <td class="px-4 py-3 font-technical-data text-on-surface">IT-TEL-802</td>
-                    <td class="px-4 py-3"><span class="bg-error/10 text-error text-[10px] font-bold px-2 py-0.5 rounded uppercase">Damaged</span></td>
-                    <td class="px-4 py-3"><button class="text-primary hover:underline text-label-small font-bold">Assign</button></td>
-                </tr>
-                <tr class="hover:bg-surface-canvas/50 transition-colors">
-                    <td class="px-4 py-3 font-technical-data text-on-surface">IT-SRV-001</td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase">Missing</span></td>
-                    <td class="px-4 py-3"><button class="text-primary hover:underline text-label-small font-bold">Search</button></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="p-5 border-t border-border-default bg-surface-canvas/30">
-            <button class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-[18px]">send</span>
-                Escalate to Asset Manager
-            </button>
-            <p class="text-center text-label-small text-secondary">A summary report will be sent to the department head automatically.</p>
-        </div>
+        </form>
     </div>
 
-    <script>
-        // Simple manual scan simulation (non-intrusive)
-        const scanInput = document.querySelector('input[placeholder*="enter Asset ID manually"]');
-        if (scanInput) {
-            scanInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && scanInput.value.trim() !== '') {
-                    const btn = scanInput.nextElementSibling;
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span>';
-                    btn.disabled = true;
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        scanInput.value = '';
-                        // Optional: show a toast or add a new card
-                    }, 800);
-                }
-            });
+    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p class="font-body-medium" th:text="${successMessage}">Done.</p>
+    </div>
+    <div th:if="${errorMessage}" class="bg-error/10 border border-error/20 text-error rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-body-medium" th:text="${errorMessage}">Something went wrong.</p>
+    </div>
+
+    <div th:if="${activeSession == null}" class="bg-surface-card border border-border-default rounded-xl card-shadow p-12 sm:p-20 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-[42px]">qr_code_scanner</span>
+        </div>
+        <h3 class="font-card-header text-card-header text-on-surface">No audit session has been started</h3>
+        <p class="text-body-default text-secondary mt-2 max-w-md mx-auto">Start a session to scan asset tags, submit verification outcomes, and generate reports.</p>
+    </div>
+
+    <div th:if="${activeSession != null}" class="grid grid-cols-12 gap-6">
+        <aside class="col-span-12 xl:col-span-3 space-y-6">
+            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+                <div class="p-4 border-b border-border-default">
+                    <h3 class="font-card-header text-card-header text-on-surface">Audit Sessions</h3>
+                    <p class="text-label-small text-secondary mt-1">Recent and active sessions</p>
+                </div>
+                <div class="divide-y divide-border-default max-h-[520px] overflow-y-auto">
+                    <div th:if="${#lists.isEmpty(sessions)}" class="p-8 text-center">
+                        <span class="material-symbols-outlined text-secondary text-[36px]">inventory</span>
+                        <p class="text-body-default text-secondary mt-2">No audit sessions yet.</p>
+                    </div>
+                    <div th:each="sess : ${sessions}" class="p-4 hover:bg-surface-canvas/70 transition-colors">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="font-body-medium text-on-surface truncate" th:text="${sess.title}">Audit title</p>
+                                <p class="text-label-small text-secondary mt-1" th:text="${sess.scopeLocation ?: 'All registered assets'}">Location</p>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                  th:classappend="${sess.status.name() == 'ACTIVE'} ? ' bg-primary/10 text-primary' : ' bg-status-success/10 text-status-success'"
+                                  th:text="${sess.status}">ACTIVE</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+                            <div class="bg-surface-canvas rounded-lg p-2">
+                                <p class="font-technical-data text-on-surface" th:text="${session.verifiedCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase">Verified</p>
+                            </div>
+                            <div class="bg-surface-canvas rounded-lg p-2">
+                                <p class="font-technical-data text-error" th:text="${session.missingCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase">Missing</p>
+                            </div>
+                            <div class="bg-surface-canvas rounded-lg p-2">
+                                <p class="font-technical-data text-status-warning" th:text="${session.discrepancyCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase">Issues</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface-card border border-border-default rounded-xl card-shadow p-4">
+                <h3 class="font-card-header text-card-header text-on-surface">History Report</h3>
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <input id="history-from" type="date" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default">
+                    <input id="history-to" type="date" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default">
+                </div>
+                <button id="history-button" class="mt-3 w-full h-[38px] border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">history</span>
+                    Run History
+                </button>
+                <div id="history-list" class="mt-4 space-y-2">
+                    <div th:each="audit : ${historyReport.audits}" class="rounded-lg border border-border-default p-3">
+                        <div class="flex justify-between gap-3">
+                            <p class="font-body-medium text-on-surface truncate" th:text="${audit.title}">Completed audit</p>
+                            <span class="font-technical-data text-secondary" th:text="${audit.verifiedCount}">0</span>
+                        </div>
+                        <p class="text-label-small text-secondary mt-1"
+                           th:text="${'Missing ' + audit.missingCount + ' | Discrepancies ' + audit.discrepancyCount}">Counts</p>
+                    </div>
+                    <div th:if="${#lists.isEmpty(historyReport.audits)}" class="p-5 text-center bg-surface-canvas rounded-lg">
+                        <p class="text-body-default text-secondary">No completed audits in the default period.</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="col-span-12 xl:col-span-9 space-y-6">
+            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+                <div class="p-5 border-b border-border-default flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">verified_user</span>
+                            <h3 class="font-section-header text-section-header text-on-surface" th:text="${activeSession.title}">Active audit</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-4 text-label-small text-secondary mt-2">
+                            <span th:text="${'Auditor: ' + activeSession.auditorName}">Auditor</span>
+                            <span th:text="${'Scope: ' + (activeSession.scopeLocation ?: 'All registered assets')}">Scope</span>
+                            <span th:text="${'Started: ' + #temporals.format(activeSession.startedAt, 'MMM dd, yyyy HH:mm')}">Started</span>
+                        </div>
+                    </div>
+                    <form th:if="${activeSession.status.name() == 'ACTIVE'}" th:action="@{/audit/sessions/{id}/complete(id=${activeSession.id})}" method="post">
+                        <button type="submit" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                            Complete Audit
+                        </button>
+                    </form>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-border-default">
+                    <div class="p-5 border-b md:border-b-0 md:border-r border-border-default">
+                        <p class="text-label-small text-secondary">Assets verified</p>
+                        <p id="metric-verified" class="mt-1 font-technical-data text-2xl text-on-surface" th:text="${discrepancyReport.totalVerified}">0</p>
+                    </div>
+                    <div class="p-5 border-b md:border-b-0 md:border-r border-border-default">
+                        <p class="text-label-small text-secondary">Discrepancies</p>
+                        <p id="metric-discrepancies" class="mt-1 font-technical-data text-2xl text-status-warning" th:text="${discrepancyReport.discrepancyCount}">0</p>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-label-small text-secondary">Report status</p>
+                        <p class="mt-1 font-body-medium text-on-surface" th:text="${activeSession.status.name() == 'ACTIVE' ? 'In progress' : 'Completed'}">In progress</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-5 border-b lg:border-b-0 lg:border-r border-border-default">
+                        <div class="scan-frame rounded-xl border border-border-default">
+                            <video id="scanner-video" muted playsinline></video>
+                            <div class="scan-reticle hidden" id="scan-reticle"></div>
+                            <div id="camera-empty" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                                <span class="material-symbols-outlined text-white/90 text-[52px]">qr_code_scanner</span>
+                                <h4 class="font-card-header text-white mt-3">Camera scanner ready</h4>
+                                <p class="text-body-default text-white/70 mt-1 max-w-sm">Use a supported mobile browser to scan QR or barcode tags. Manual entry remains available.</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                            <button id="start-camera" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 disabled:opacity-50">
+                                <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                                Start Camera
+                            </button>
+                            <button id="stop-camera" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">videocam_off</span>
+                                Stop
+                            </button>
+                        </div>
+                        <p id="scanner-message" class="mt-3 text-label-small text-secondary">BarcodeDetector support depends on browser and device camera permissions.</p>
+                        <div class="mt-4 flex gap-2">
+                            <div class="relative flex-1">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">keyboard</span>
+                                <input id="manual-code" type="text" placeholder="Enter asset code or barcode value"
+                                       class="w-full h-[38px] pl-10 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            </div>
+                            <button id="manual-lookup" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="h-[38px] px-5 bg-secondary/10 text-on-surface rounded-lg font-body-medium hover:bg-secondary/20 transition-colors disabled:opacity-50">Lookup</button>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div id="lookup-loading" class="hidden rounded-xl border border-border-default bg-surface-canvas p-6 text-center">
+                            <div class="spinner text-primary mx-auto"></div>
+                            <p class="text-body-default text-secondary mt-3">Retrieving asset record...</p>
+                        </div>
+                        <div id="lookup-error" class="hidden rounded-xl border border-error/20 bg-error/10 p-4 text-error flex gap-3">
+                            <span class="material-symbols-outlined">error</span>
+                            <p class="font-body-medium" id="lookup-error-text">Asset not found.</p>
+                        </div>
+                        <div id="asset-card" class="hidden rounded-xl border border-border-default overflow-hidden">
+                            <div class="p-4 flex gap-4">
+                                <div class="w-16 h-16 rounded-lg bg-surface-variant border border-border-default overflow-hidden flex items-center justify-center shrink-0">
+                                    <img id="asset-image" class="hidden w-full h-full object-cover" alt="Scanned asset">
+                                    <span id="asset-image-empty" class="material-symbols-outlined text-primary text-[32px]">inventory_2</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 id="asset-name" class="font-card-header text-card-header text-on-surface truncate">Asset name</h4>
+                                    <p id="asset-code" class="font-technical-data text-secondary text-label-small mt-1">AST</p>
+                                    <span id="asset-status" class="mt-2 inline-flex px-2.5 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info">Status</span>
+                                </div>
+                            </div>
+                            <div class="bg-surface-canvas border-t border-border-default p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <p class="text-label-small text-secondary">Expected location</p>
+                                    <p id="asset-location" class="font-body-medium text-on-surface mt-1">Location</p>
+                                </div>
+                                <div>
+                                    <p class="text-label-small text-secondary">Custodian</p>
+                                    <p id="asset-custodian" class="font-body-medium text-on-surface mt-1">Custodian</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="verification-form" class="mt-5 space-y-4">
+                            <input type="hidden" id="asset-id">
+                            <input type="hidden" id="scanned-code">
+                            <div>
+                                <label class="block text-label-small text-secondary mb-2">Verification result</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="resultStatus" value="FOUND" checked>
+                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-status-success peer-checked:bg-status-success/10 peer-checked:text-status-success text-on-surface font-body-medium flex items-center justify-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">check_circle</span>Found
+                                        </span>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="resultStatus" value="MISSING">
+                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-error peer-checked:bg-error/10 peer-checked:text-error text-on-surface font-body-medium flex items-center justify-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">cancel</span>Missing
+                                        </span>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="resultStatus" value="DAMAGED">
+                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-status-warning peer-checked:bg-status-warning/10 peer-checked:text-status-warning text-on-surface font-body-medium flex items-center justify-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">construction</span>Damaged
+                                        </span>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input class="peer sr-only" type="radio" name="resultStatus" value="LOCATION_MISMATCH">
+                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary text-on-surface font-body-medium flex items-center justify-center gap-2">
+                                            <span class="material-symbols-outlined text-[18px]">wrong_location</span>Mismatch
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-label-small text-secondary mb-1">Actual location</label>
+                                <input id="actual-location" maxlength="260" placeholder="Where the asset was found"
+                                       class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-label-small text-secondary mb-1">Condition notes</label>
+                                <textarea id="condition-notes" rows="3" placeholder="Optional note for damage, missing status, or location mismatch"
+                                          class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                            </div>
+                            <button id="submit-verification" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 disabled:opacity-50">
+                                <span class="material-symbols-outlined text-[18px]">save</span>
+                                Submit Verification
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+                    <div class="p-4 border-b border-border-default flex items-center justify-between">
+                        <div>
+                            <h3 class="font-card-header text-card-header text-on-surface">Verification Feed</h3>
+                            <p class="text-label-small text-secondary mt-1">Latest stored results for this session</p>
+                        </div>
+                    </div>
+                    <div id="verification-feed" class="divide-y divide-border-default">
+                        <div th:if="${#lists.isEmpty(results)}" class="p-10 text-center">
+                            <span class="material-symbols-outlined text-secondary text-[42px]">fact_check</span>
+                            <h4 class="font-card-header text-card-header text-on-surface mt-3">No assets verified yet</h4>
+                            <p class="text-body-default text-secondary mt-1">Scan or manually enter an asset tag to begin.</p>
+                        </div>
+                        <div th:each="result : ${results}" class="p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="font-body-medium text-on-surface truncate" th:text="${result.assetName}">Asset</p>
+                                    <p class="font-technical-data text-label-small text-secondary mt-1" th:text="${result.assetCode}">AST</p>
+                                </div>
+                                <span class="px-2.5 py-0.5 rounded-full text-badge-label font-badge-label"
+                                      th:classappend="${result.resultStatus.name() == 'FOUND'} ? ' bg-status-success/10 text-status-success' : (${result.resultStatus.name() == 'DAMAGED'} ? ' bg-status-warning/10 text-status-warning' : ' bg-error/10 text-error')"
+                                      th:text="${#strings.replace(result.resultStatus.name(), '_', ' ')}">FOUND</span>
+                            </div>
+                            <p class="text-label-small text-secondary mt-2"
+                               th:text="${'Expected: ' + result.expectedLocation + (result.actualLocation != null ? ' | Actual: ' + result.actualLocation : '')}">Location</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+                    <div class="p-4 border-b border-border-default flex items-center justify-between">
+                        <div>
+                            <h3 class="font-card-header text-card-header text-on-surface">Discrepancy Report</h3>
+                            <p class="text-label-small text-secondary mt-1">Mismatched, missing, or damaged assets</p>
+                        </div>
+                        <button id="refresh-discrepancies" class="h-9 w-9 rounded-lg border border-border-default hover:bg-surface-canvas flex items-center justify-center" aria-label="Refresh discrepancies">
+                            <span class="material-symbols-outlined text-[18px]">refresh</span>
+                        </button>
+                    </div>
+                    <div id="discrepancy-report">
+                        <div th:if="${discrepancyReport.discrepancyCount == 0}" class="p-10 text-center">
+                            <span class="material-symbols-outlined text-status-success text-[42px]">verified</span>
+                            <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
+                            <p class="text-body-default text-secondary mt-1">Issues will appear here once an auditor submits them.</p>
+                        </div>
+                        <div th:unless="${discrepancyReport.discrepancyCount == 0}" class="overflow-x-auto">
+                            <table class="w-full text-left min-w-[520px]">
+                                <thead class="bg-surface-canvas border-b border-border-default">
+                                <tr>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Asset</th>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Type</th>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Location</th>
+                                </tr>
+                                </thead>
+                                <tbody class="divide-y divide-border-default">
+                                <tr th:each="item : ${discrepancyReport.discrepancies}" class="hover:bg-surface-canvas/60">
+                                    <td class="px-4 py-3">
+                                        <p class="font-body-medium text-on-surface" th:text="${item.assetName}">Asset</p>
+                                        <p class="font-technical-data text-label-small text-secondary" th:text="${item.assetCode}">AST</p>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label" th:text="${item.discrepancyType}">Missing</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-label-small text-secondary"
+                                        th:text="${item.actualLocation != null ? item.actualLocation : item.expectedLocation}">Location</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script th:inline="javascript">
+        const activeSessionId = [[${activeSession != null ? activeSession.id : null}]];
+        const sessionActive = [[${activeSession != null && activeSession.status.name() == 'ACTIVE'}]];
+        const lookupButton = document.getElementById('manual-lookup');
+        const manualCode = document.getElementById('manual-code');
+        const lookupLoading = document.getElementById('lookup-loading');
+        const lookupError = document.getElementById('lookup-error');
+        const lookupErrorText = document.getElementById('lookup-error-text');
+        const assetCard = document.getElementById('asset-card');
+        const scannerMessage = document.getElementById('scanner-message');
+        const video = document.getElementById('scanner-video');
+        let currentAsset = null;
+        let stream = null;
+        let detector = null;
+        let scanning = false;
+        let lastDetectedCode = '';
+        let lastDetectedAt = 0;
+
+        function setLoading(isLoading) {
+            lookupLoading?.classList.toggle('hidden', !isLoading);
+            lookupButton && (lookupButton.disabled = isLoading || !sessionActive);
         }
 
-        // Function to show discrepancy panel (can be triggered by "Complete Audit" button)
-        function showDiscrepancyPanel() {
-            document.getElementById('discrepancy-panel').classList.remove('translate-x-full');
+        function showError(message) {
+            lookupErrorText.textContent = message || 'Unable to complete the request.';
+            lookupError.classList.remove('hidden');
         }
-        // Attach to Complete Audit button if exists
-        const completeBtn = document.querySelector('button:contains("Complete Audit")');
-        if (completeBtn) {
-            completeBtn.onclick = showDiscrepancyPanel;
+
+        function clearLookupState() {
+            lookupError?.classList.add('hidden');
+            assetCard?.classList.add('hidden');
+        }
+
+        async function lookupAsset(code) {
+            const cleanCode = (code || '').trim();
+            if (!cleanCode) {
+                showError('Enter or scan an asset code.');
+                return;
+            }
+            clearLookupState();
+            setLoading(true);
+            try {
+                const response = await fetch(`/api/audits/assets/lookup?code=${encodeURIComponent(cleanCode)}`, { headers: { 'Accept': 'application/json' } });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.message || 'No asset was found for this code.');
+                }
+                currentAsset = data;
+                renderAsset(data, cleanCode);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function renderAsset(asset, scannedCode) {
+            document.getElementById('asset-id').value = asset.id;
+            document.getElementById('scanned-code').value = scannedCode;
+            document.getElementById('asset-name').textContent = asset.name;
+            document.getElementById('asset-code').textContent = asset.assetCode;
+            document.getElementById('asset-status').textContent = asset.status;
+            document.getElementById('asset-location').textContent = asset.expectedLocation || 'No location recorded';
+            document.getElementById('asset-custodian').textContent = asset.custodian || 'Unassigned';
+            const image = document.getElementById('asset-image');
+            const empty = document.getElementById('asset-image-empty');
+            if (asset.imageUrl) {
+                image.src = asset.imageUrl;
+                image.classList.remove('hidden');
+                empty.classList.add('hidden');
+            } else {
+                image.removeAttribute('src');
+                image.classList.add('hidden');
+                empty.classList.remove('hidden');
+            }
+            assetCard.classList.remove('hidden');
+            document.getElementById('actual-location').value = asset.expectedLocation || '';
+        }
+
+        lookupButton?.addEventListener('click', () => lookupAsset(manualCode.value));
+        manualCode?.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                lookupAsset(manualCode.value);
+            }
+        });
+
+        document.getElementById('verification-form')?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!activeSessionId || !sessionActive) return;
+            const assetId = document.getElementById('asset-id').value;
+            if (!assetId) {
+                showError('Scan or lookup an asset before submitting verification.');
+                return;
+            }
+            const submitButton = document.getElementById('submit-verification');
+            const original = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner"></span> Saving';
+            try {
+                const response = await fetch(`/api/audits/sessions/${activeSessionId}/results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        assetId: Number(assetId),
+                        scannedCode: document.getElementById('scanned-code').value,
+                        resultStatus: document.querySelector('input[name="resultStatus"]:checked').value,
+                        actualLocation: document.getElementById('actual-location').value,
+                        conditionNotes: document.getElementById('condition-notes').value
+                    })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.message || 'Verification could not be saved.');
+                prependFeedItem(data);
+                await refreshDiscrepancies();
+                clearFormAfterSave();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                submitButton.disabled = !sessionActive;
+                submitButton.innerHTML = original;
+            }
+        });
+
+        function clearFormAfterSave() {
+            currentAsset = null;
+            assetCard.classList.add('hidden');
+            manualCode.value = '';
+            document.getElementById('asset-id').value = '';
+            document.getElementById('scanned-code').value = '';
+            document.getElementById('condition-notes').value = '';
+            document.querySelector('input[name="resultStatus"][value="FOUND"]').checked = true;
+        }
+
+        function statusClass(status) {
+            if (status === 'FOUND') return 'bg-status-success/10 text-status-success';
+            if (status === 'DAMAGED') return 'bg-status-warning/10 text-status-warning';
+            return 'bg-error/10 text-error';
+        }
+
+        function prependFeedItem(result) {
+            const feed = document.getElementById('verification-feed');
+            feed.querySelector('.text-center')?.remove();
+            const item = document.createElement('div');
+            item.className = 'p-4';
+            item.innerHTML = `
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="font-body-medium text-on-surface truncate">${escapeHtml(result.assetName)}</p>
+                        <p class="font-technical-data text-label-small text-secondary mt-1">${escapeHtml(result.assetCode)}</p>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full text-badge-label font-badge-label ${statusClass(result.resultStatus)}">${result.resultStatus.replace('_', ' ')}</span>
+                </div>
+                <p class="text-label-small text-secondary mt-2">Expected: ${escapeHtml(result.expectedLocation || '')}${result.actualLocation ? ' | Actual: ' + escapeHtml(result.actualLocation) : ''}</p>
+            `;
+            feed.prepend(item);
+        }
+
+        async function refreshDiscrepancies() {
+            if (!activeSessionId) return;
+            const response = await fetch(`/api/audits/sessions/${activeSessionId}/discrepancies`);
+            if (!response.ok) return;
+            const report = await response.json();
+            document.getElementById('metric-verified').textContent = report.totalVerified;
+            document.getElementById('metric-discrepancies').textContent = report.discrepancyCount;
+            const container = document.getElementById('discrepancy-report');
+            if (!report.discrepancies.length) {
+                container.innerHTML = `
+                    <div class="p-10 text-center">
+                        <span class="material-symbols-outlined text-status-success text-[42px]">verified</span>
+                        <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
+                        <p class="text-body-default text-secondary mt-1">Issues will appear here once an auditor submits them.</p>
+                    </div>`;
+                return;
+            }
+            const rows = report.discrepancies.map(item => `
+                <tr class="hover:bg-surface-canvas/60">
+                    <td class="px-4 py-3">
+                        <p class="font-body-medium text-on-surface">${escapeHtml(item.assetName)}</p>
+                        <p class="font-technical-data text-label-small text-secondary">${escapeHtml(item.assetCode)}</p>
+                    </td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label">${escapeHtml(item.discrepancyType || '')}</span></td>
+                    <td class="px-4 py-3 text-label-small text-secondary">${escapeHtml(item.actualLocation || item.expectedLocation || '')}</td>
+                </tr>`).join('');
+            container.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left min-w-[520px]">
+                        <thead class="bg-surface-canvas border-b border-border-default">
+                            <tr>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Asset</th>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Type</th>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-default">${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        document.getElementById('refresh-discrepancies')?.addEventListener('click', refreshDiscrepancies);
+
+        document.getElementById('history-button')?.addEventListener('click', async () => {
+            const from = document.getElementById('history-from').value;
+            const to = document.getElementById('history-to').value;
+            const params = new URLSearchParams();
+            if (from) params.set('from', from);
+            if (to) params.set('to', to);
+            const button = document.getElementById('history-button');
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner"></span> Loading';
+            try {
+                const response = await fetch(`/api/audits/history?${params.toString()}`);
+                const report = await response.json();
+                const list = document.getElementById('history-list');
+                if (!report.audits.length) {
+                    list.innerHTML = '<div class="p-5 text-center bg-surface-canvas rounded-lg"><p class="text-body-default text-secondary">No completed audits found for this period.</p></div>';
+                    return;
+                }
+                list.innerHTML = report.audits.map(audit => `
+                    <div class="rounded-lg border border-border-default p-3">
+                        <div class="flex justify-between gap-3">
+                            <p class="font-body-medium text-on-surface truncate">${escapeHtml(audit.title)}</p>
+                            <span class="font-technical-data text-secondary">${audit.verifiedCount}</span>
+                        </div>
+                        <p class="text-label-small text-secondary mt-1">Missing ${audit.missingCount} | Discrepancies ${audit.discrepancyCount}</p>
+                    </div>`).join('');
+            } catch (error) {
+                showError('Audit history could not be loaded.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = original;
+            }
+        });
+
+        document.getElementById('start-camera')?.addEventListener('click', startCamera);
+        document.getElementById('stop-camera')?.addEventListener('click', stopCamera);
+
+        async function startCamera() {
+            if (!sessionActive) return;
+            if (!('BarcodeDetector' in window)) {
+                scannerMessage.textContent = 'This browser does not support camera barcode detection. Use manual entry.';
+                return;
+            }
+            try {
+                detector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+                video.srcObject = stream;
+                await video.play();
+                scanning = true;
+                document.getElementById('camera-empty').classList.add('hidden');
+                document.getElementById('scan-reticle').classList.remove('hidden');
+                scannerMessage.textContent = 'Camera active. Position the tag inside the frame.';
+                scanLoop();
+            } catch (error) {
+                scannerMessage.textContent = 'Camera could not be started. Check browser permissions or use manual entry.';
+            }
+        }
+
+        function stopCamera() {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            if (video) video.srcObject = null;
+            document.getElementById('camera-empty')?.classList.remove('hidden');
+            document.getElementById('scan-reticle')?.classList.add('hidden');
+        }
+
+        async function scanLoop() {
+            if (!scanning || !detector || !video) return;
+            try {
+                const codes = await detector.detect(video);
+                if (codes.length) {
+                    const code = codes[0].rawValue;
+                    const now = Date.now();
+                    if (code && (code !== lastDetectedCode || now - lastDetectedAt > 3000)) {
+                        lastDetectedCode = code;
+                        lastDetectedAt = now;
+                        manualCode.value = code;
+                        lookupAsset(code);
+                    }
+                }
+            } catch (error) {
+                scannerMessage.textContent = 'Scanner paused after a detection error. Use manual entry or restart the camera.';
+            }
+            if (scanning) requestAnimationFrame(scanLoop);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
     </script>
 </main>

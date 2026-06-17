@@ -60,11 +60,6 @@ public class PageController {
         return "assets/depreciation-run";
     }
 
-    @GetMapping("/audit")
-    public String auditManagement() {
-        return "audit/audit-management";
-    }
-
     @GetMapping("/notifications")
     public String notificationCenter() {
         return "notifications/notification-center";
