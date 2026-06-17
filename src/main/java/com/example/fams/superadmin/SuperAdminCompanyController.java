@@ -296,29 +296,51 @@ public class SuperAdminCompanyController {
         return "redirect:/superadmin/company-structure";
     }
 
-    // ============== DEPARTMENTS PAGE ==============
+    // ============== MERGED DEPARTMENTS & HEADS PAGE ==============
 
     @GetMapping("/departments")
-    public String departmentsPage(Model model, @AuthenticationPrincipal OidcUser principal) {
+    public String departmentsAndHeadsPage(Model model, @AuthenticationPrincipal OidcUser principal) {
         try {
+            // Load all companies (for department creation dropdown)
             List<CompanyDTO> companies = companyStructureService.getAllCompanies();
-            List<DepartmentDTO> allDepartments = new ArrayList<>();
 
+            // Load all departments (for listing and head assignment dropdown)
+            List<DepartmentDTO> allDepartments = new ArrayList<>();
             for (CompanyDTO company : companies) {
                 allDepartments.addAll(companyStructureService.getDepartmentsByCompany(company.getId()));
             }
 
+            // Load all department heads (for listing)
+            List<DepartmentHeadDTO> allHeads = companyStructureService.getAllDepartmentHeads();
+
+            // Load users from Keycloak (for head assignment dropdown)
+            List<UserRepresentation> users = new ArrayList<>();
+            try {
+                users = keycloakAdminService.listAllUsers(realmName);
+            } catch (Exception e) {
+                log.warn("Could not fetch users from Keycloak: " + e.getMessage());
+            }
+
             model.addAttribute("companies", companies);
             model.addAttribute("departments", allDepartments);
-            model.addAttribute("departmentStatuses", Department.DepartmentStatus.values());
+            model.addAttribute("departmentHeads", allHeads);
+            model.addAttribute("users", users);
             model.addAttribute("userName", resolveUserName(principal));
+            model.addAttribute("departmentStatuses", Department.DepartmentStatus.values());
+            model.addAttribute("headStatuses", DepartmentHead.HeadStatus.values());
 
-            return "admin/departments-management";
+            return "admin/departments-management"; // merged view
         } catch (Exception e) {
-            log.error("Error loading departments page: " + e.getMessage());
-            model.addAttribute("errorMessage", "Failed to load departments");
+            log.error("Error loading departments & heads page: " + e.getMessage());
+            model.addAttribute("errorMessage", "Failed to load departments and heads");
             return "admin/departments-management";
         }
+    }
+
+    // Redirect the old separate page to the merged one
+    @GetMapping("/department-heads")
+    public String redirectDepartmentHeads() {
+        return "redirect:/superadmin/departments";
     }
 
     // ============== DEPARTMENT MANAGEMENT ==============
@@ -390,41 +412,6 @@ public class SuperAdminCompanyController {
         return "redirect:/superadmin/departments";
     }
 
-    // ============== DEPARTMENT HEADS MANAGEMENT PAGE ==============
-
-    @GetMapping("/department-heads")
-    public String departmentHeadsPage(Model model, @AuthenticationPrincipal OidcUser principal) {
-        try {
-            List<DepartmentHeadDTO> allHeads = companyStructureService.getAllDepartmentHeads();
-            List<DepartmentDTO> allDepartments = new ArrayList<>();
-            List<CompanyDTO> companies = companyStructureService.getAllCompanies();
-
-            for (CompanyDTO company : companies) {
-                allDepartments.addAll(companyStructureService.getDepartmentsByCompany(company.getId()));
-            }
-
-            // Fetch users from Keycloak for assignment
-            List<UserRepresentation> users = new ArrayList<>();
-            try {
-                users = keycloakAdminService.listAllUsers(realmName);
-            } catch (Exception e) {
-                log.warn("Could not fetch users from Keycloak: " + e.getMessage());
-            }
-
-            model.addAttribute("departmentHeads", allHeads);
-            model.addAttribute("departments", allDepartments);
-            model.addAttribute("users", users);
-            model.addAttribute("userName", resolveUserName(principal));
-            model.addAttribute("headStatuses", DepartmentHead.HeadStatus.values());
-
-            return "admin/department-heads-management";
-        } catch (Exception e) {
-            log.error("Error loading department heads page: " + e.getMessage());
-            model.addAttribute("errorMessage", "Failed to load department heads");
-            return "admin/department-heads-management";
-        }
-    }
-
     // ============== DEPARTMENT HEAD MANAGEMENT ==============
 
     @PostMapping("/department-head/assign")
@@ -452,7 +439,7 @@ public class SuperAdminCompanyController {
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Failed to assign department head: " + sanitize(e.getMessage()));
         }
-        return "redirect:/superadmin/department-heads";
+        return "redirect:/superadmin/departments";
     }
 
     @PostMapping("/department-head/remove/{id}")
@@ -463,7 +450,7 @@ public class SuperAdminCompanyController {
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Failed to remove department head: " + sanitize(e.getMessage()));
         }
-        return "redirect:/superadmin/department-heads";
+        return "redirect:/superadmin/departments";
     }
 
     // ============== JSON API ENDPOINTS ==============
@@ -530,7 +517,3 @@ public class SuperAdminCompanyController {
         return (name != null && !name.isBlank()) ? name : "Super Admin";
     }
 }
-
-
-
-

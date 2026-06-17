@@ -3,10 +3,621 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/admin-layout}">
 <head>
-    <title>Departments Management | JustJava FAMS</title>
+    <title>Departments & Heads | JustJava FAMS</title>
     <style>
-        /* ── Modal overlay ── */
-        .modal-overlay {
+        /* ═══════════════════════════════════════════
+           MERGED — DEPARTMENTS + HEADS
+           Inherits all .cs-* design tokens from
+           Company Structure (crimson primary, Inter)
+        ═══════════════════════════════════════════ */
+
+        /* ── Additional overrides / extensions ── */
+        .cs-head-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: #6b7280;
+        }
+        .cs-head-stat .material-symbols-outlined {
+            font-size: 1.1rem;
+        }
+
+        /* ── Adjust modal body spacing for head form ── */
+        .cs-modal-body .cs-field-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 0.25rem;
+        }
+        .cs-modal-body .cs-field-check input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: #98001a;
+            cursor: pointer;
+        }
+        .cs-modal-body .cs-field-check label {
+            font-size: 0.8125rem;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        /* ── Inline user info fields (readonly) ── */
+        .cs-field-input[readonly] {
+            background: #f3f4f6;
+            color: #6b7280;
+            cursor: default;
+        }
+
+        /* ── Stats cards in heads section ── */
+        .cs-mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0.25rem 1.25rem 1rem 1.25rem;
+        }
+        .cs-mini-stat {
+            background: #fafafa;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #f3f4f6;
+        }
+        .cs-mini-stat .cs-stat-number {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .cs-mini-stat .cs-stat-label {
+            font-size: 0.6875rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Keep all .cs-* classes from parent ── */
+        /* (Included via the decorated layout, but we redeclare them here for safety) */
+        .cs-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 1.75rem;
+        }
+        .cs-hcard {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+        .cs-hcard::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #98001a;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .cs-hcard.active::before {
+            opacity: 1;
+        }
+        .cs-hcard.active {
+            border-color: rgba(152, 0, 26, 0.25);
+            box-shadow: 0 2px 8px rgba(152, 0, 26, 0.08);
+        }
+        .cs-hcard:hover:not(.active) {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
+        }
+        .cs-hcard-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            background: rgba(152, 0, 26, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .cs-hcard-icon .material-symbols-outlined {
+            font-size: 1.2rem;
+            color: #98001a;
+        }
+        .cs-hcard-count {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            line-height: 1;
+        }
+        .cs-hcard-label {
+            font-size: 0.8125rem;
+            color: #6b7280;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .cs-hcard-hint {
+            font-size: 0.6875rem;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        .cs-layout {
+            display: grid;
+            grid-template-columns: 224px 1fr;
+            gap: 16px;
+            align-items: start;
+            margin-top: 0.25rem;
+        }
+
+        .cs-nav {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: sticky;
+            top: 1.5rem;
+        }
+        .cs-nav-section {
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .cs-nav-section:last-child {
+            border-bottom: none;
+        }
+        .cs-nav-header {
+            padding: 6px 14px 4px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #9ca3af;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+        .cs-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 14px;
+            font-size: 0.8125rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: background 0.12s, color 0.12s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            border-radius: 0;
+        }
+        .cs-nav-item:hover {
+            background: #f9fafb;
+            color: #111827;
+        }
+        .cs-nav-item.active {
+            background: rgba(152, 0, 26, 0.06);
+            color: #98001a;
+            font-weight: 500;
+        }
+        .cs-nav-item .material-symbols-outlined {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .cs-nav-count {
+            margin-left: auto;
+            font-size: 0.6875rem;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #9ca3af;
+            padding: 1px 7px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+        .cs-nav-item.active .cs-nav-count {
+            background: rgba(152, 0, 26, 0.1);
+            color: #98001a;
+            border-color: rgba(152, 0, 26, 0.2);
+        }
+        .cs-nav-add {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            font-size: 0.8125rem;
+            color: #98001a;
+            cursor: pointer;
+            transition: background 0.12s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            border-radius: 0;
+        }
+        .cs-nav-add:hover {
+            background: rgba(152, 0, 26, 0.05);
+        }
+        .cs-nav-add .material-symbols-outlined {
+            font-size: 1rem;
+        }
+
+        .cs-panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        .cs-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 1.25rem;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+            flex-wrap: wrap;
+        }
+        .cs-breadcrumb .material-symbols-outlined {
+            font-size: 0.85rem;
+        }
+        .cs-breadcrumb-link {
+            cursor: pointer;
+            transition: color 0.12s;
+        }
+        .cs-breadcrumb-link:hover {
+            color: #374151;
+        }
+        .cs-breadcrumb-current {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .cs-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #f3f4f6;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .cs-panel-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cs-panel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            background: rgba(152, 0, 26, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .cs-panel-icon .material-symbols-outlined {
+            font-size: 1.2rem;
+            color: #98001a;
+        }
+        .cs-panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .cs-panel-subtitle {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .cs-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 1.25rem;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+            flex-wrap: wrap;
+        }
+        .cs-search {
+            flex: 1;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0 10px;
+            height: 32px;
+        }
+        .cs-search .material-symbols-outlined {
+            font-size: 1rem;
+            color: #9ca3af;
+        }
+        .cs-search input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.8125rem;
+            color: #111827;
+            flex: 1;
+            font-family: inherit;
+            min-width: 0;
+        }
+        .cs-search input::placeholder {
+            color: #d1d5db;
+        }
+        .cs-view-toggle {
+            display: flex;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .cs-view-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: background 0.12s, color 0.12s;
+        }
+        .cs-view-btn.active {
+            background: #fff;
+            color: #98001a;
+        }
+        .cs-view-btn:hover:not(.active) {
+            background: #f3f4f6;
+        }
+        .cs-view-btn .material-symbols-outlined {
+            font-size: 1rem;
+        }
+
+        .cs-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .cs-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 480px;
+        }
+        .cs-table th {
+            padding: 9px 1.25rem;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+            white-space: nowrap;
+        }
+        .cs-table td {
+            padding: 11px 1.25rem;
+            font-size: 0.8125rem;
+            color: #6b7280;
+            border-bottom: 1px solid #f9fafb;
+            vertical-align: middle;
+        }
+        .cs-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .cs-table tbody tr:hover td {
+            background: #fafafa;
+        }
+        .cs-cell-primary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #111827;
+        }
+        .cs-cell-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 0.375rem;
+            background: rgba(152, 0, 26, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .cs-cell-avatar .material-symbols-outlined {
+            font-size: 1rem;
+            color: #98001a;
+        }
+        .cs-row-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+            justify-content: flex-end;
+        }
+        .cs-table tbody tr:hover .cs-row-actions {
+            opacity: 1;
+        }
+        .cs-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6b7280;
+            transition: background 0.12s, color 0.12s, border-color 0.12s;
+        }
+        .cs-action-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+        .cs-action-btn.danger:hover {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .cs-action-btn .material-symbols-outlined {
+            font-size: 0.875rem;
+        }
+
+        .cs-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 1.25rem;
+        }
+        .cs-entity-card {
+            background: #fafafa;
+            border: 1px solid #f3f4f6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .cs-entity-card:hover {
+            border-color: #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .cs-entity-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        .cs-entity-card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 0.5rem;
+            background: rgba(152, 0, 26, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .cs-entity-card-icon .material-symbols-outlined {
+            font-size: 1.2rem;
+            color: #98001a;
+        }
+        .cs-entity-card-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 3px;
+            word-break: break-word;
+        }
+        .cs-entity-card-meta {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            word-break: break-word;
+        }
+        .cs-entity-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #f3f4f6;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .cs-entity-card-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .badge-active {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.6875rem;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(22, 163, 74, 0.1);
+            color: #15803d;
+            white-space: nowrap;
+        }
+        .badge-inactive {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.6875rem;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(234, 179, 8, 0.1);
+            color: #a16207;
+            white-space: nowrap;
+        }
+        .badge-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+
+        .cs-add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 34px;
+            padding: 0 14px;
+            border: 1px solid rgba(152, 0, 26, 0.4);
+            color: #98001a;
+            background: rgba(152, 0, 26, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.12s, border-color 0.12s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .cs-add-btn:hover {
+            background: rgba(152, 0, 26, 0.1);
+            border-color: #98001a;
+        }
+        .cs-add-btn .material-symbols-outlined {
+            font-size: 1rem;
+        }
+
+        .cs-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        .cs-empty .material-symbols-outlined {
+            font-size: 2.5rem;
+            color: #d1d5db;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .cs-empty p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+        .cs-empty span {
+            font-size: 0.8125rem;
+            color: #9ca3af;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* ── Modal ── */
+        .cs-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.45);
@@ -17,305 +628,1560 @@
             backdrop-filter: blur(2px);
             padding: 1rem;
         }
-        .modal-overlay.open {
+        .cs-modal-overlay.open {
             display: flex;
         }
-        .modal-box {
+        .cs-modal {
             background: #fff;
-            border-radius: 1.25rem;
-            max-width: 600px;
+            border-radius: 1rem;
+            max-width: 520px;
             width: 100%;
-            padding: 1.75rem 2rem 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            animation: modalIn 0.2s ease;
-            max-height: 85vh;
+            max-height: 88vh;
             overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+            animation: csModalIn 0.18s ease;
         }
-        @keyframes modalIn {
+        @keyframes csModalIn {
             from {
                 opacity: 0;
-                transform: scale(0.96) translateY(12px);
+                transform: scale(0.96) translateY(10px);
             }
             to {
                 opacity: 1;
                 transform: scale(1) translateY(0);
             }
         }
+        .cs-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1;
+        }
+        .cs-modal-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cs-modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .cs-modal-body {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .cs-modal-footer {
+            display: flex;
+            gap: 8px;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #f3f4f6;
+            background: #fafafa;
+            position: sticky;
+            bottom: 0;
+            flex-wrap: wrap;
+        }
+        .cs-close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #6b7280;
+            transition: background 0.12s;
+        }
+        .cs-close-btn:hover {
+            background: #f3f4f6;
+        }
+        .cs-close-btn .material-symbols-outlined {
+            font-size: 1rem;
+        }
 
+        .cs-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .cs-field-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .cs-field-input {
+            width: 100%;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: #fafafa;
+            color: #111827;
+            font-size: 0.8125rem;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .cs-field-input:focus {
+            border-color: rgba(152, 0, 26, 0.5);
+            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.08);
+            background: #fff;
+        }
+        .cs-field-input::placeholder {
+            color: #d1d5db;
+        }
+        select.cs-field-input {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+        }
+        textarea.cs-field-input {
+            height: auto;
+            padding: 8px 10px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .cs-field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .cs-field-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 0.25rem;
+        }
+        .cs-field-check input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: #98001a;
+            cursor: pointer;
+        }
+        .cs-field-check label {
+            font-size: 0.8125rem;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .cs-btn-primary {
+            flex: 1;
+            height: 38px;
+            background: #98001a;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: inherit;
+            min-width: 100px;
+        }
+        .cs-btn-primary:hover {
+            background: #7a0015;
+        }
+        .cs-btn-secondary {
+            height: 38px;
+            padding: 0 18px;
+            background: transparent;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: inherit;
+        }
+        .cs-btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .cs-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+        }
+        .cs-alert-success {
+            background: rgba(22, 163, 74, 0.08);
+            border: 1px solid rgba(22, 163, 74, 0.3);
+            color: #15803d;
+        }
+        .cs-alert-error {
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #dc2626;
+        }
+        .cs-alert .material-symbols-outlined {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .cs-hidden {
+            display: none !important;
+        }
         .material-symbols-outlined {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             vertical-align: middle;
         }
-
-        .card-shadow {
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+        kbd {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-family: monospace;
+            font-size: 0.6875rem;
         }
 
-        .table-row-hover:hover {
-            background-color: rgba(0, 0, 0, 0.02);
+        .cs-page-header {
+            margin-bottom: 1.5rem;
+        }
+        .cs-page-header h2 {
+            margin: 0 0 0.25rem 0;
+        }
+        .cs-page-header p {
+            margin: 0;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .cs-layout {
+                grid-template-columns: 200px 1fr;
+                gap: 14px;
+            }
+            .cs-card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .cs-strip {
+                gap: 10px;
+            }
+            .cs-hcard {
+                padding: 0.875rem 1rem;
+            }
+            .cs-mini-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 820px) {
+            .cs-layout {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .cs-nav {
+                position: static;
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                padding: 6px 4px;
+                gap: 4px;
+                border-radius: 0.75rem;
+                flex-wrap: nowrap;
+                scrollbar-width: thin;
+            }
+            .cs-nav::-webkit-scrollbar {
+                height: 4px;
+            }
+            .cs-nav::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 4px;
+            }
+            .cs-nav::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .cs-nav-section {
+                border-bottom: none;
+                border-right: 1px solid #f3f4f6;
+                padding: 4px 8px 4px 4px;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                flex: 0 0 auto;
+                min-width: 120px;
+            }
+            .cs-nav-section:last-child {
+                border-right: none;
+                padding-right: 4px;
+            }
+            .cs-nav-header {
+                display: none;
+            }
+            .cs-nav-item {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                border-radius: 0.375rem;
+                white-space: nowrap;
+            }
+            .cs-nav-add {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                border-radius: 0.375rem;
+                white-space: nowrap;
+            }
+            .cs-nav-item .material-symbols-outlined,
+            .cs-nav-add .material-symbols-outlined {
+                font-size: 0.95rem;
+            }
+            .cs-nav-count {
+                font-size: 0.625rem;
+                padding: 0 6px;
+            }
+            .cs-strip {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .cs-hcard {
+                padding: 0.75rem 0.875rem;
+            }
+            .cs-hcard-count {
+                font-size: 1.25rem;
+            }
+            .cs-hcard-hint {
+                display: none;
+            }
+            .cs-card-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 1rem;
+            }
+            .cs-panel-header {
+                padding: 0.875rem 1rem;
+            }
+            .cs-toolbar {
+                padding: 8px 1rem;
+            }
+            .cs-table th,
+            .cs-table td {
+                padding: 8px 1rem;
+                font-size: 0.75rem;
+            }
+            .cs-modal {
+                max-width: 94%;
+                max-height: 92vh;
+            }
+            .cs-modal-header {
+                padding: 1rem 1.25rem 0.75rem;
+            }
+            .cs-modal-body {
+                padding: 1rem 1.25rem;
+                gap: 12px;
+            }
+            .cs-modal-footer {
+                padding: 0.875rem 1.25rem;
+                flex-wrap: wrap;
+            }
+            .cs-field-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .cs-mini-stats {
+                grid-template-columns: repeat(3, 1fr);
+                padding: 0.25rem 1rem 0.75rem 1rem;
+                gap: 8px;
+            }
+            .cs-mini-stat {
+                padding: 0.5rem 0.75rem;
+            }
+            .cs-mini-stat .cs-stat-number {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cs-wrapper {
+                padding: 0 0 1.5rem 0;
+            }
+            .cs-page-header {
+                margin-bottom: 1rem;
+            }
+            .cs-page-header h2 {
+                font-size: 1.125rem;
+            }
+            .cs-page-header p {
+                font-size: 0.8125rem;
+            }
+            .cs-strip {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+                margin-bottom: 1rem;
+            }
+            .cs-hcard {
+                padding: 0.625rem 0.625rem;
+                border-radius: 0.5rem;
+                text-align: center;
+            }
+            .cs-hcard-icon {
+                width: 28px;
+                height: 28px;
+                margin: 0 auto 6px;
+            }
+            .cs-hcard-icon .material-symbols-outlined {
+                font-size: 0.95rem;
+            }
+            .cs-hcard-count {
+                font-size: 1.1rem;
+            }
+            .cs-hcard-label {
+                font-size: 0.6875rem;
+                margin-top: 2px;
+            }
+            .cs-hcard-hint {
+                display: none;
+            }
+            .cs-hcard::before {
+                width: 2px;
+            }
+            .cs-layout {
+                gap: 12px;
+            }
+            .cs-nav {
+                padding: 4px 2px;
+                gap: 2px;
+                border-radius: 0.5rem;
+            }
+            .cs-nav-section {
+                padding: 4px 6px 4px 4px;
+                min-width: 90px;
+            }
+            .cs-nav-item {
+                padding: 5px 8px;
+                font-size: 0.6875rem;
+                gap: 5px;
+            }
+            .cs-nav-add {
+                padding: 5px 8px;
+                font-size: 0.6875rem;
+                gap: 5px;
+            }
+            .cs-nav-item .material-symbols-outlined,
+            .cs-nav-add .material-symbols-outlined {
+                font-size: 0.85rem;
+            }
+            .cs-nav-count {
+                font-size: 0.5625rem;
+                padding: 0 5px;
+            }
+            .cs-panel {
+                border-radius: 0.5rem;
+            }
+            .cs-breadcrumb {
+                padding: 6px 0.875rem;
+                font-size: 0.6875rem;
+                gap: 4px;
+            }
+            .cs-breadcrumb .material-symbols-outlined {
+                font-size: 0.75rem;
+            }
+            .cs-panel-header {
+                padding: 0.75rem 0.875rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .cs-panel-title-row {
+                gap: 8px;
+            }
+            .cs-panel-icon {
+                width: 30px;
+                height: 30px;
+            }
+            .cs-panel-icon .material-symbols-outlined {
+                font-size: 1rem;
+            }
+            .cs-panel-title {
+                font-size: 0.875rem;
+            }
+            .cs-panel-subtitle {
+                font-size: 0.6875rem;
+            }
+            .cs-add-btn {
+                height: 30px;
+                padding: 0 10px;
+                font-size: 0.75rem;
+                justify-content: center;
+                width: 100%;
+            }
+            .cs-toolbar {
+                padding: 6px 0.875rem;
+                gap: 6px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .cs-search {
+                height: 30px;
+                padding: 0 8px;
+                min-width: 0;
+            }
+            .cs-search input {
+                font-size: 0.75rem;
+            }
+            .cs-view-toggle {
+                align-self: flex-start;
+            }
+            .cs-view-btn {
+                width: 28px;
+                height: 28px;
+            }
+            .cs-view-btn .material-symbols-outlined {
+                font-size: 0.875rem;
+            }
+            .cs-table-wrap {
+                margin: 0 -0.875rem;
+                padding: 0 0.875rem;
+            }
+            .cs-table {
+                min-width: 400px;
+                font-size: 0.75rem;
+            }
+            .cs-table th,
+            .cs-table td {
+                padding: 6px 0.75rem;
+                font-size: 0.6875rem;
+            }
+            .cs-cell-primary {
+                gap: 6px;
+                font-size: 0.75rem;
+            }
+            .cs-cell-avatar {
+                width: 24px;
+                height: 24px;
+            }
+            .cs-cell-avatar .material-symbols-outlined {
+                font-size: 0.8rem;
+            }
+            .cs-row-actions {
+                opacity: 1;
+            }
+            .cs-action-btn {
+                width: 24px;
+                height: 24px;
+            }
+            .cs-action-btn .material-symbols-outlined {
+                font-size: 0.75rem;
+            }
+            .cs-card-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding: 0.875rem;
+            }
+            .cs-entity-card {
+                padding: 0.75rem;
+            }
+            .cs-entity-card-icon {
+                width: 32px;
+                height: 32px;
+            }
+            .cs-entity-card-icon .material-symbols-outlined {
+                font-size: 1rem;
+            }
+            .cs-entity-card-name {
+                font-size: 0.8125rem;
+            }
+            .cs-entity-card-meta {
+                font-size: 0.6875rem;
+            }
+            .badge-active,
+            .badge-inactive {
+                font-size: 0.625rem;
+                padding: 2px 7px;
+            }
+            .cs-empty {
+                padding: 2rem 0.75rem;
+            }
+            .cs-empty .material-symbols-outlined {
+                font-size: 2rem;
+            }
+            .cs-empty p {
+                font-size: 0.8125rem;
+            }
+            .cs-empty span {
+                font-size: 0.75rem;
+            }
+            .cs-modal {
+                max-width: 98%;
+                max-height: 94vh;
+                border-radius: 0.75rem;
+            }
+            .cs-modal-header {
+                padding: 0.875rem 1rem 0.75rem;
+            }
+            .cs-modal-title {
+                font-size: 0.875rem;
+            }
+            .cs-modal-body {
+                padding: 0.875rem 1rem;
+                gap: 10px;
+            }
+            .cs-modal-footer {
+                padding: 0.75rem 1rem;
+                flex-direction: column-reverse;
+            }
+            .cs-modal-footer .cs-btn-primary {
+                flex: none;
+                width: 100%;
+            }
+            .cs-modal-footer .cs-btn-secondary {
+                width: 100%;
+            }
+            .cs-field-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .cs-field-input {
+                height: 34px;
+                font-size: 0.75rem;
+                padding: 0 8px;
+            }
+            textarea.cs-field-input {
+                min-height: 50px;
+                padding: 6px 8px;
+            }
+            .cs-field-label {
+                font-size: 0.625rem;
+            }
+            .cs-alert {
+                padding: 10px 12px;
+                font-size: 0.8125rem;
+                margin-bottom: 1rem;
+                border-radius: 0.5rem;
+            }
+            .cs-alert .material-symbols-outlined {
+                font-size: 1rem;
+            }
+            .cs-mini-stats {
+                grid-template-columns: 1fr 1fr 1fr;
+                padding: 0.25rem 0.875rem 0.75rem;
+                gap: 6px;
+            }
+            .cs-mini-stat {
+                padding: 0.5rem 0.5rem;
+                text-align: center;
+            }
+            .cs-mini-stat .cs-stat-number {
+                font-size: 0.9rem;
+            }
+            .cs-mini-stat .cs-stat-label {
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .cs-strip {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .cs-hcard {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0.5rem 0.625rem;
+                text-align: left;
+            }
+            .cs-hcard-icon {
+                margin: 0;
+                width: 24px;
+                height: 24px;
+            }
+            .cs-hcard-icon .material-symbols-outlined {
+                font-size: 0.8rem;
+            }
+            .cs-hcard-count {
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+            .cs-hcard-label {
+                font-size: 0.625rem;
+                margin: 0;
+                flex: 1;
+            }
+            .cs-hcard-hint {
+                display: none;
+            }
+            .cs-hcard::before {
+                width: 2px;
+            }
+            .cs-nav-section {
+                min-width: 70px;
+                padding: 3px 4px 3px 3px;
+            }
+            .cs-nav-item {
+                padding: 4px 6px;
+                font-size: 0.625rem;
+                gap: 4px;
+            }
+            .cs-nav-add {
+                padding: 4px 6px;
+                font-size: 0.625rem;
+                gap: 4px;
+            }
+            .cs-nav-item .material-symbols-outlined,
+            .cs-nav-add .material-symbols-outlined {
+                font-size: 0.75rem;
+            }
+            .cs-nav-count {
+                font-size: 0.5rem;
+                padding: 0 4px;
+            }
+            .cs-table {
+                min-width: 320px;
+            }
+            .cs-table th,
+            .cs-table td {
+                padding: 4px 0.5rem;
+                font-size: 0.625rem;
+            }
+            .cs-cell-primary {
+                font-size: 0.6875rem;
+                gap: 4px;
+            }
+            .cs-cell-avatar {
+                width: 20px;
+                height: 20px;
+            }
+            .cs-cell-avatar .material-symbols-outlined {
+                font-size: 0.7rem;
+            }
+            .cs-action-btn {
+                width: 20px;
+                height: 20px;
+            }
+            .cs-action-btn .material-symbols-outlined {
+                font-size: 0.6875rem;
+            }
+            .cs-mini-stats {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .cs-hcard {
+                cursor: default;
+            }
+            .cs-nav-item,
+            .cs-nav-add {
+                cursor: default;
+            }
+            .cs-row-actions {
+                opacity: 1;
+            }
+            .cs-action-btn {
+                min-width: 32px;
+                min-height: 32px;
+            }
+            .cs-add-btn {
+                min-height: 38px;
+            }
+            .cs-hcard:hover:not(.active) {
+                transform: none;
+            }
+            .cs-entity-card:hover {
+                border-color: #f3f4f6;
+                box-shadow: none;
+            }
+        }
+
+        @media print {
+            .cs-nav {
+                display: none !important;
+            }
+            .cs-layout {
+                grid-template-columns: 1fr;
+            }
+            .cs-strip {
+                break-inside: avoid;
+            }
+            .cs-panel {
+                border: 1px solid #ddd;
+            }
+            .cs-toolbar {
+                display: none !important;
+            }
+            .cs-row-actions {
+                opacity: 1 !important;
+            }
+            .cs-action-btn {
+                border: 1px solid #ccc !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<main id="main-content" class="space-y-6" layout:fragment="content">
+<main id="main-content" class="space-y-0 cs-wrapper" layout:fragment="content">
 
-    <!-- Page Title Row -->
-    <div class="flex flex-wrap justify-between items-end gap-4">
+    <!-- ─── Page Header ─── -->
+    <div class="cs-page-header flex flex-wrap justify-between items-end gap-4">
         <div>
-            <h2 class="font-page-title text-page-title text-on-background">Departments Management</h2>
-            <p class="text-body-default text-secondary">Organize and manage departments within your organization</p>
+            <h2 class="font-page-title text-page-title text-on-background">Departments &amp; Heads</h2>
+            <p class="text-body-default text-secondary">Manage departments and assign department heads across your organization</p>
         </div>
         <div>
             <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label">Super Admin</span>
         </div>
     </div>
 
-    <!-- Alert Messages -->
-    <div th:if="${successMessage}" class="p-4 bg-status-success/10 border border-status-success text-status-success rounded-xl">
-        <div class="flex gap-3">
-            <span class="material-symbols-outlined flex-shrink-0">check_circle</span>
-            <div><p class="font-body-medium" th:text="${successMessage}"></p></div>
+    <!-- ─── Alert Messages ─── -->
+    <div th:if="${successMessage}" class="cs-alert cs-alert-success">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p class="font-body-medium" th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" class="cs-alert cs-alert-error">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-body-medium" th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- ─── Hierarchy Summary Strip ─── -->
+    <div class="cs-strip" style="margin-bottom: 1rem;">
+        <div class="cs-hcard active" id="hcard-departments" onclick="csShowSection('departments')">
+            <div class="cs-hcard-icon"><span class="material-symbols-outlined">folder</span></div>
+            <div class="cs-hcard-count" id="countDepartments" th:text="${#lists.size(departments)}">0</div>
+            <div class="cs-hcard-label">Departments</div>
+            <div class="cs-hcard-hint">Total departments</div>
+        </div>
+        <div class="cs-hcard" id="hcard-heads" onclick="csShowSection('heads')">
+            <div class="cs-hcard-icon"><span class="material-symbols-outlined">supervised_user_circle</span></div>
+            <div class="cs-hcard-count" id="countHeads" th:text="${#lists.size(departmentHeads)}">0</div>
+            <div class="cs-hcard-label">Department Heads</div>
+            <div class="cs-hcard-hint">Assigned heads</div>
+        </div>
+        <div class="cs-hcard" id="hcard-active-heads" onclick="csShowSection('heads')">
+            <div class="cs-hcard-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="cs-hcard-count" id="countActiveHeads" th:text="${#lists.size(departmentHeads.?[status == 'ACTIVE'])}">0</div>
+            <div class="cs-hcard-label">Active Heads</div>
+            <div class="cs-hcard-hint">Active assignments</div>
         </div>
     </div>
 
-    <div th:if="${errorMessage}" class="p-4 bg-error/10 border border-error text-error rounded-xl">
-        <div class="flex gap-3">
-            <span class="material-symbols-outlined flex-shrink-0">error</span>
-            <div><p class="font-body-medium" th:text="${errorMessage}"></p></div>
-        </div>
-    </div>
+    <!-- ─── Main Two-Column Layout ─── -->
+    <div class="cs-layout">
 
-    <!-- ─── Toolbar: Create Button ─── -->
-    <div class="flex justify-end">
-        <button type="button" id="openCreateDepartmentModal"
-                class="h-button-height px-5 bg-primary text-on-primary hover:bg-brand-primary-dark rounded-lg font-body-medium text-sm transition-colors flex items-center gap-2">
-            <span class="material-symbols-outlined">add</span>
-            Create Department
-        </button>
-    </div>
+        <!-- ══ Left Nav Panel ══ -->
+        <nav class="cs-nav" aria-label="Structure navigation">
 
-    <!-- ─── Departments Table ─── -->
-    <div class="bg-surface-card rounded-xl card-shadow p-6">
-        <h3 class="font-card-header text-card-header text-on-surface mb-4 flex items-center gap-2">
-            <span class="material-symbols-outlined">folder</span>
-            All Departments
-        </h3>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                <tr class="bg-surface-canvas border-b border-border-default">
-                    <th class="px-4 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Department</th>
-                    <th class="px-4 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Branch</th>
-                    <th class="px-4 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Code</th>
-                    <th class="px-4 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-label-small font-label-small text-secondary uppercase tracking-wider">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-border-default">
-                <tr th:each="dept : ${departments}" class="table-row-hover transition-colors">
-                    <td class="px-4 py-3 font-body-medium text-on-surface" th:text="${dept.name}"></td>
-                    <td class="px-4 py-3 text-secondary" th:text="${dept.branchName}"></td>
-                    <td class="px-4 py-3 text-secondary font-technical-data" th:text="${dept.departmentCode ?: 'N/A'}"></td>
-                    <td class="px-4 py-3">
-                        <span th:if="${dept.status == 'ACTIVE'}"
-                              class="px-2 py-0.5 bg-status-success/10 text-status-success rounded-full text-badge-label font-badge-label">ACTIVE</span>
-                        <span th:if="${dept.status != 'ACTIVE'}"
-                              class="px-2 py-0.5 bg-status-warning/10 text-status-warning rounded-full text-badge-label font-badge-label"
-                              th:text="${dept.status}"></span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <form method="POST" th:action="@{/superadmin/department/delete/} + ${dept.id}"
-                              style="display:inline;"
-                              onsubmit="return confirm('Are you sure you want to delete this department?');">
-                            <th:block th:if="${_csrf != null}">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            </th:block>
-                            <button type="submit" class="text-error hover:text-red-700 transition-colors">
-                                <span class="material-symbols-outlined">delete</span>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(departments)}">
-                    <td colspan="5" class="px-4 py-8 text-center text-secondary">No departments found. Create one to get started.</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ─── CREATE DEPARTMENT MODAL ─── -->
-    <div id="createDepartmentModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="flex justify-between items-center mb-5 sticky top-0 bg-white pb-4">
-                <h3 class="font-card-header text-card-header text-on-surface flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">apartment</span>
-                    New Department
-                </h3>
-                <button type="button" id="closeCreateDepartmentModal" class="text-secondary hover:text-on-surface transition-colors text-2xl leading-none">&times;</button>
+            <!-- Navigate -->
+            <div class="cs-nav-section">
+                <div class="cs-nav-header">Navigate</div>
+                <button type="button" class="cs-nav-item active" id="nav-departments" onclick="csShowSection('departments')">
+                    <span class="material-symbols-outlined">folder</span>
+                    Departments
+                    <span class="cs-nav-count" id="navCountDepartments" th:text="${#lists.size(departments)}">0</span>
+                </button>
+                <button type="button" class="cs-nav-item" id="nav-heads" onclick="csShowSection('heads')">
+                    <span class="material-symbols-outlined">supervised_user_circle</span>
+                    Department Heads
+                    <span class="cs-nav-count" id="navCountHeads" th:text="${#lists.size(departmentHeads)}">0</span>
+                </button>
             </div>
-            <form method="POST" th:action="@{/superadmin/department/create}" id="departmentForm" class="space-y-4">
-                <th:block th:if="${_csrf != null}">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                </th:block>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Company *</label>
-                    <select name="companyId" required id="modalCompanySelect"
-                            class="w-full h-input-height px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        <option value="">Select Company</option>
-                        <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
-                    </select>
+
+            <!-- Quick add -->
+            <div class="cs-nav-section">
+                <div class="cs-nav-header">Quick add</div>
+                <button type="button" class="cs-nav-add" onclick="csOpenModal('department', 'create')">
+                    <span class="material-symbols-outlined">add</span>
+                    New Department
+                </button>
+                <button type="button" class="cs-nav-add" onclick="csOpenModal('head', 'create')">
+                    <span class="material-symbols-outlined">add</span>
+                    Assign Head
+                </button>
+            </div>
+
+            <!-- Keyboard shortcuts hint -->
+            <div class="cs-nav-section">
+                <div class="cs-nav-header">Shortcuts</div>
+                <div style="padding: 6px 14px 8px; font-size: 0.6875rem; color: #9ca3af; line-height: 1.6;">
+                    <kbd>Ctrl+1</kbd> Departments<br>
+                    <kbd>Ctrl+2</kbd> Heads<br>
+                    <kbd>Esc</kbd> Close modal
                 </div>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Branch *</label>
-                    <select name="branchId" required id="modalBranchSelect"
-                            class="w-full h-input-height px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        <option value="">Select Branch</option>
-                    </select>
+            </div>
+
+        </nav>
+
+        <!-- ══ Right Panel ══ -->
+        <div class="cs-panel">
+
+            <!-- ════════════════════════
+                 DEPARTMENTS SECTION
+            ════════════════════════ -->
+            <section id="section-departments">
+                <div class="cs-breadcrumb">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="cs-breadcrumb-link" onclick="csShowSection('departments')">Structure</span>
+                    <span class="material-symbols-outlined">chevron_right</span>
+                    <span class="cs-breadcrumb-current">Departments</span>
                 </div>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Department Name *</label>
-                    <input type="text" name="name" required
-                           class="w-full h-input-height px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                           placeholder="e.g., Finance">
-                </div>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Description</label>
-                    <textarea name="description"
-                              class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                              rows="3" placeholder="Department description"></textarea>
-                </div>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Department Code</label>
-                    <input type="text" name="departmentCode"
-                           class="w-full h-input-height px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                           placeholder="e.g., DEPT-001">
-                </div>
-                <div>
-                    <label class="block text-label-small text-secondary font-label-small mb-2 uppercase tracking-wider">Budget</label>
-                    <input type="text" name="budget"
-                           class="w-full h-input-height px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-                           placeholder="e.g., 500000">
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="submit" class="flex-1 h-button-height bg-primary text-on-primary hover:bg-brand-primary-dark rounded-lg font-body-medium text-sm transition-colors flex items-center justify-center gap-2">
+                <div class="cs-panel-header">
+                    <div class="cs-panel-title-row">
+                        <div class="cs-panel-icon"><span class="material-symbols-outlined">folder</span></div>
+                        <div>
+                            <div class="cs-panel-title">Departments</div>
+                            <div class="cs-panel-subtitle" th:text="${#lists.size(departments)} + ' total'">0 total</div>
+                        </div>
+                    </div>
+                    <button type="button" class="cs-add-btn" onclick="csOpenModal('department', 'create')">
                         <span class="material-symbols-outlined">add</span>
                         Create Department
                     </button>
-                    <button type="button" id="closeModalBtn" class="px-5 h-button-height border border-border-default text-secondary hover:text-on-surface hover:border-border-strong rounded-lg font-body-medium text-sm transition-colors">
-                        Cancel
+                </div>
+                <div class="cs-toolbar">
+                    <div class="cs-search">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" placeholder="Search departments…" oninput="csFilterTable(this, 'tbl-departments')" aria-label="Search departments" />
+                    </div>
+                    <div class="cs-view-toggle" role="group" aria-label="View mode">
+                        <button type="button" class="cs-view-btn active" id="vt-dept-table" onclick="csSetView('dept', 'table')" title="Table view" aria-pressed="true">
+                            <span class="material-symbols-outlined">table_rows</span>
+                        </button>
+                        <button type="button" class="cs-view-btn" id="vt-dept-cards" onclick="csSetView('dept', 'cards')" title="Card view" aria-pressed="false">
+                            <span class="material-symbols-outlined">grid_view</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table view -->
+                <div id="view-dept-table">
+                    <div class="cs-table-wrap">
+                        <table class="cs-table" id="tbl-departments">
+                            <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Branch</th>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="dept : ${departments}">
+                                <td>
+                                    <div class="cs-cell-primary">
+                                        <div class="cs-cell-avatar"><span class="material-symbols-outlined">folder</span></div>
+                                        <span th:text="${dept.name}"></span>
+                                    </div>
+                                </td>
+                                <td th:text="${dept.branchName}"></td>
+                                <td th:text="${dept.departmentCode ?: '—'}"></td>
+                                <td>
+                                            <span th:if="${dept.status == 'ACTIVE'}" class="badge-active">
+                                                <span class="badge-dot"></span>Active
+                                            </span>
+                                    <span th:if="${dept.status != 'ACTIVE'}" class="badge-inactive">
+                                                <span class="badge-dot"></span>
+                                                <span th:text="${dept.status}"></span>
+                                            </span>
+                                </td>
+                                <td>
+                                    <div class="cs-row-actions">
+                                        <button type="button"
+                                                class="cs-action-btn"
+                                                title="Edit department"
+                                                th:data-id="${dept.id}"
+                                                th:data-name="${dept.name}"
+                                                th:data-description="${dept.description}"
+                                                th:data-code="${dept.departmentCode}"
+                                                th:data-budget="${dept.budget}"
+                                                th:data-company="${dept.companyId}"
+                                                th:data-branch="${dept.branchId}"
+                                                onclick="csEditDepartment(this)">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                        <form method="POST"
+                                              th:action="@{'/superadmin/department/delete/' + ${dept.id}}"
+                                              style="display:inline;"
+                                              onsubmit="return confirm('Delete this department? This cannot be undone.');">
+                                            <th:block th:if="${_csrf != null}">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            </th:block>
+                                            <button type="submit" class="cs-action-btn danger" title="Delete department">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(departments)}">
+                                <td colspan="5">
+                                    <div class="cs-empty">
+                                        <span class="material-symbols-outlined">folder</span>
+                                        <p>No departments found</p>
+                                        <span>Create your first department to get started.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Card view -->
+                <div id="view-dept-cards" class="cs-hidden">
+                    <div class="cs-card-grid">
+                        <div th:each="dept : ${departments}" class="cs-entity-card">
+                            <div class="cs-entity-card-header">
+                                <div class="cs-entity-card-icon"><span class="material-symbols-outlined">folder</span></div>
+                                <span th:if="${dept.status == 'ACTIVE'}" class="badge-active"><span class="badge-dot"></span>Active</span>
+                                <span th:if="${dept.status != 'ACTIVE'}" class="badge-inactive"><span class="badge-dot"></span><span th:text="${dept.status}"></span></span>
+                            </div>
+                            <div class="cs-entity-card-name" th:text="${dept.name}"></div>
+                            <div class="cs-entity-card-meta">
+                                <span th:text="${dept.branchName}"></span>
+                                <span th:if="${dept.departmentCode}"> · <span th:text="${dept.departmentCode}"></span></span>
+                            </div>
+                            <div class="cs-entity-card-footer">
+                                <span style="font-size:0.75rem;color:#9ca3af;" th:text="${dept.description ?: ''}"></span>
+                                <div class="cs-entity-card-actions">
+                                    <button type="button"
+                                            class="cs-action-btn"
+                                            title="Edit department"
+                                            th:data-id="${dept.id}"
+                                            th:data-name="${dept.name}"
+                                            th:data-description="${dept.description}"
+                                            th:data-code="${dept.departmentCode}"
+                                            th:data-budget="${dept.budget}"
+                                            th:data-company="${dept.companyId}"
+                                            th:data-branch="${dept.branchId}"
+                                            onclick="csEditDepartment(this)">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(departments)}" style="grid-column: 1 / -1;">
+                            <div class="cs-empty">
+                                <span class="material-symbols-outlined">folder</span>
+                                <p>No departments found</p>
+                                <span>Create your first department to get started.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════
+                 DEPARTMENT HEADS SECTION
+            ════════════════════════ -->
+            <section id="section-heads" class="cs-hidden">
+                <div class="cs-breadcrumb">
+                    <span class="material-symbols-outlined">home</span>
+                    <span class="cs-breadcrumb-link" onclick="csShowSection('heads')">Structure</span>
+                    <span class="material-symbols-outlined">chevron_right</span>
+                    <span class="cs-breadcrumb-current">Department Heads</span>
+                </div>
+                <div class="cs-panel-header">
+                    <div class="cs-panel-title-row">
+                        <div class="cs-panel-icon"><span class="material-symbols-outlined">supervised_user_circle</span></div>
+                        <div>
+                            <div class="cs-panel-title">Department Heads</div>
+                            <div class="cs-panel-subtitle" th:text="${#lists.size(departmentHeads)} + ' assigned'">0 assigned</div>
+                        </div>
+                    </div>
+                    <button type="button" class="cs-add-btn" onclick="csOpenModal('head', 'create')">
+                        <span class="material-symbols-outlined">add</span>
+                        Assign Head
                     </button>
                 </div>
+
+                <!-- Mini stats -->
+                <div class="cs-mini-stats">
+                    <div class="cs-mini-stat">
+                        <div class="cs-stat-number" th:text="${#lists.size(departmentHeads)}">0</div>
+                        <div class="cs-stat-label">Total Heads</div>
+                    </div>
+                    <div class="cs-mini-stat">
+                        <div class="cs-stat-number" th:text="${#lists.size(departmentHeads.?[status == 'ACTIVE'])}">0</div>
+                        <div class="cs-stat-label">Active Heads</div>
+                    </div>
+                    <div class="cs-mini-stat">
+                        <div class="cs-stat-number" th:text="${#lists.size(departments)}">0</div>
+                        <div class="cs-stat-label">Departments</div>
+                    </div>
+                </div>
+
+                <div class="cs-toolbar">
+                    <div class="cs-search">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" placeholder="Search heads…" oninput="csFilterTable(this, 'tbl-heads')" aria-label="Search heads" />
+                    </div>
+                    <div class="cs-view-toggle" role="group" aria-label="View mode">
+                        <button type="button" class="cs-view-btn active" id="vt-head-table" onclick="csSetView('head', 'table')" title="Table view" aria-pressed="true">
+                            <span class="material-symbols-outlined">table_rows</span>
+                        </button>
+                        <button type="button" class="cs-view-btn" id="vt-head-cards" onclick="csSetView('head', 'cards')" title="Card view" aria-pressed="false">
+                            <span class="material-symbols-outlined">grid_view</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table view -->
+                <div id="view-head-table">
+                    <div class="cs-table-wrap">
+                        <table class="cs-table" id="tbl-heads">
+                            <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Department</th>
+                                <th>Branch</th>
+                                <th>Primary</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="head : ${departmentHeads}">
+                                <td>
+                                    <div class="cs-cell-primary">
+                                        <div class="cs-cell-avatar"><span class="material-symbols-outlined">person</span></div>
+                                        <div>
+                                            <span th:text="${head.fullName ?: head.userName}"></span>
+                                            <div style="font-size:0.6875rem;color:#9ca3af;" th:text="${head.userEmail}"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${head.departmentName}"></td>
+                                <td th:text="${head.branchName}"></td>
+                                <td>
+                                    <span th:if="${head.isPrimary}" class="material-symbols-outlined" style="color:#15803d;">check_circle</span>
+                                    <span th:if="${!head.isPrimary}" class="material-symbols-outlined" style="color:#d1d5db;">radio_button_unchecked</span>
+                                </td>
+                                <td>
+                                    <span th:if="${head.status == 'ACTIVE'}" class="badge-active"><span class="badge-dot"></span>Active</span>
+                                    <span th:if="${head.status != 'ACTIVE'}" class="badge-inactive"><span class="badge-dot"></span><span th:text="${head.status}"></span></span>
+                                </td>
+                                <td>
+                                    <div class="cs-row-actions">
+                                        <form method="POST"
+                                              th:action="@{'/superadmin/department-head/remove/' + ${head.id}}"
+                                              style="display:inline;"
+                                              onsubmit="return confirm('Remove this department head?');">
+                                            <th:block th:if="${_csrf != null}">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            </th:block>
+                                            <button type="submit" class="cs-action-btn danger" title="Remove head">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(departmentHeads)}">
+                                <td colspan="6">
+                                    <div class="cs-empty">
+                                        <span class="material-symbols-outlined">supervised_user_circle</span>
+                                        <p>No department heads assigned</p>
+                                        <span>Assign a head to a department.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Card view -->
+                <div id="view-head-cards" class="cs-hidden">
+                    <div class="cs-card-grid">
+                        <div th:each="head : ${departmentHeads}" class="cs-entity-card">
+                            <div class="cs-entity-card-header">
+                                <div class="cs-entity-card-icon"><span class="material-symbols-outlined">person</span></div>
+                                <span th:if="${head.status == 'ACTIVE'}" class="badge-active"><span class="badge-dot"></span>Active</span>
+                                <span th:if="${head.status != 'ACTIVE'}" class="badge-inactive"><span class="badge-dot"></span><span th:text="${head.status}"></span></span>
+                            </div>
+                            <div class="cs-entity-card-name" th:text="${head.fullName ?: head.userName}"></div>
+                            <div class="cs-entity-card-meta">
+                                <span th:text="${head.departmentName}"></span> · <span th:text="${head.branchName}"></span>
+                                <span th:if="${head.isPrimary}" style="color:#15803d;"> (Primary)</span>
+                            </div>
+                            <div class="cs-entity-card-footer">
+                                <span style="font-size:0.75rem;color:#9ca3af;" th:text="${head.userEmail}"></span>
+                                <div class="cs-entity-card-actions">
+                                    <form method="POST"
+                                          th:action="@{'/superadmin/department-head/remove/' + ${head.id}}"
+                                          style="display:inline;"
+                                          onsubmit="return confirm('Remove this department head?');">
+                                        <th:block th:if="${_csrf != null}">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        </th:block>
+                                        <button type="submit" class="cs-action-btn danger" title="Remove head">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(departmentHeads)}" style="grid-column: 1 / -1;">
+                            <div class="cs-empty">
+                                <span class="material-symbols-outlined">supervised_user_circle</span>
+                                <p>No department heads assigned</p>
+                                <span>Assign a head to a department.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /.cs-panel -->
+    </div><!-- /.cs-layout -->
+
+
+    <!-- ════════════════════════════════════════════════
+         UNIFIED MODAL — Department & Head
+    ════════════════════════════════════════════════ -->
+    <div id="csModal" class="cs-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="csModalTitle">
+        <div class="cs-modal">
+            <div class="cs-modal-header">
+                <div class="cs-modal-title-row">
+                    <div class="cs-panel-icon"><span class="material-symbols-outlined" id="csModalIcon">add</span></div>
+                    <span class="cs-modal-title" id="csModalTitle">Create</span>
+                </div>
+                <button type="button" class="cs-close-btn" onclick="csCloseModal()" aria-label="Close modal">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- ── Department Form ── -->
+            <form method="POST" th:action="@{/superadmin/department/create}" id="csDepartmentForm" class="cs-hidden">
+                <div class="cs-modal-body">
+                    <input type="hidden" name="departmentId" id="csDepartmentEditId" value="" />
+                    <th:block th:if="${_csrf != null}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </th:block>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csDeptCompany">Company *</label>
+                        <select id="csDeptCompany" name="companyId" required class="cs-field-input">
+                            <option value="">Select company…</option>
+                            <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
+                        </select>
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csDeptBranch">Branch *</label>
+                        <select id="csDeptBranch" name="branchId" required class="cs-field-input" disabled>
+                            <option value="">Select company first…</option>
+                        </select>
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csDeptName">Department Name *</label>
+                        <input type="text" id="csDeptName" name="name" required placeholder="e.g., Finance"
+                               class="cs-field-input" />
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csDeptDesc">Description</label>
+                        <textarea id="csDeptDesc" name="description" rows="2" placeholder="Department description…"
+                                  class="cs-field-input"></textarea>
+                    </div>
+                    <div class="cs-field-grid">
+                        <div class="cs-field-group">
+                            <label class="cs-field-label" for="csDeptCode">Department Code</label>
+                            <input type="text" id="csDeptCode" name="departmentCode" placeholder="e.g., DEPT-001"
+                                   class="cs-field-input" />
+                        </div>
+                        <div class="cs-field-group">
+                            <label class="cs-field-label" for="csDeptBudget">Budget</label>
+                            <input type="text" id="csDeptBudget" name="budget" placeholder="e.g., 500000"
+                                   class="cs-field-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="cs-modal-footer">
+                    <button type="submit" id="csDepartmentSubmitBtn" class="cs-btn-primary">Create Department</button>
+                    <button type="button" class="cs-btn-secondary" onclick="csCloseModal()">Cancel</button>
+                </div>
             </form>
-        </div>
-    </div>
 
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- ─── JAVASCRIPT ──────────────────────────────────────────── -->
-    <!-- ════════════════════════════════════════════════════════════ -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            <!-- ── Head Assignment Form ── -->
+            <form method="POST" th:action="@{/superadmin/department-head/assign}" id="csHeadForm" class="cs-hidden">
+                <div class="cs-modal-body">
+                    <th:block th:if="${_csrf != null}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </th:block>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csHeadDepartment">Department *</label>
+                        <select id="csHeadDepartment" name="departmentId" required class="cs-field-input">
+                            <option value="">Select department…</option>
+                            <option th:each="dept : ${departments}" th:value="${dept.id}"
+                                    th:text="${dept.companyName} + ' > ' + ${dept.branchName} + ' > ' + ${dept.name}"></option>
+                        </select>
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csHeadUser">User *</label>
+                        <select id="csHeadUser" name="userId" required class="cs-field-input"
+                                onchange="updateUserInfo()">
+                            <option value="">Select user…</option>
+                            <option th:each="user : ${users}" th:value="${user.id}"
+                                    th:text="${user.firstName} + ' ' + ${user.lastName}"
+                                    th:data-email="${user.email}"></option>
+                        </select>
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csHeadEmail">User Email</label>
+                        <input type="email" id="csHeadEmail" readonly class="cs-field-input" placeholder="auto-filled" />
+                    </div>
+                    <div class="cs-field-group">
+                        <label class="cs-field-label" for="csHeadName">Full Name</label>
+                        <input type="text" id="csHeadName" name="fullName" class="cs-field-input" placeholder="Optional" />
+                    </div>
+                    <div class="cs-field-check">
+                        <input type="checkbox" name="isPrimary" id="csHeadPrimary" value="true" />
+                        <label for="csHeadPrimary">Set as Primary Head</label>
+                    </div>
+                </div>
+                <div class="cs-modal-footer">
+                    <button type="submit" class="cs-btn-primary">Assign Head</button>
+                    <button type="button" class="cs-btn-secondary" onclick="csCloseModal()">Cancel</button>
+                </div>
+            </form>
 
-            // ─── MODAL MANAGEMENT ──────────────────────────────────
-            const modal = document.getElementById('createDepartmentModal');
-            const openBtn = document.getElementById('openCreateDepartmentModal');
-            const closeBtn = document.getElementById('closeCreateDepartmentModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const form = document.getElementById('departmentForm');
+        </div><!-- /.cs-modal -->
+    </div><!-- /#csModal -->
 
-            function openModal() {
-                modal.classList.add('open');
-                // Reset form fields (but keep CSRF)
-                form.reset();
-                // Reset branch dropdown
-                const branchSelect = document.getElementById('modalBranchSelect');
-                branchSelect.innerHTML = '<option value="">Select Branch</option>';
-                // Reset company select to default
-                document.getElementById('modalCompanySelect').value = '';
-            }
 
-            function closeModal() {
-                modal.classList.remove('open');
-            }
+    <!-- ════════════════════════════════════════════════
+         JAVASCRIPT
+    ════════════════════════════════════════════════ -->
+    <script th:inline="javascript">
+        (function () {
+            'use strict';
 
-            if (openBtn) openBtn.addEventListener('click', openModal);
-            if (closeBtn) closeBtn.addEventListener('click', closeModal);
-            if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+            const SECTIONS = ['departments', 'heads'];
+            const modal    = document.getElementById('csModal');
+            const forms    = {
+                department : document.getElementById('csDepartmentForm'),
+                head       : document.getElementById('csHeadForm')
+            };
 
-            // Close modal on overlay click
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
-
-            // Close on Escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && modal.classList.contains('open')) {
-                    closeModal();
+            /* ── Section switching ─────────────────────── */
+            window.csShowSection = function (name) {
+                SECTIONS.forEach(s => {
+                    document.getElementById('section-' + s).classList.toggle('cs-hidden', s !== name);
+                    document.getElementById('hcard-' + s).classList.toggle('active', s === name);
+                    document.getElementById('nav-' + s).classList.toggle('active', s === name);
+                });
+                // Also toggle the third card (active heads) when showing heads
+                const hcardActive = document.getElementById('hcard-active-heads');
+                if (hcardActive) {
+                    hcardActive.classList.toggle('active', name === 'heads');
                 }
+                if (history.pushState) {
+                    history.pushState(null, '', '#' + name);
+                }
+            };
+
+            /* ── View toggle ────────────────────────────── */
+            window.csSetView = function (prefix, view) {
+                var tv = document.getElementById('view-' + prefix + '-table');
+                var cv = document.getElementById('view-' + prefix + '-cards');
+                var btnT = document.getElementById('vt-' + prefix + '-table');
+                var btnC = document.getElementById('vt-' + prefix + '-cards');
+                var isTable = view === 'table';
+                tv.classList.toggle('cs-hidden', !isTable);
+                cv.classList.toggle('cs-hidden',  isTable);
+                btnT.classList.toggle('active',  isTable);
+                btnC.classList.toggle('active', !isTable);
+                btnT.setAttribute('aria-pressed', isTable ? 'true' : 'false');
+                btnC.setAttribute('aria-pressed', isTable ? 'false' : 'true');
+            };
+
+            /* ── Table search filter ───────────────────── */
+            window.csFilterTable = function (inp, tableId) {
+                var q    = inp.value.toLowerCase();
+                var rows = document.getElementById(tableId).querySelectorAll('tbody tr');
+                rows.forEach(function (r) {
+                    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
+            };
+
+            /* ── Modal helpers ─────────────────────────── */
+            function hideAllForms() {
+                Object.values(forms).forEach(function (f) { f.classList.add('cs-hidden'); });
+            }
+
+            function openModal(formEl, title, icon) {
+                hideAllForms();
+                formEl.classList.remove('cs-hidden');
+                document.getElementById('csModalTitle').textContent = title;
+                document.getElementById('csModalIcon').textContent  = icon;
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                var first = formEl.querySelector('input:not([type=hidden]), select');
+                if (first) setTimeout(function () { first.focus(); }, 50);
+            }
+
+            window.csCloseModal = function () {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                hideAllForms();
+            };
+
+            /* ── Open modal by type ────────────────────── */
+            window.csOpenModal = function (type, mode) {
+                if (type === 'department') {
+                    forms.department.reset();
+                    document.getElementById('csDepartmentEditId').value = '';
+                    document.getElementById('csDepartmentSubmitBtn').textContent = 'Create Department';
+                    forms.department.action = /*[[@{/superadmin/department/create}]]*/ '/superadmin/department/create';
+                    // Reset branch dropdown
+                    var branchSel = document.getElementById('csDeptBranch');
+                    branchSel.innerHTML = '<option value="">Select company first…</option>';
+                    branchSel.disabled = true;
+                    openModal(forms.department, 'Create Department', 'add');
+
+                } else if (type === 'head') {
+                    forms.head.reset();
+                    // Clear user info fields
+                    document.getElementById('csHeadEmail').value = '';
+                    document.getElementById('csHeadName').value = '';
+                    openModal(forms.head, 'Assign Department Head', 'person_add');
+                }
+            };
+
+            /* ── Edit department ─────────────────────────── */
+            window.csEditDepartment = function (btn) {
+                forms.department.reset();
+                document.getElementById('csDepartmentEditId').value = btn.dataset.id || '';
+                document.getElementById('csDeptName').value         = btn.dataset.name || '';
+                document.getElementById('csDeptDesc').value        = btn.dataset.description || '';
+                document.getElementById('csDeptCode').value        = btn.dataset.code || '';
+                document.getElementById('csDeptBudget').value      = btn.dataset.budget || '';
+
+                var companyId = btn.dataset.company || '';
+                var branchId  = btn.dataset.branch || '';
+
+                // Set company and load branches
+                var companySel = document.getElementById('csDeptCompany');
+                companySel.value = companyId;
+                // Trigger change to load branches
+                loadBranchesForDepartment(companyId, branchId);
+
+                document.getElementById('csDepartmentSubmitBtn').textContent = 'Update Department';
+                forms.department.action = '/superadmin/department/update/' + btn.dataset.id;
+                openModal(forms.department, 'Edit Department', 'edit');
+            };
+
+            /* ── Dynamic branch loading for department form ─ */
+            document.getElementById('csDeptCompany').addEventListener('change', function () {
+                loadBranchesForDepartment(this.value, null);
             });
 
-            // ─── LOAD BRANCHES BASED ON SELECTED COMPANY (in modal) ──
-            const companySelect = document.getElementById('modalCompanySelect');
-            const branchSelect = document.getElementById('modalBranchSelect');
-
-            companySelect.addEventListener('change', function() {
-                const companyId = this.value;
-                branchSelect.innerHTML = '<option value="">Loading…</option>';
-                branchSelect.disabled = true;
+            function loadBranchesForDepartment(companyId, selectedBranchId) {
+                var sel = document.getElementById('csDeptBranch');
+                sel.innerHTML = '<option value="">Loading…</option>';
+                sel.disabled = true;
 
                 if (!companyId) {
-                    branchSelect.innerHTML = '<option value="">Select Branch</option>';
-                    branchSelect.disabled = false;
+                    sel.innerHTML = '<option value="">Select company first…</option>';
+                    sel.disabled = false;
                     return;
                 }
 
                 fetch('/superadmin/api/branches/' + encodeURIComponent(companyId))
-                    .then(response => {
-                        if (!response.ok) throw new Error('HTTP ' + response.status);
-                        return response.json();
-                    })
-                    .then(data => {
-                        branchSelect.innerHTML = '<option value="">Select Branch</option>';
-                        const list = Array.isArray(data) ? data : (data.data || []);
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(function (data) {
+                        var list = Array.isArray(data) ? data : (data.data || []);
+                        sel.innerHTML = '<option value="">Select branch…</option>';
                         if (list.length === 0) {
-                            branchSelect.innerHTML = '<option value="">No branches available</option>';
+                            sel.innerHTML = '<option value="">No branches for this company</option>';
                         } else {
-                            list.forEach(branch => {
-                                const opt = document.createElement('option');
+                            list.forEach(function (branch) {
+                                var opt = document.createElement('option');
                                 opt.value = branch.id;
                                 opt.textContent = branch.name;
-                                branchSelect.appendChild(opt);
+                                if (selectedBranchId && branch.id == selectedBranchId) {
+                                    opt.selected = true;
+                                }
+                                sel.appendChild(opt);
                             });
                         }
-                        branchSelect.disabled = false;
+                        sel.disabled = false;
                     })
-                    .catch(err => {
+                    .catch(function (err) {
                         console.error('Failed to load branches:', err);
-                        branchSelect.innerHTML = '<option value="">Error loading branches</option>';
-                        branchSelect.disabled = false;
+                        sel.innerHTML = '<option value="">Error loading branches</option>';
+                        sel.disabled = false;
                     });
-            });
+            }
 
-            // ─── TRIM INPUTS ON SUBMIT ─────────────────────────────
-            form.addEventListener('submit', function() {
-                const inputs = this.querySelectorAll('input[type="text"], textarea');
-                inputs.forEach(function(inp) {
-                    if (inp.value) inp.value = inp.value.trim();
+            /* ── Head form: update user info ────────────── */
+            window.updateUserInfo = function () {
+                var sel = document.getElementById('csHeadUser');
+                var opt = sel.options[sel.selectedIndex];
+                var email = opt.getAttribute('data-email') || '';
+                var name = opt.text || '';
+                document.getElementById('csHeadEmail').value = email;
+                document.getElementById('csHeadName').value = name;
+            };
+
+            /* ── Trim whitespace on all POST forms ──────── */
+            document.querySelectorAll('form[method="POST"]').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    this.querySelectorAll('input[type="text"], textarea').forEach(function (inp) {
+                        if (inp.value) inp.value = inp.value.trim();
+                    });
                 });
             });
 
-            // ─── ENSURE BRANCH IS SELECTED ──────────────────────────
-            form.addEventListener('submit', function(e) {
-                if (!branchSelect.value) {
+            /* ── Close modal on backdrop click ─────────── */
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) csCloseModal();
+            });
+
+            /* ── Keyboard shortcuts ─────────────────────── */
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('open')) {
+                    csCloseModal();
+                    return;
+                }
+                if (e.ctrlKey && e.key >= '1' && e.key <= '2') {
                     e.preventDefault();
-                    alert('Please select a branch.');
-                    branchSelect.focus();
+                    var map = { '1': 'departments', '2': 'heads' };
+                    csShowSection(map[e.key]);
                 }
             });
 
-        });
+            /* ── Restore from hash ──────────────────────── */
+            function restoreFromHash() {
+                var hash = window.location.hash.replace('#', '');
+                if (SECTIONS.indexOf(hash) !== -1) {
+                    csShowSection(hash);
+                } else {
+                    csShowSection('departments');
+                }
+            }
+
+            window.addEventListener('hashchange', restoreFromHash);
+            restoreFromHash();
+
+            // ── Auto-populate user email/name on head form load ──
+            // (already called on change)
+
+            // ── Ensure head form branch selection? no branch needed for head.
+
+        }());
     </script>
+
 </main>
+
 </body>
 </html>
