@@ -20,7 +20,6 @@ public class PageController {
     public String dashboard() {
         return "dashboard.html";
     }
-
     @GetMapping("/assets/details")
     public String assetDetails() {
         return "assets/assets-details";
@@ -76,3 +75,4 @@ public class PageController {
         return "reports/reports-module";
     }
 }
+

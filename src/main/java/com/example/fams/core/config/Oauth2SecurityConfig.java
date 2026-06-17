@@ -1,6 +1,7 @@
 package com.example.fams.core.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -19,6 +20,9 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @Slf4j
 @Configuration
 public class Oauth2SecurityConfig {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http, HandlerMappingIntrospector introspector,ClientRegistrationRepository repo) throws Exception {
@@ -63,9 +67,23 @@ public class Oauth2SecurityConfig {
         return logoutSuccessHandler;
     }
 
+    /**
+     * Custom authentication success handler that routes users to the appropriate
+     * dashboard based on their group membership in Keycloak.
+     *
+     * Routes:
+     * - admin group -> /admin/dashboard
+     * - auditor group -> /auditor/dashboard
+     * - assetManager group -> /admin/dashboard
+     * - departmentHead group -> /department-head/dashboard
+     * - employees group -> /employee/dashboard
+     * - fallback -> /dashboard
+     */
     private AuthenticationSuccessHandler authenticationSuccessHandler(){
         return  (request, response, authentication) -> {
-                response.sendRedirect("/dashboard");
+                String redirectUrl = authenticationManager.getDefaultDashboardUrl();
+                log.info("Redirecting authenticated user to: {}", redirectUrl);
+                response.sendRedirect(redirectUrl);
         };
     }
 }
