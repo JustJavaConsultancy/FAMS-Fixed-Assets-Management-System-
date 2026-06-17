@@ -822,6 +822,193 @@
         .topbar-register .material-symbols-outlined {
             font-size: 18px;
         }
+        /* ── Modal Styles ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 200ms ease, visibility 200ms ease;
+            backdrop-filter: blur(2px);
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            animation: slideUp 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #E4E6EA;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .modal-header {
+            margin-bottom: 16px;
+        }
+        .modal-header .modal-icon {
+            width: 48px;
+            height: 48px;
+            background: #ffebee;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .modal-header .modal-icon .material-symbols-outlined {
+            color: #ba1a1a;
+            font-size: 28px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1D23;
+            line-height: 1.4;
+        }
+        .modal-body {
+            margin-bottom: 24px;
+        }
+        .modal-body p {
+            margin: 0;
+            font-size: 13px;
+            color: #5d5e65;
+            line-height: 1.6;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 150ms;
+            white-space: nowrap;
+        }
+        .modal-btn-secondary {
+            background: #F4F5F7;
+            color: #1A1D23;
+            border: 1px solid #E4E6EA;
+        }
+        .modal-btn-secondary:hover {
+            background: #e8eaef;
+        }
+        .modal-btn-primary {
+            background: #ba1a1a;
+            color: #fff;
+        }
+        .modal-btn-primary:hover {
+            background: #8f0f1e;
+        }
+        .modal-btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* ── Logout Button in Sidebar ── */
+        .sidebar-user .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #5d5e65;
+            transition: all 150ms;
+            flex-shrink: 0;
+        }
+        .sidebar-user .logout-btn:hover {
+            background: #f0f2f8;
+            color: #ba1a1a;
+        }
+        .sidebar-user .logout-btn .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        /* Responsive adjustments for modal & logout button */
+        @media (max-width: 1023px) {
+            .modal-content {
+                width: 95%;
+                max-width: 380px;
+                padding: 28px;
+            }
+            .modal-header h2 {
+                font-size: 17px;
+            }
+            /* Logout button visibility on collapsed */
+            body:not(.manual-override) #sidebar .sidebar-user .logout-btn {
+                opacity: 1;
+            }
+        }
+        @media (max-width: 640px) {
+            .sidebar-user .logout-btn {
+                width: 24px;
+                height: 24px;
+            }
+            .sidebar-user .logout-btn .material-symbols-outlined {
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 400px) {
+            .modal-content {
+                padding: 24px;
+                width: 95%;
+                max-width: none;
+            }
+            .modal-header .modal-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .modal-header h2 {
+                font-size: 16px;
+            }
+            .modal-body p {
+                font-size: 12px;
+            }
+            .modal-btn {
+                font-size: 12px;
+                height: 32px;
+                padding: 0 16px;
+            }
+            .modal-footer {
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+            .modal-btn {
+                width: 100%;
+            }
+        }
+
     </style>
     <link rel="stylesheet" th:href="@{/css/responsive.css}" href="/css/responsive.css" />
 </head>
@@ -921,6 +1108,9 @@
                 <p>Alex Asset</p>
                 <span>Admin Account</span>
             </div>
+            <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
         </div>
 
     </div>
@@ -983,6 +1173,25 @@
 
 <!-- ══ GLOBAL TOOLTIP CONTAINER ══ -->
 <div id="tooltip-container" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999;"></div>
+
+<!-- ══ LOGOUT CONFIRMATION MODAL ══ -->
+<div id="logout-modal" class="modal-overlay">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <span class="material-symbols-outlined">logout</span>
+            </div>
+            <h2 id="logout-modal-title">Confirm Logout</h2>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout? You will be redirected to the login page and your session will be ended.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" id="logout-cancel-btn">Cancel</button>
+            <button class="modal-btn modal-btn-primary" id="logout-confirm-btn">Logout</button>
+        </div>
+    </div>
+</div>
 
 <script>
     (function() {
@@ -1275,6 +1484,63 @@
             collapse: function(v) { applyCollapse(v); },
             state: function() { return isCollapsed; }
         };
+
+    })();
+</script>
+
+<script>
+    (function() {
+        'use strict';
+
+        const logoutModal = document.getElementById('logout-modal');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+        const logoutCancelBtn = document.getElementById('logout-cancel-btn');
+        const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
+
+        if (!logoutModal || !sidebarLogoutBtn) return;
+
+        // Open modal when logout button is clicked
+        sidebarLogoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.classList.add('visible');
+            // focus the cancel button for keyboard users
+            setTimeout(() => logoutCancelBtn?.focus(), 50);
+        });
+
+        // Close modal when cancel button is clicked
+        logoutCancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.classList.remove('visible');
+        });
+
+        // Close modal when clicking outside the modal content
+        logoutModal.addEventListener('click', function(e) {
+            if (e.target === logoutModal) {
+                logoutModal.classList.remove('visible');
+            }
+        });
+
+        // Perform logout when confirm button is clicked
+        logoutConfirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Add loading state
+            logoutConfirmBtn.disabled = true;
+            logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
+
+            // Navigate to logout endpoint. Spring Security expects POST by default,
+            // but many apps expose a logout GET endpoint or handle redirect; using location.href
+            // keeps behaviour simple—backend should handle session invalidation.
+            window.location.href = '/users/logout';
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                if (logoutModal.classList.contains('visible')) {
+                    logoutModal.classList.remove('visible');
+                }
+            }
+        });
 
     })();
 </script>

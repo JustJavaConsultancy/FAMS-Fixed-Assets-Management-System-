@@ -775,6 +775,18 @@
       font-size: 22px;
     }
   </style>
+  <style>
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;visibility:hidden;transition:opacity 200ms ease,visibility 200ms ease;backdrop-filter:blur(2px)}
+    .modal-overlay.visible{opacity:1;visibility:visible}
+    .modal-content{background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.12);border:1px solid #E4E6EA}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .modal-header .modal-icon{width:48px;height:48px;background:#ffebee;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+    .modal-btn{height:36px;padding:0 20px;border-radius:10px;font-size:13px;font-weight:500;border:none;cursor:pointer}
+    .modal-btn-secondary{background:#F4F5F7;color:#1A1D23;border:1px solid #E4E6EA}
+    .modal-btn-primary{background:#ba1a1a;color:#fff}
+    .sidebar-user .logout-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:transparent;border:none;cursor:pointer;color:#5d5e65}
+    .sidebar-user .logout-btn:hover{background:#f0f2f8;color:#ba1a1a}
+  </style>
   <link rel="stylesheet" th:href="@{/css/responsive.css}" href="/css/responsive.css" />
 </head>
 <body>
@@ -874,6 +886,9 @@
         <p>Department Head</p>
         <span>Dept. Head</span>
       </div>
+      <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
     </div>
 
   </div>
@@ -931,6 +946,25 @@
 
 <!-- ══ GLOBAL TOOLTIP CONTAINER ══ -->
 <div id="tooltip-container" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999;"></div>
+
+<!-- ══ LOGOUT CONFIRMATION MODAL ══ -->
+<div id="logout-modal" class="modal-overlay">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
+    <div class="modal-header">
+      <div class="modal-icon">
+        <span class="material-symbols-outlined">logout</span>
+      </div>
+      <h2 id="logout-modal-title">Confirm Logout</h2>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to logout? You will be redirected to the login page and your session will be ended.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" id="logout-cancel-btn">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="logout-confirm-btn">Logout</button>
+    </div>
+  </div>
+</div>
 
 <script>
   (function() {
@@ -1159,7 +1193,51 @@
       state: function() { return isCollapsed; }
     };
   })();
-</script>
+    <script>
+      (function() {
+        'use strict';
+
+        const logoutModal = document.getElementById('logout-modal');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+        const logoutCancelBtn = document.getElementById('logout-cancel-btn');
+        const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
+
+        if (!logoutModal || !sidebarLogoutBtn) return;
+
+        sidebarLogoutBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logoutModal.classList.add('visible');
+          setTimeout(() => logoutCancelBtn?.focus(), 50);
+        });
+
+        logoutCancelBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logoutModal.classList.remove('visible');
+        });
+
+        logoutModal.addEventListener('click', function(e) {
+          if (e.target === logoutModal) {
+            logoutModal.classList.remove('visible');
+          }
+        });
+
+        logoutConfirmBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          logoutConfirmBtn.disabled = true;
+          logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
+          window.location.href = '/users/logout';
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' || e.key === 'Esc') {
+            if (logoutModal.classList.contains('visible')) {
+              logoutModal.classList.remove('visible');
+            }
+          }
+        });
+
+      })();
+    </script>
 
 </body>
 </html>
