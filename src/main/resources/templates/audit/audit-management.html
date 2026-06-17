@@ -8,11 +8,12 @@
             min-height: 260px;
             background: #151b29;
             overflow: hidden;
+            border-radius: 12px;
         }
         .scan-frame video {
             width: 100%;
             min-height: 260px;
-            max-height: 420px;
+            max-height: 400px;
             object-fit: cover;
             display: block;
         }
@@ -34,276 +35,413 @@
             background: #c0182a;
             box-shadow: 0 0 12px rgba(192, 24, 42, 0.8);
         }
+        .camera-empty-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
         .spinner {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border: 2px solid currentColor;
             border-right-color: transparent;
             border-radius: 9999px;
             animation: spin 700ms linear infinite;
+            display: inline-block;
+            vertical-align: middle;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        /* Fix icon vertical alignment in buttons */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            line-height: 1;
+        }
+        .btn-icon .material-symbols-outlined {
+            font-size: 17px;
+            line-height: 1;
+            display: block;
+        }
+        /* Verification radio cards */
+        .result-radio-label input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .result-radio-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .result-radio-card .material-symbols-outlined {
+            font-size: 16px;
+            line-height: 1;
         }
     </style>
 </head>
 <body>
 <main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
-    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+
+    <!-- ── Page Header ── -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
                 <h2 class="font-page-title text-page-title text-on-background">Asset Audit</h2>
                 <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
                       th:text="${activeSession != null ? activeSession.status : 'No active session'}">ACTIVE</span>
             </div>
-            <p class="text-body-default text-secondary mt-1">Scan asset QR codes or barcodes to verify existence, condition, and location.</p>
+            <p class="text-body-default text-secondary mt-1">Scan QR codes or barcodes to verify asset existence, condition, and location.</p>
         </div>
-        <form th:action="@{/audit/sessions}" method="post" class="bg-surface-card border border-border-default rounded-xl p-3 card-shadow flex flex-col md:flex-row gap-3 md:items-end">
-            <div>
-                <label class="block text-label-small text-secondary mb-1">Session title</label>
-                <input name="title" required maxlength="160" th:value="${defaultAuditTitle}"
-                       class="h-[38px] w-full md:w-64 px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-            </div>
-            <div>
-                <label class="block text-label-small text-secondary mb-1">Scope / location</label>
-                <input name="scopeLocation" maxlength="160" placeholder="Branch, floor, department"
-                       class="h-[38px] w-full md:w-56 px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-            </div>
-            <button type="submit" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap">
-                <span class="material-symbols-outlined text-[18px]">add_task</span>
-                Start Audit
-            </button>
-        </form>
+
+        <!-- Start Audit: compact trigger → inline form approach -->
+        <div class="flex items-start">
+            <details class="relative" id="start-audit-details">
+                <summary class="h-9 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon cursor-pointer list-none">
+                    <span class="material-symbols-outlined">add_task</span>
+                    New Audit Session
+                </summary>
+                <form th:action="@{/audit/sessions}" method="post"
+                      class="absolute right-0 top-[calc(100%+8px)] z-30 bg-surface-card border border-border-default rounded-xl p-4 card-shadow w-[340px] sm:w-[420px] space-y-3">
+                    <p class="font-card-header text-card-header text-on-surface mb-1">Start audit session</p>
+                    <div>
+                        <label class="block text-label-small text-secondary mb-1">Session title <span class="text-error">*</span></label>
+                        <input name="title" required maxlength="160" th:value="${defaultAuditTitle}"
+                               class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-label-small text-secondary mb-1">Scope / location</label>
+                        <input name="scopeLocation" maxlength="160" placeholder="Branch, floor, department"
+                               class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button type="submit" class="flex-1 h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon">
+                            <span class="material-symbols-outlined">add_task</span>
+                            Start Session
+                        </button>
+                        <button type="button" onclick="document.getElementById('start-audit-details').removeAttribute('open')"
+                                class="h-[38px] px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </details>
+        </div>
     </div>
 
-    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined">check_circle</span>
+    <!-- ── Flash messages ── -->
+    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/30 text-status-success rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined shrink-0">check_circle</span>
         <p class="font-body-medium" th:text="${successMessage}">Done.</p>
     </div>
-    <div th:if="${errorMessage}" class="bg-error/10 border border-error/20 text-error rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined">error</span>
+    <div th:if="${errorMessage}" class="bg-error/10 border border-error/30 text-error rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined shrink-0">error</span>
         <p class="font-body-medium" th:text="${errorMessage}">Something went wrong.</p>
     </div>
 
-    <div th:if="${activeSession == null}" class="bg-surface-card border border-border-default rounded-xl card-shadow p-12 sm:p-20 text-center">
+    <!-- ── Empty state ── -->
+    <div th:if="${activeSession == null}" class="bg-surface-card border border-border-default rounded-xl card-shadow p-14 sm:p-20 text-center">
         <div class="w-16 h-16 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[42px]">qr_code_scanner</span>
+            <span class="material-symbols-outlined text-[40px]">qr_code_scanner</span>
         </div>
-        <h3 class="font-card-header text-card-header text-on-surface">No audit session has been started</h3>
-        <p class="text-body-default text-secondary mt-2 max-w-md mx-auto">Start a session to scan asset tags, submit verification outcomes, and generate reports.</p>
+        <h3 class="font-card-header text-card-header text-on-surface">No audit session active</h3>
+        <p class="text-body-default text-secondary mt-2 max-w-md mx-auto">Start a session using the button above to scan asset tags, record verification outcomes, and generate reports.</p>
     </div>
 
+    <!-- ── Main layout (active session only) ── -->
     <div th:if="${activeSession != null}" class="grid grid-cols-12 gap-6">
-        <aside class="col-span-12 xl:col-span-3 space-y-6">
+
+        <!-- ════ SIDEBAR ════ -->
+        <aside class="col-span-12 xl:col-span-3 space-y-4">
+
+            <!-- Session list -->
             <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                <div class="p-4 border-b border-border-default">
+                <div class="px-4 py-3.5 border-b border-border-default">
                     <h3 class="font-card-header text-card-header text-on-surface">Audit Sessions</h3>
-                    <p class="text-label-small text-secondary mt-1">Recent and active sessions</p>
+                    <p class="text-label-small text-secondary mt-0.5">Recent and active sessions</p>
                 </div>
-                <div class="divide-y divide-border-default max-h-[520px] overflow-y-auto">
+                <div class="divide-y divide-border-default max-h-[500px] overflow-y-auto">
                     <div th:if="${#lists.isEmpty(sessions)}" class="p-8 text-center">
-                        <span class="material-symbols-outlined text-secondary text-[36px]">inventory</span>
+                        <span class="material-symbols-outlined text-secondary text-[34px]">inventory</span>
                         <p class="text-body-default text-secondary mt-2">No audit sessions yet.</p>
                     </div>
-                    <div th:each="sess : ${sessions}" class="p-4 hover:bg-surface-canvas/70 transition-colors">
-                        <div class="flex items-start justify-between gap-3">
+                    <div th:each="sess : ${sessions}" class="px-4 py-3.5 hover:bg-surface-canvas/70 transition-colors">
+                        <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
                                 <p class="font-body-medium text-on-surface truncate" th:text="${sess.title}">Audit title</p>
-                                <p class="text-label-small text-secondary mt-1" th:text="${sess.scopeLocation ?: 'All registered assets'}">Location</p>
+                                <p class="text-label-small text-secondary mt-0.5 truncate" th:text="${sess.scopeLocation ?: 'All registered assets'}">Location</p>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                            <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold"
                                   th:classappend="${sess.status.name() == 'ACTIVE'} ? ' bg-primary/10 text-primary' : ' bg-status-success/10 text-status-success'"
                                   th:text="${sess.status}">ACTIVE</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 mt-4 text-center">
-                            <div class="bg-surface-canvas rounded-lg p-2">
-                                <p class="font-technical-data text-on-surface" th:text="${session.verifiedCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase">Verified</p>
+                        <div class="grid grid-cols-3 gap-1.5 mt-3 text-center">
+                            <div class="bg-surface-canvas rounded-lg py-2">
+                                <p class="font-technical-data text-sm text-on-surface" th:text="${sess.verifiedCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Verified</p>
                             </div>
-                            <div class="bg-surface-canvas rounded-lg p-2">
-                                <p class="font-technical-data text-error" th:text="${session.missingCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase">Missing</p>
+                            <div class="bg-surface-canvas rounded-lg py-2">
+                                <p class="font-technical-data text-sm text-error" th:text="${sess.missingCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Missing</p>
                             </div>
-                            <div class="bg-surface-canvas rounded-lg p-2">
-                                <p class="font-technical-data text-status-warning" th:text="${session.discrepancyCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase">Issues</p>
+                            <div class="bg-surface-canvas rounded-lg py-2">
+                                <p class="font-technical-data text-sm text-status-warning" th:text="${sess.discrepancyCount}">0</p>
+                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Issues</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-surface-card border border-border-default rounded-xl card-shadow p-4">
-                <h3 class="font-card-header text-card-header text-on-surface">History Report</h3>
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <input id="history-from" type="date" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default">
-                    <input id="history-to" type="date" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default">
+            <!-- History report -->
+            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+                <div class="px-4 py-3.5 border-b border-border-default">
+                    <h3 class="font-card-header text-card-header text-on-surface">Audit History</h3>
+                    <p class="text-label-small text-secondary mt-0.5">Filter by date range</p>
                 </div>
-                <button id="history-button" class="mt-3 w-full h-[38px] border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">history</span>
-                    Run History
-                </button>
-                <div id="history-list" class="mt-4 space-y-2">
-                    <div th:each="audit : ${historyReport.audits}" class="rounded-lg border border-border-default p-3">
-                        <div class="flex justify-between gap-3">
-                            <p class="font-body-medium text-on-surface truncate" th:text="${audit.title}">Completed audit</p>
-                            <span class="font-technical-data text-secondary" th:text="${audit.verifiedCount}">0</span>
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-label-small text-secondary mb-1">From</label>
+                            <input id="history-from" type="date" class="h-[38px] w-full px-2.5 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-label-small text-secondary mb-1">To</label>
+                            <input id="history-to" type="date" class="h-[38px] w-full px-2.5 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                        </div>
+                    </div>
+                    <button id="history-button" class="w-full h-[38px] border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all btn-icon">
+                        <span class="material-symbols-outlined">history</span>
+                        Run Report
+                    </button>
+                </div>
+                <div id="history-list" class="border-t border-border-default divide-y divide-border-default max-h-[280px] overflow-y-auto">
+                    <div th:each="audit : ${historyReport.audits}" class="px-4 py-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-body-medium text-on-surface truncate text-sm" th:text="${audit.title}">Completed audit</p>
+                            <span class="shrink-0 font-technical-data text-secondary text-sm" th:text="${audit.verifiedCount}">0</span>
                         </div>
                         <p class="text-label-small text-secondary mt-1"
-                           th:text="${'Missing ' + audit.missingCount + ' | Discrepancies ' + audit.discrepancyCount}">Counts</p>
+                           th:text="${'Missing ' + audit.missingCount + ' · Discrepancies ' + audit.discrepancyCount}">Counts</p>
                     </div>
-                    <div th:if="${#lists.isEmpty(historyReport.audits)}" class="p-5 text-center bg-surface-canvas rounded-lg">
-                        <p class="text-body-default text-secondary">No completed audits in the default period.</p>
+                    <div th:if="${#lists.isEmpty(historyReport.audits)}" class="p-6 text-center">
+                        <span class="material-symbols-outlined text-secondary text-[32px]">event_available</span>
+                        <p class="text-body-default text-secondary mt-2 text-sm">No completed audits in the default period.</p>
                     </div>
                 </div>
             </div>
         </aside>
 
+        <!-- ════ MAIN CONTENT ════ -->
         <section class="col-span-12 xl:col-span-9 space-y-6">
+
+            <!-- Active session header card -->
             <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                <div class="p-5 border-b border-border-default flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+                <!-- Session meta + action -->
+                <div class="px-5 py-4 border-b border-border-default flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary">verified_user</span>
+                            <span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
                             <h3 class="font-section-header text-section-header text-on-surface" th:text="${activeSession.title}">Active audit</h3>
                         </div>
-                        <div class="flex flex-wrap gap-4 text-label-small text-secondary mt-2">
-                            <span th:text="${'Auditor: ' + activeSession.auditorName}">Auditor</span>
-                            <span th:text="${'Scope: ' + (activeSession.scopeLocation ?: 'All registered assets')}">Scope</span>
-                            <span th:text="${'Started: ' + #temporals.format(activeSession.startedAt, 'MMM dd, yyyy HH:mm')}">Started</span>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-label-small text-secondary mt-1.5">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">person</span>
+                                <span th:text="${activeSession.auditorName}">Auditor</span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">location_on</span>
+                                <span th:text="${activeSession.scopeLocation ?: 'All registered assets'}">Scope</span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                <span th:text="${#temporals.format(activeSession.startedAt, 'MMM dd, yyyy HH:mm')}">Started</span>
+                            </span>
                         </div>
                     </div>
                     <form th:if="${activeSession.status.name() == 'ACTIVE'}" th:action="@{/audit/sessions/{id}/complete(id=${activeSession.id})}" method="post">
-                        <button type="submit" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                        <button type="submit" class="h-9 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon whitespace-nowrap">
+                            <span class="material-symbols-outlined">task_alt</span>
                             Complete Audit
                         </button>
                     </form>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-border-default">
-                    <div class="p-5 border-b md:border-b-0 md:border-r border-border-default">
-                        <p class="text-label-small text-secondary">Assets verified</p>
+
+                <!-- Metric strip -->
+                <div class="grid grid-cols-3 divide-x divide-border-default border-b border-border-default">
+                    <div class="px-5 py-4">
+                        <p class="text-label-small text-secondary uppercase tracking-wide">Verified</p>
                         <p id="metric-verified" class="mt-1 font-technical-data text-2xl text-on-surface" th:text="${discrepancyReport.totalVerified}">0</p>
                     </div>
-                    <div class="p-5 border-b md:border-b-0 md:border-r border-border-default">
-                        <p class="text-label-small text-secondary">Discrepancies</p>
+                    <div class="px-5 py-4">
+                        <p class="text-label-small text-secondary uppercase tracking-wide">Discrepancies</p>
                         <p id="metric-discrepancies" class="mt-1 font-technical-data text-2xl text-status-warning" th:text="${discrepancyReport.discrepancyCount}">0</p>
                     </div>
-                    <div class="p-5">
-                        <p class="text-label-small text-secondary">Report status</p>
+                    <div class="px-5 py-4">
+                        <p class="text-label-small text-secondary uppercase tracking-wide">Status</p>
                         <p class="mt-1 font-body-medium text-on-surface" th:text="${activeSession.status.name() == 'ACTIVE' ? 'In progress' : 'Completed'}">In progress</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2">
-                    <div class="p-5 border-b lg:border-b-0 lg:border-r border-border-default">
-                        <div class="scan-frame rounded-xl border border-border-default">
-                            <video id="scanner-video" muted playsinline></video>
-                            <div class="scan-reticle hidden" id="scan-reticle"></div>
-                            <div id="camera-empty" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-                                <span class="material-symbols-outlined text-white/90 text-[52px]">qr_code_scanner</span>
-                                <h4 class="font-card-header text-white mt-3">Camera scanner ready</h4>
-                                <p class="text-body-default text-white/70 mt-1 max-w-sm">Use a supported mobile browser to scan QR or barcode tags. Manual entry remains available.</p>
+                <!-- Scanner + verification form -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border-default">
+
+                    <!-- LEFT: Camera scanner -->
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <p class="font-body-medium text-on-surface mb-3">Camera Scanner</p>
+                            <div class="scan-frame border border-border-default">
+                                <video id="scanner-video" muted playsinline></video>
+                                <div class="scan-reticle hidden" id="scan-reticle"></div>
+                                <div class="camera-empty-overlay" id="camera-empty">
+                                    <span class="material-symbols-outlined text-white/80 text-[48px]">qr_code_scanner</span>
+                                    <p class="font-body-medium text-white mt-2 text-sm">Camera scanner ready</p>
+                                    <p class="text-white/60 text-xs mt-1 max-w-[220px]">Use a supported mobile browser to scan QR or barcode tags.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-4 flex flex-col sm:flex-row gap-3">
-                            <button id="start-camera" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 disabled:opacity-50">
-                                <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+
+                        <div class="flex gap-2">
+                            <button id="start-camera" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
+                                    class="flex-1 h-9 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon disabled:opacity-50">
+                                <span class="material-symbols-outlined">photo_camera</span>
                                 Start Camera
                             </button>
-                            <button id="stop-camera" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-[18px]">videocam_off</span>
+                            <button id="stop-camera"
+                                    class="h-9 px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all btn-icon">
+                                <span class="material-symbols-outlined">videocam_off</span>
                                 Stop
                             </button>
                         </div>
-                        <p id="scanner-message" class="mt-3 text-label-small text-secondary">BarcodeDetector support depends on browser and device camera permissions.</p>
-                        <div class="mt-4 flex gap-2">
-                            <div class="relative flex-1">
-                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">keyboard</span>
-                                <input id="manual-code" type="text" placeholder="Enter asset code or barcode value"
-                                       class="w-full h-[38px] pl-10 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+
+                        <p id="scanner-message" class="text-label-small text-secondary">BarcodeDetector support depends on browser and device camera permissions.</p>
+
+                        <!-- Manual lookup -->
+                        <div>
+                            <label class="block text-label-small text-secondary mb-1.5">Manual lookup</label>
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary" style="font-size:17px;">keyboard</span>
+                                    <input id="manual-code" type="text" placeholder="Asset code or barcode value"
+                                           class="w-full h-[38px] pl-9 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                </div>
+                                <button id="manual-lookup" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
+                                        class="h-[38px] px-4 bg-surface-container-high text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas border border-border-default transition-colors disabled:opacity-50 btn-icon whitespace-nowrap">
+                                    <span class="material-symbols-outlined">search</span>
+                                    Lookup
+                                </button>
                             </div>
-                            <button id="manual-lookup" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="h-[38px] px-5 bg-secondary/10 text-on-surface rounded-lg font-body-medium hover:bg-secondary/20 transition-colors disabled:opacity-50">Lookup</button>
                         </div>
                     </div>
 
-                    <div class="p-5">
+                    <!-- RIGHT: Asset card + verification form -->
+                    <div class="p-5 space-y-4">
+
+                        <!-- Loading state -->
                         <div id="lookup-loading" class="hidden rounded-xl border border-border-default bg-surface-canvas p-6 text-center">
                             <div class="spinner text-primary mx-auto"></div>
-                            <p class="text-body-default text-secondary mt-3">Retrieving asset record...</p>
+                            <p class="text-body-default text-secondary mt-3 text-sm">Retrieving asset record…</p>
                         </div>
-                        <div id="lookup-error" class="hidden rounded-xl border border-error/20 bg-error/10 p-4 text-error flex gap-3">
-                            <span class="material-symbols-outlined">error</span>
-                            <p class="font-body-medium" id="lookup-error-text">Asset not found.</p>
+
+                        <!-- Error state -->
+                        <div id="lookup-error" class="hidden rounded-xl border border-error/20 bg-error/10 p-4 text-error flex items-start gap-3">
+                            <span class="material-symbols-outlined shrink-0 text-[20px]">error</span>
+                            <p class="font-body-medium text-sm" id="lookup-error-text">Asset not found.</p>
                         </div>
+
+                        <!-- Asset card -->
                         <div id="asset-card" class="hidden rounded-xl border border-border-default overflow-hidden">
-                            <div class="p-4 flex gap-4">
-                                <div class="w-16 h-16 rounded-lg bg-surface-variant border border-border-default overflow-hidden flex items-center justify-center shrink-0">
+                            <div class="p-4 flex gap-3">
+                                <div class="w-14 h-14 rounded-lg bg-surface-variant border border-border-default overflow-hidden flex items-center justify-center shrink-0">
                                     <img id="asset-image" class="hidden w-full h-full object-cover" alt="Scanned asset">
-                                    <span id="asset-image-empty" class="material-symbols-outlined text-primary text-[32px]">inventory_2</span>
+                                    <span id="asset-image-empty" class="material-symbols-outlined text-primary text-[28px]">inventory_2</span>
                                 </div>
-                                <div class="min-w-0">
+                                <div class="min-w-0 flex-1">
                                     <h4 id="asset-name" class="font-card-header text-card-header text-on-surface truncate">Asset name</h4>
-                                    <p id="asset-code" class="font-technical-data text-secondary text-label-small mt-1">AST</p>
-                                    <span id="asset-status" class="mt-2 inline-flex px-2.5 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info">Status</span>
+                                    <p id="asset-code" class="font-technical-data text-secondary text-label-small mt-0.5">AST</p>
+                                    <span id="asset-status" class="mt-1.5 inline-flex px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info">Status</span>
                                 </div>
                             </div>
-                            <div class="bg-surface-canvas border-t border-border-default p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-surface-canvas border-t border-border-default px-4 py-3 grid grid-cols-2 gap-3">
                                 <div>
                                     <p class="text-label-small text-secondary">Expected location</p>
-                                    <p id="asset-location" class="font-body-medium text-on-surface mt-1">Location</p>
+                                    <p id="asset-location" class="font-body-medium text-on-surface mt-0.5 text-sm">Location</p>
                                 </div>
                                 <div>
                                     <p class="text-label-small text-secondary">Custodian</p>
-                                    <p id="asset-custodian" class="font-body-medium text-on-surface mt-1">Custodian</p>
+                                    <p id="asset-custodian" class="font-body-medium text-on-surface mt-0.5 text-sm">Custodian</p>
                                 </div>
                             </div>
                         </div>
 
-                        <form id="verification-form" class="mt-5 space-y-4">
+                        <!-- Verification form -->
+                        <form id="verification-form" class="space-y-4">
                             <input type="hidden" id="asset-id">
                             <input type="hidden" id="scanned-code">
+
                             <div>
                                 <label class="block text-label-small text-secondary mb-2">Verification result</label>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <label class="cursor-pointer">
-                                        <input class="peer sr-only" type="radio" name="resultStatus" value="FOUND" checked>
-                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-status-success peer-checked:bg-status-success/10 peer-checked:text-status-success text-on-surface font-body-medium flex items-center justify-center gap-2">
-                                            <span class="material-symbols-outlined text-[18px]">check_circle</span>Found
-                                        </span>
+                                    <label class="result-radio-label">
+                                        <input type="radio" name="resultStatus" value="FOUND" checked>
+                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-status-success bg-status-success/10 text-status-success">
+                                            <span class="material-symbols-outlined">check_circle</span>Found
+                                        </div>
                                     </label>
-                                    <label class="cursor-pointer">
-                                        <input class="peer sr-only" type="radio" name="resultStatus" value="MISSING">
-                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-error peer-checked:bg-error/10 peer-checked:text-error text-on-surface font-body-medium flex items-center justify-center gap-2">
-                                            <span class="material-symbols-outlined text-[18px]">cancel</span>Missing
-                                        </span>
+                                    <label class="result-radio-label">
+                                        <input type="radio" name="resultStatus" value="MISSING">
+                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-error bg-error/10 text-error">
+                                            <span class="material-symbols-outlined">do_not_disturb_on</span>Missing
+                                        </div>
                                     </label>
-                                    <label class="cursor-pointer">
-                                        <input class="peer sr-only" type="radio" name="resultStatus" value="DAMAGED">
-                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-status-warning peer-checked:bg-status-warning/10 peer-checked:text-status-warning text-on-surface font-body-medium flex items-center justify-center gap-2">
-                                            <span class="material-symbols-outlined text-[18px]">construction</span>Damaged
-                                        </span>
+                                    <label class="result-radio-label">
+                                        <input type="radio" name="resultStatus" value="DAMAGED">
+                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-status-warning bg-status-warning/10 text-status-warning">
+                                            <span class="material-symbols-outlined">report_problem</span>Damaged
+                                        </div>
                                     </label>
-                                    <label class="cursor-pointer">
-                                        <input class="peer sr-only" type="radio" name="resultStatus" value="LOCATION_MISMATCH">
-                                        <span class="h-[38px] px-3 rounded-lg border border-border-default bg-surface-card peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary text-on-surface font-body-medium flex items-center justify-center gap-2">
-                                            <span class="material-symbols-outlined text-[18px]">wrong_location</span>Mismatch
-                                        </span>
+                                    <label class="result-radio-label">
+                                        <input type="radio" name="resultStatus" value="LOCATION_MISMATCH">
+                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-primary bg-primary/10 text-primary">
+                                            <span class="material-symbols-outlined">wrong_location</span>Mismatch
+                                        </div>
                                     </label>
                                 </div>
                             </div>
+
                             <div>
                                 <label class="block text-label-small text-secondary mb-1">Actual location</label>
                                 <input id="actual-location" maxlength="260" placeholder="Where the asset was found"
                                        class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             </div>
                             <div>
-                                <label class="block text-label-small text-secondary mb-1">Condition notes</label>
-                                <textarea id="condition-notes" rows="3" placeholder="Optional note for damage, missing status, or location mismatch"
-                                          class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                                <label class="block text-label-small text-secondary mb-1">Condition notes <span class="font-normal opacity-60">(optional)</span></label>
+                                <textarea id="condition-notes" rows="3" placeholder="Note for damage, missing status, or location mismatch"
+                                          class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
                             </div>
-                            <button id="submit-verification" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center justify-center gap-2 disabled:opacity-50">
-                                <span class="material-symbols-outlined text-[18px]">save</span>
+                            <button id="submit-verification" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
+                                    class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon disabled:opacity-50">
+                                <span class="material-symbols-outlined">save</span>
                                 Submit Verification
                             </button>
                         </form>
@@ -311,65 +449,69 @@
                 </div>
             </div>
 
+            <!-- ── Bottom row: Feed + Discrepancies ── -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                    <div class="p-4 border-b border-border-default flex items-center justify-between">
-                        <div>
-                            <h3 class="font-card-header text-card-header text-on-surface">Verification Feed</h3>
-                            <p class="text-label-small text-secondary mt-1">Latest stored results for this session</p>
-                        </div>
+
+                <!-- Verification Feed -->
+                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex flex-col">
+                    <div class="px-4 py-3.5 border-b border-border-default">
+                        <h3 class="font-card-header text-card-header text-on-surface">Verification Feed</h3>
+                        <p class="text-label-small text-secondary mt-0.5">Latest stored results for this session</p>
                     </div>
-                    <div id="verification-feed" class="divide-y divide-border-default">
+                    <div id="verification-feed" class="divide-y divide-border-default flex-1 overflow-y-auto max-h-[420px]">
                         <div th:if="${#lists.isEmpty(results)}" class="p-10 text-center">
-                            <span class="material-symbols-outlined text-secondary text-[42px]">fact_check</span>
+                            <span class="material-symbols-outlined text-secondary text-[40px]">fact_check</span>
                             <h4 class="font-card-header text-card-header text-on-surface mt-3">No assets verified yet</h4>
-                            <p class="text-body-default text-secondary mt-1">Scan or manually enter an asset tag to begin.</p>
+                            <p class="text-body-default text-secondary mt-1 text-sm">Scan or enter an asset tag above to begin.</p>
                         </div>
-                        <div th:each="result : ${results}" class="p-4">
+                        <div th:each="result : ${results}" class="px-4 py-3.5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="font-body-medium text-on-surface truncate" th:text="${result.assetName}">Asset</p>
-                                    <p class="font-technical-data text-label-small text-secondary mt-1" th:text="${result.assetCode}">AST</p>
+                                    <p class="font-body-medium text-on-surface truncate text-sm" th:text="${result.assetName}">Asset</p>
+                                    <p class="font-technical-data text-label-small text-secondary mt-0.5" th:text="${result.assetCode}">AST</p>
                                 </div>
-                                <span class="px-2.5 py-0.5 rounded-full text-badge-label font-badge-label"
+                                <span class="shrink-0 px-2 py-0.5 rounded-full text-badge-label font-badge-label"
                                       th:classappend="${result.resultStatus.name() == 'FOUND'} ? ' bg-status-success/10 text-status-success' : (${result.resultStatus.name() == 'DAMAGED'} ? ' bg-status-warning/10 text-status-warning' : ' bg-error/10 text-error')"
                                       th:text="${#strings.replace(result.resultStatus.name(), '_', ' ')}">FOUND</span>
                             </div>
-                            <p class="text-label-small text-secondary mt-2"
-                               th:text="${'Expected: ' + result.expectedLocation + (result.actualLocation != null ? ' | Actual: ' + result.actualLocation : '')}">Location</p>
+                            <p class="text-label-small text-secondary mt-1.5"
+                               th:text="${'Expected: ' + result.expectedLocation + (result.actualLocation != null ? ' · Actual: ' + result.actualLocation : '')}">Location</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                    <div class="p-4 border-b border-border-default flex items-center justify-between">
+                <!-- Discrepancy Report -->
+                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex flex-col">
+                    <div class="px-4 py-3.5 border-b border-border-default flex items-center justify-between">
                         <div>
                             <h3 class="font-card-header text-card-header text-on-surface">Discrepancy Report</h3>
-                            <p class="text-label-small text-secondary mt-1">Mismatched, missing, or damaged assets</p>
+                            <p class="text-label-small text-secondary mt-0.5">Mismatched, missing, or damaged assets</p>
                         </div>
-                        <button id="refresh-discrepancies" class="h-9 w-9 rounded-lg border border-border-default hover:bg-surface-canvas flex items-center justify-center" aria-label="Refresh discrepancies">
-                            <span class="material-symbols-outlined text-[18px]">refresh</span>
+                        <button id="refresh-discrepancies"
+                                class="h-8 w-8 rounded-lg border border-border-default hover:bg-surface-canvas flex items-center justify-center transition-colors"
+                                aria-label="Refresh discrepancies">
+                            <span class="material-symbols-outlined" style="font-size:17px;">refresh</span>
                         </button>
                     </div>
-                    <div id="discrepancy-report">
+                    <div id="discrepancy-report" class="flex-1 overflow-auto">
                         <div th:if="${discrepancyReport.discrepancyCount == 0}" class="p-10 text-center">
-                            <span class="material-symbols-outlined text-status-success text-[42px]">verified</span>
+                            <span class="material-symbols-outlined text-status-success text-[40px]">verified</span>
                             <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
-                            <p class="text-body-default text-secondary mt-1">Issues will appear here once an auditor submits them.</p>
+                            <p class="text-body-default text-secondary mt-1 text-sm">Issues will appear here once an auditor submits them.</p>
                         </div>
                         <div th:unless="${discrepancyReport.discrepancyCount == 0}" class="overflow-x-auto">
-                            <table class="w-full text-left min-w-[520px]">
+                            <table class="w-full text-left min-w-[480px]">
                                 <thead class="bg-surface-canvas border-b border-border-default">
                                 <tr>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Asset</th>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Type</th>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Location</th>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Asset</th>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Type</th>
+                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Location</th>
                                 </tr>
                                 </thead>
                                 <tbody class="divide-y divide-border-default">
-                                <tr th:each="item : ${discrepancyReport.discrepancies}" class="hover:bg-surface-canvas/60">
+                                <tr th:each="item : ${discrepancyReport.discrepancies}" class="hover:bg-surface-canvas/60 transition-colors">
                                     <td class="px-4 py-3">
-                                        <p class="font-body-medium text-on-surface" th:text="${item.assetName}">Asset</p>
+                                        <p class="font-body-medium text-on-surface text-sm" th:text="${item.assetName}">Asset</p>
                                         <p class="font-technical-data text-label-small text-secondary" th:text="${item.assetCode}">AST</p>
                                     </td>
                                     <td class="px-4 py-3">
@@ -390,6 +532,29 @@
     <script th:inline="javascript">
         const activeSessionId = [[${activeSession != null ? activeSession.id : null}]];
         const sessionActive = [[${activeSession != null && activeSession.status.name() == 'ACTIVE'}]];
+
+        // ── Radio card visual state ─────────────────────────────────────
+        function updateRadioCards() {
+            document.querySelectorAll('.result-radio-label').forEach(label => {
+                const input = label.querySelector('input[type="radio"]');
+                const card = label.querySelector('.result-radio-card');
+                if (!input || !card) return;
+                const checkedClasses = (card.dataset.checkedClass || '').split(' ').filter(Boolean);
+                const defaultClasses = ['border-border-default', 'bg-surface-card', 'text-on-surface'];
+                if (input.checked) {
+                    defaultClasses.forEach(c => card.classList.remove(c));
+                    checkedClasses.forEach(c => card.classList.add(c));
+                } else {
+                    checkedClasses.forEach(c => card.classList.remove(c));
+                    defaultClasses.forEach(c => card.classList.add(c));
+                }
+            });
+        }
+        document.querySelectorAll('input[name="resultStatus"]').forEach(r =>
+            r.addEventListener('change', updateRadioCards));
+        updateRadioCards();
+
+        // ── Lookup ─────────────────────────────────────────────────────
         const lookupButton = document.getElementById('manual-lookup');
         const manualCode = document.getElementById('manual-code');
         const lookupLoading = document.getElementById('lookup-loading');
@@ -407,7 +572,7 @@
 
         function setLoading(isLoading) {
             lookupLoading?.classList.toggle('hidden', !isLoading);
-            lookupButton && (lookupButton.disabled = isLoading || !sessionActive);
+            if (lookupButton) lookupButton.disabled = isLoading || !sessionActive;
         }
 
         function showError(message) {
@@ -422,18 +587,13 @@
 
         async function lookupAsset(code) {
             const cleanCode = (code || '').trim();
-            if (!cleanCode) {
-                showError('Enter or scan an asset code.');
-                return;
-            }
+            if (!cleanCode) { showError('Enter or scan an asset code.'); return; }
             clearLookupState();
             setLoading(true);
             try {
                 const response = await fetch(`/api/audits/assets/lookup?code=${encodeURIComponent(cleanCode)}`, { headers: { 'Accept': 'application/json' } });
                 const data = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(data.message || 'No asset was found for this code.');
-                }
+                if (!response.ok) throw new Error(data.message || 'No asset was found for this code.');
                 currentAsset = data;
                 renderAsset(data, cleanCode);
             } catch (error) {
@@ -468,24 +628,18 @@
 
         lookupButton?.addEventListener('click', () => lookupAsset(manualCode.value));
         manualCode?.addEventListener('keydown', event => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                lookupAsset(manualCode.value);
-            }
+            if (event.key === 'Enter') { event.preventDefault(); lookupAsset(manualCode.value); }
         });
 
         document.getElementById('verification-form')?.addEventListener('submit', async event => {
             event.preventDefault();
             if (!activeSessionId || !sessionActive) return;
             const assetId = document.getElementById('asset-id').value;
-            if (!assetId) {
-                showError('Scan or lookup an asset before submitting verification.');
-                return;
-            }
+            if (!assetId) { showError('Scan or look up an asset before submitting verification.'); return; }
             const submitButton = document.getElementById('submit-verification');
             const original = submitButton.innerHTML;
             submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner"></span> Saving';
+            submitButton.innerHTML = '<span class="spinner"></span>&nbsp;Saving…';
             try {
                 const response = await fetch(`/api/audits/sessions/${activeSessionId}/results`, {
                     method: 'POST',
@@ -519,6 +673,7 @@
             document.getElementById('scanned-code').value = '';
             document.getElementById('condition-notes').value = '';
             document.querySelector('input[name="resultStatus"][value="FOUND"]').checked = true;
+            updateRadioCards();
         }
 
         function statusClass(status) {
@@ -529,19 +684,18 @@
 
         function prependFeedItem(result) {
             const feed = document.getElementById('verification-feed');
-            feed.querySelector('.text-center')?.remove();
+            feed.querySelector('.text-center')?.closest('.p-10')?.remove();
             const item = document.createElement('div');
-            item.className = 'p-4';
+            item.className = 'px-4 py-3.5';
             item.innerHTML = `
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="font-body-medium text-on-surface truncate">${escapeHtml(result.assetName)}</p>
-                        <p class="font-technical-data text-label-small text-secondary mt-1">${escapeHtml(result.assetCode)}</p>
+                        <p class="font-body-medium text-on-surface truncate text-sm">${escapeHtml(result.assetName)}</p>
+                        <p class="font-technical-data text-label-small text-secondary mt-0.5">${escapeHtml(result.assetCode)}</p>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-badge-label font-badge-label ${statusClass(result.resultStatus)}">${result.resultStatus.replace('_', ' ')}</span>
+                    <span class="shrink-0 px-2 py-0.5 rounded-full text-badge-label font-badge-label ${statusClass(result.resultStatus)}">${result.resultStatus.replace('_', ' ')}</span>
                 </div>
-                <p class="text-label-small text-secondary mt-2">Expected: ${escapeHtml(result.expectedLocation || '')}${result.actualLocation ? ' | Actual: ' + escapeHtml(result.actualLocation) : ''}</p>
-            `;
+                <p class="text-label-small text-secondary mt-1.5">Expected: ${escapeHtml(result.expectedLocation || '')}${result.actualLocation ? ' · Actual: ' + escapeHtml(result.actualLocation) : ''}</p>`;
             feed.prepend(item);
         }
 
@@ -556,16 +710,16 @@
             if (!report.discrepancies.length) {
                 container.innerHTML = `
                     <div class="p-10 text-center">
-                        <span class="material-symbols-outlined text-status-success text-[42px]">verified</span>
+                        <span class="material-symbols-outlined text-status-success text-[40px]">verified</span>
                         <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
-                        <p class="text-body-default text-secondary mt-1">Issues will appear here once an auditor submits them.</p>
+                        <p class="text-body-default text-secondary mt-1 text-sm">Issues will appear here once an auditor submits them.</p>
                     </div>`;
                 return;
             }
             const rows = report.discrepancies.map(item => `
-                <tr class="hover:bg-surface-canvas/60">
+                <tr class="hover:bg-surface-canvas/60 transition-colors">
                     <td class="px-4 py-3">
-                        <p class="font-body-medium text-on-surface">${escapeHtml(item.assetName)}</p>
+                        <p class="font-body-medium text-on-surface text-sm">${escapeHtml(item.assetName)}</p>
                         <p class="font-technical-data text-label-small text-secondary">${escapeHtml(item.assetCode)}</p>
                     </td>
                     <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label">${escapeHtml(item.discrepancyType || '')}</span></td>
@@ -573,12 +727,12 @@
                 </tr>`).join('');
             container.innerHTML = `
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left min-w-[520px]">
+                    <table class="w-full text-left min-w-[480px]">
                         <thead class="bg-surface-canvas border-b border-border-default">
                             <tr>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Asset</th>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Type</th>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary">Location</th>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Asset</th>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Type</th>
+                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Location</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border-default">${rows}</tbody>
@@ -597,22 +751,22 @@
             const button = document.getElementById('history-button');
             const original = button.innerHTML;
             button.disabled = true;
-            button.innerHTML = '<span class="spinner"></span> Loading';
+            button.innerHTML = '<span class="spinner"></span>&nbsp;Loading…';
             try {
                 const response = await fetch(`/api/audits/history?${params.toString()}`);
                 const report = await response.json();
                 const list = document.getElementById('history-list');
                 if (!report.audits.length) {
-                    list.innerHTML = '<div class="p-5 text-center bg-surface-canvas rounded-lg"><p class="text-body-default text-secondary">No completed audits found for this period.</p></div>';
+                    list.innerHTML = '<div class="p-6 text-center"><p class="text-body-default text-secondary text-sm">No completed audits found for this period.</p></div>';
                     return;
                 }
                 list.innerHTML = report.audits.map(audit => `
-                    <div class="rounded-lg border border-border-default p-3">
-                        <div class="flex justify-between gap-3">
-                            <p class="font-body-medium text-on-surface truncate">${escapeHtml(audit.title)}</p>
-                            <span class="font-technical-data text-secondary">${audit.verifiedCount}</span>
+                    <div class="px-4 py-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-body-medium text-on-surface truncate text-sm">${escapeHtml(audit.title)}</p>
+                            <span class="shrink-0 font-technical-data text-secondary text-sm">${audit.verifiedCount}</span>
                         </div>
-                        <p class="text-label-small text-secondary mt-1">Missing ${audit.missingCount} | Discrepancies ${audit.discrepancyCount}</p>
+                        <p class="text-label-small text-secondary mt-1">Missing ${audit.missingCount} · Discrepancies ${audit.discrepancyCount}</p>
                     </div>`).join('');
             } catch (error) {
                 showError('Audit history could not be loaded.');
@@ -648,10 +802,7 @@
 
         function stopCamera() {
             scanning = false;
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
+            if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
             if (video) video.srcObject = null;
             document.getElementById('camera-empty')?.classList.remove('hidden');
             document.getElementById('scan-reticle')?.classList.add('hidden');
