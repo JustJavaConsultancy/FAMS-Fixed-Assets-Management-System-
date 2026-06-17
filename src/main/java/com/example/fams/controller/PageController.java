@@ -22,22 +22,22 @@ public class PageController {
     }
     @GetMapping("/assets/details")
     public String assetDetails() {
-        return "assets/assets-details";
+        return "redirect:/assets";
     }
 
     @GetMapping("/assets/assignment")
     public String assetAssignment() {
-        return "assets/assets-assignment";
+        return "redirect:/assets";
     }
 
     @GetMapping("/assets/transfer")
     public String assetTransfer() {
-        return "assets/assets-transfer";
+        return "redirect:/assets";
     }
 
     @GetMapping("/assets/disposal")
     public String assetDisposal() {
-        return "assets/assets-disposal";
+        return "redirect:/assets";
     }
 
     @GetMapping("/depreciation")

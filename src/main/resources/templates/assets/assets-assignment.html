@@ -5,226 +5,128 @@
 </head>
 <body>
 <main id="main-content" class="space-y-6" layout:fragment="content">
-    <!-- Breadcrumbs (matches dashboard.html style) -->
     <nav class="flex items-center gap-2 text-label-small text-secondary">
-        <a class="hover:text-primary transition-colors" href="#">Dashboard</a>
+        <a class="hover:text-primary transition-colors" th:href="@{/assets}">Assets</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <a class="hover:text-primary transition-colors" href="#">Assets</a>
+        <a class="hover:text-primary transition-colors" th:href="@{/assets/{id}(id=${asset.id})}" th:text="${asset.assetCode}">AST</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <span class="text-on-surface font-medium">Asset Assignment</span>
+        <span class="text-on-surface font-medium">Assignment</span>
     </nav>
 
-    <!-- Page Title Row (matches Dashboard) -->
-    <div class="flex justify-between items-end">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-            <h2 class="font-page-title text-page-title text-on-background">Asset Assignment</h2>
-            <p class="text-body-default text-secondary">Assign assets to employees or departments with full audit trail</p>
+            <h2 class="font-page-title text-page-title text-on-background">Assign Asset</h2>
+            <p class="text-body-default text-secondary mt-1">Create a controlled custody workflow with approval and lifecycle history.</p>
         </div>
-        <div>
-            <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label">Step 2 of 3</span>
-        </div>
+        <a th:href="@{/assets/{id}(id=${asset.id})}" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Asset Details
+        </a>
     </div>
 
-    <!-- Main Content Grid (12 columns) -->
+    <div th:if="${errorMessage}" class="bg-error-container border border-error/20 text-on-error-container rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-body-medium" th:text="${errorMessage}">Unable to submit workflow.</p>
+    </div>
+
     <div class="grid grid-cols-12 gap-6">
-        <!-- Left Side: Progress Tracker (4 columns) -->
-        <div class="col-span-12 lg:col-span-4 space-y-6">
-            <!-- Workflow Steps Card -->
+        <section class="col-span-12 lg:col-span-4 space-y-6">
             <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default">
-                    <h3 class="font-card-header text-card-header text-on-surface">Assignment Workflow</h3>
+                    <h3 class="font-card-header text-card-header text-on-surface">Selected Asset</h3>
                 </div>
-                <div class="p-5 space-y-6 relative">
-                    <!-- Step 1 -->
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL'1">check_circle</span>
+                <div class="p-5 space-y-4">
+                    <div class="flex gap-4 items-center">
+                        <div class="w-16 h-16 rounded-xl bg-surface-canvas border border-border-default flex items-center justify-center overflow-hidden">
+                            <img th:if="${asset.imageUrl}" th:src="${asset.imageUrl}" th:alt="${asset.name}" class="w-full h-full object-cover">
+                            <span th:unless="${asset.imageUrl}" class="material-symbols-outlined text-primary text-[32px]">inventory_2</span>
                         </div>
-                        <div>
-                            <p class="text-body-medium font-bold text-primary">Select Asset</p>
-                            <p class="text-label-small text-secondary">Search available items from Lagos HQ</p>
-                        </div>
-                    </div>
-                    <!-- Step 2 (active) -->
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 rounded-full bg-primary/10 border-2 border-primary text-primary flex items-center justify-center shrink-0">
-                            <span class="text-label-small font-bold">2</span>
-                        </div>
-                        <div>
-                            <p class="text-body-medium font-bold text-on-surface">Select Recipient</p>
-                            <p class="text-label-small text-secondary">Assign to employee or department</p>
+                        <div class="min-w-0">
+                            <p class="font-card-header text-card-header text-on-surface truncate" th:text="${asset.name}">Asset</p>
+                            <p class="font-technical-data text-technical-data text-primary" th:text="${asset.assetCode}">AST</p>
                         </div>
                     </div>
-                    <!-- Step 3 -->
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 rounded-full bg-surface-variant text-secondary flex items-center justify-center shrink-0">
-                            <span class="text-label-small font-bold">3</span>
-                        </div>
-                        <div>
-                            <p class="text-body-medium font-bold text-secondary">Confirm &amp; Submit</p>
-                            <p class="text-label-small text-secondary">Review and authorize transfer</p>
-                        </div>
+                    <div class="space-y-3 text-body-default">
+                        <div class="flex justify-between gap-4"><span class="text-secondary">Current custodian</span><span class="text-on-surface text-right" th:text="${asset.custodian}">Custodian</span></div>
+                        <div class="flex justify-between gap-4"><span class="text-secondary">Department</span><span class="text-on-surface text-right" th:text="${asset.department}">Department</span></div>
+                        <div class="flex justify-between gap-4"><span class="text-secondary">Branch</span><span class="text-on-surface text-right" th:text="${asset.branch}">Branch</span></div>
+                        <div class="flex justify-between gap-4"><span class="text-secondary">Status</span><span class="px-2 py-0.5 rounded-full bg-status-info/10 text-status-info text-badge-label font-badge-label" th:text="${asset.status}">Status</span></div>
                     </div>
-                    <!-- Vertical connector line (drawn with absolute) -->
-                    <div class="absolute left-9 top-[68px] bottom-[68px] w-px bg-border-default"></div>
                 </div>
             </div>
 
-            <!-- Information Card (matching dashboard.html style) -->
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5">
-                    <div class="flex items-start gap-3">
-                        <span class="material-symbols-outlined text-primary text-[20px]">info</span>
-                        <div>
-                            <h4 class="font-body-medium text-on-surface font-semibold mb-1">Streamline Handover</h4>
-                            <p class="text-label-small text-secondary">Ensuring accurate tracking and accountability across all departments.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default p-5 flex gap-3">
+                <span class="material-symbols-outlined text-status-info">account_tree</span>
+                <p class="text-body-default text-secondary">Flowable will route this request through configured approval groups and record each approval or rejection.</p>
             </div>
-        </div>
+        </section>
 
-        <!-- Right Side: Form Content (8 columns) -->
-        <div class="col-span-12 lg:col-span-8">
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <!-- Step Header -->
+        <section class="col-span-12 lg:col-span-8">
+            <form th:action="@{/assets/lifecycle/workflows}" th:object="${form}" method="post" class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden" data-spinner-form>
+                <input type="hidden" th:field="*{assetId}">
+                <input type="hidden" th:field="*{type}">
+
                 <div class="p-5 border-b border-border-default bg-surface-canvas/30">
-                    <h3 class="font-section-header text-section-header text-on-surface">Step 2: Select Recipient</h3>
-                    <p class="text-label-small text-secondary mt-1">Choose an employee or department to receive the asset</p>
+                    <h3 class="font-section-header text-section-header text-on-surface">Assignment Details</h3>
+                    <p class="text-label-small text-secondary mt-1">Capture the destination custodian, department, branch or location.</p>
                 </div>
 
-                <div class="p-5 space-y-6">
-                    <!-- Asset Preview (read-only) -->
-                    <div class="border border-primary/30 rounded-xl p-4 bg-primary/5 flex gap-4 items-center">
-                        <div class="w-20 h-16 bg-white rounded-lg border border-border-default flex items-center justify-center shrink-0 overflow-hidden">
-                            <img alt="Dell Latitude Asset" class="w-full h-full object-contain p-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXoCU6MWiC0qGL3JY7Lli6Yij9KNY3VNsuWKXAcy50nDILDW_YwqgVdJpFEpvw3mj6yI5FSNH8rVAXG9Mq-JjzoDlWEpRLPD-ozZanLqaUPW8YX3DhYPVtR9PDfrN9-3jqeJApbjb6cNokr3AMfgm4F1Y1ZDYs6eV9Pc6_AnSmnQv70TIKI4r02J5qMvlTZn5_QyRuld9mV8ojlgI5tMjuReilFmTpeQDsDSl6ppSb2DevS17_sUY7">
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex flex-wrap justify-between items-start gap-2">
-                                <div>
-                                    <h4 class="font-body-medium text-on-surface">Dell Latitude 5530</h4>
-                                    <p class="font-technical-data text-technical-data text-primary text-label-small">#ASSET-77291-LX</p>
-                                </div>
-                                <span class="bg-status-success/15 text-status-success px-2 py-0.5 rounded-full text-badge-label font-badge-label">AVAILABLE</span>
-                            </div>
-                            <div class="mt-2 flex flex-wrap gap-3 text-label-small text-secondary">
-                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">category</span> IT Hardware</span>
-                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Lagos HQ</span>
-                            </div>
-                        </div>
+                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">To Employee</label>
+                        <input th:field="*{toEmployee}" list="custodian-options" placeholder="Employee name or username" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        <datalist id="custodian-options">
+                            <option th:each="custodian : ${custodians}" th:value="${custodian.name}">Employee</option>
+                        </datalist>
                     </div>
-
-                    <!-- Assignment Type Toggle -->
-                    <div>
-                        <div class="flex bg-surface-canvas rounded-lg p-1 w-fit gap-1">
-                            <button class="px-5 py-1.5 bg-surface-card shadow-sm rounded-md text-body-medium font-medium text-primary border border-border-default">Assign to Employee</button>
-                            <button class="px-5 py-1.5 text-secondary hover:text-on-surface transition-colors rounded-md">Assign to Department</button>
-                        </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">Effective Date</label>
+                        <input th:field="*{requestedEffectiveDate}" type="date" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
-
-                    <!-- Form Fields -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="col-span-full space-y-1.5">
-                            <label class="font-label-small text-label-small text-secondary">Employee Name</label>
-                            <div class="relative">
-                                <input type="text" placeholder="Search Sarah Connor..." class="w-full h-[38px] px-3 pr-12 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                <div class="absolute right-2 top-1/2 -translate-y-1/2">
-                                    <img alt="Sarah Connor Avatar" class="w-7 h-7 rounded-full border border-border-default object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByEf2wNCENZ7hIXSx7wcBj5DtXtOKSNXGu6fCEVZ0zg163RCaAVRq_JlacTzRdUK-3IHN-J9ehtqisUklYcF3VwcJ4iKR7MF2975DwR-h8YLRmoCIj9WFFvU7KAygY4Z45WBpEfN79OdwgXi5PWkNQm_s-4Co0VIIJQpY8WtYlf6d6wtSEomiCXv3vAT1zRn49HDpwREUM91BvGCd4kyS2ybVJ1CMxbyBLU5nCemGU6NdjTvvzooOQ">
-                                </div>
-                            </div>
-                            <p class="text-[11px] text-secondary">Sarah Connor • Senior Systems Analyst • IT Security</p>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="font-label-small text-label-small text-secondary">Assignment Date</label>
-                            <input type="date" value="2023-10-24" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="font-label-small text-label-small text-secondary">Expected Return Date (Optional)</label>
-                            <input type="date" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        </div>
-
-                        <div class="col-span-full space-y-1.5">
-                            <label class="font-label-small text-label-small text-secondary">Notes / Reason for Assignment</label>
-                            <textarea rows="3" placeholder="Enter specific details regarding the handover condition or purpose..." class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
-                        </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">To Department</label>
+                        <select th:field="*{toDepartment}" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Keep current department</option>
+                            <option th:each="department : ${departments}" th:value="${department.name}" th:text="${department.name}">Department</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">To Branch</label>
+                        <select th:field="*{toBranch}" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Keep current branch</option>
+                            <option th:each="branch : ${branches}" th:value="${branch.name}" th:text="${branch.name}">Branch</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">Location</label>
+                        <input th:field="*{toLocation}" placeholder="Room, floor, store, or site location" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div class="md:col-span-2 space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary">Reason</label>
+                        <textarea th:field="*{reason}" rows="4" placeholder="Purpose, handover notes, or assignment condition" class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
                     </div>
                 </div>
 
-                <!-- Form Footer Actions -->
-                <div class="p-5 border-t border-border-default bg-surface-canvas/30 flex flex-wrap justify-between items-center gap-3">
-                    <button class="h-[38px] px-5 border border-border-strong text-on-surface font-body-medium rounded-lg hover:bg-surface-canvas transition-all">Save as Draft</button>
-                    <div class="flex gap-3">
-                        <button class="h-[38px] px-5 text-secondary font-body-medium hover:text-on-surface transition-colors">Cancel</button>
-                        <button class="h-[38px] px-6 bg-primary text-on-primary font-body-medium rounded-lg hover:bg-brand-primary-dark transition-all shadow-sm flex items-center gap-2">
-                            <span>Proceed to Confirmation</span>
-                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-                        </button>
-                    </div>
+                <div class="p-5 border-t border-border-default bg-surface-canvas/30 flex justify-end gap-3">
+                    <a th:href="@{/assets/{id}(id=${asset.id})}" class="h-[38px] px-5 text-secondary font-body-medium hover:text-on-surface inline-flex items-center">Cancel</a>
+                    <button type="submit" class="h-[38px] px-6 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] submit-icon">send</span>
+                        <span class="hidden submit-spinner w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                        Submit Assignment
+                    </button>
                 </div>
-            </div>
-        </div>
+            </form>
+        </section>
     </div>
-
-    <!-- Summary Visualization Card (optional, matches dashboard.html card style) -->
-    <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-        <div class="p-5 border-b border-border-default">
-            <h3 class="font-section-header text-section-header text-on-surface text-center">Assignment Summary Preview</h3>
-        </div>
-        <div class="p-6">
-            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
-                <!-- Asset -->
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-surface-canvas rounded-2xl flex items-center justify-center mx-auto mb-2">
-                        <span class="material-symbols-outlined text-3xl text-primary">laptop_mac</span>
-                    </div>
-                    <p class="font-technical-data text-technical-data text-label-small">#ASSET-77291</p>
-                    <p class="text-label-small font-medium text-on-surface">Dell Latitude 5530</p>
-                </div>
-                <!-- Arrow -->
-                <div class="flex flex-col items-center">
-                    <span class="material-symbols-outlined text-2xl text-secondary">arrow_forward</span>
-                    <span class="text-[10px] text-secondary font-bold uppercase tracking-wider">ASSIGNING</span>
-                </div>
-                <!-- Recipient -->
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full border-2 border-primary/20 overflow-hidden mx-auto mb-2">
-                        <img alt="Recipient Sarah Connor" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-8kyd0B-aM62LRtfJ59WKcB8RNgPaYv8DC53i6PghqYSKUZ1nwSrO7gL93cSKUyOtFnNv5KtYVuGwgkmo6b7Mst_mVq6L-3AXHv29iKmp3JZY-okbd78awscX86G1R1X_FINCu0QzqckvanTwl4MlL8xFi16JHhq-gf1ngf_179fdq-9SQNuQLNk7QYZDm3trMHK_BYhVoriZtfU6vq7kZgaap46fxtSBp1OXW1t57iPIawllfrDP">
-                    </div>
-                    <p class="text-label-small font-medium text-on-surface">Sarah Connor</p>
-                    <p class="text-label-small text-secondary">IT Security</p>
-                </div>
-            </div>
-
-            <!-- Approval Pipeline Preview -->
-            <div class="mt-8 max-w-md mx-auto border-t border-border-default pt-6">
-                <div class="flex justify-between items-center mb-3">
-                    <h4 class="text-label-small font-bold text-secondary uppercase tracking-wider">Approval Pipeline</h4>
-                    <span class="bg-status-warning/10 text-status-warning px-2 py-0.5 rounded-full text-badge-label font-badge-label">Awaiting Action</span>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mb-3">
-                    <div class="h-1.5 bg-status-success rounded-full"></div>
-                    <div class="h-1.5 bg-status-warning rounded-full"></div>
-                    <div class="h-1.5 bg-surface-variant rounded-full"></div>
-                </div>
-                <div class="flex justify-between text-center">
-                    <div>
-                        <p class="text-[10px] font-bold text-status-success">REQUESTER</p>
-                        <p class="text-label-small text-on-surface">You</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-status-warning">MANAGER</p>
-                        <p class="text-label-small text-on-surface">D. Silas</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-secondary">AUDIT</p>
-                        <p class="text-label-small text-on-surface">Compliance</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script>
+        document.querySelectorAll('[data-spinner-form]').forEach(form => {
+            form.addEventListener('submit', () => {
+                form.querySelector('.submit-icon')?.classList.add('hidden');
+                form.querySelector('.submit-spinner')?.classList.remove('hidden');
+                form.querySelector('button[type="submit"]')?.setAttribute('disabled', 'disabled');
+            });
+        });
+    </script>
 </main>
 </body>
 </html>

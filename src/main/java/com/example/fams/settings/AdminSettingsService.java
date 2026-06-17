@@ -22,7 +22,9 @@ public class AdminSettingsService {
             DEFAULT_ASSET_STATUS_KEY,
             "asset.require.image",
             "asset.tag.type",
-            "asset.disposal.requires.approval"
+            "asset.disposal.requires.approval",
+            "asset.lifecycle.approval.firstGroup",
+            "asset.lifecycle.approval.finalGroup"
     );
 
     private final AssetCategoryRepository assetCategoryRepository;
@@ -71,6 +73,8 @@ public class AdminSettingsService {
         createParameterIfMissing("asset.require.image", "Require asset image", "false", "Controls whether asset registration must include an image.", "boolean");
         createParameterIfMissing("asset.tag.type", "Default tag type", "QR_AND_BARCODE", "Controls the tag set generated during asset registration.", "select");
         createParameterIfMissing("asset.disposal.requires.approval", "Disposal requires approval", "true", "Requires administrator approval before asset disposal is finalized.", "boolean");
+        createParameterIfMissing("asset.lifecycle.approval.firstGroup", "Lifecycle first approval group", "departmentHead", "First Flowable candidate group for asset lifecycle workflows.", "text");
+        createParameterIfMissing("asset.lifecycle.approval.finalGroup", "Lifecycle final approval group", "admin", "Final Flowable candidate group for asset lifecycle workflows.", "text");
     }
 
     @Transactional
@@ -217,6 +221,12 @@ public class AdminSettingsService {
                 yield clean;
             }
             case "asset.require.image", "asset.disposal.requires.approval" -> Boolean.parseBoolean(clean) ? "true" : "false";
+            case "asset.lifecycle.approval.firstGroup", "asset.lifecycle.approval.finalGroup" -> {
+                if (!clean.matches("[A-Za-z0-9_-]{2,60}")) {
+                    throw new IllegalArgumentException("Approval group must be 2-60 letters, numbers, underscores or hyphens.");
+                }
+                yield clean;
+            }
             case "asset.tag.type" -> {
                 if (!Set.of("QR_AND_BARCODE", "QR_ONLY", "BARCODE_ONLY").contains(clean)) {
                     throw new IllegalArgumentException("Default tag type is invalid.");

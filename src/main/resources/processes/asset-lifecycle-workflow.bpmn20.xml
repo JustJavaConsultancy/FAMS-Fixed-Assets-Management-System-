@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://example.com/fams/lifecycle">
+    <process id="assetLifecycleWorkflow" name="Asset Lifecycle Workflow" isExecutable="true">
+        <startEvent id="startEvent" name="Request submitted" />
+        <sequenceFlow id="flow_start_first" sourceRef="startEvent" targetRef="firstApprovalTask" />
+
+        <userTask id="firstApprovalTask"
+                  name="Department Approval"
+                  flowable:candidateGroups="${firstApprovalGroup}" />
+        <sequenceFlow id="flow_first_gateway" sourceRef="firstApprovalTask" targetRef="firstDecision" />
+
+        <exclusiveGateway id="firstDecision" name="First decision" />
+        <sequenceFlow id="flow_first_rejected" sourceRef="firstDecision" targetRef="rejectedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == false}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_first_approved" sourceRef="firstDecision" targetRef="finalApprovalTask">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true}]]></conditionExpression>
+        </sequenceFlow>
+
+        <userTask id="finalApprovalTask"
+                  name="Final Asset Control Approval"
+                  flowable:candidateGroups="${finalApprovalGroup}" />
+        <sequenceFlow id="flow_final_gateway" sourceRef="finalApprovalTask" targetRef="finalDecision" />
+
+        <exclusiveGateway id="finalDecision" name="Final decision" />
+        <sequenceFlow id="flow_final_rejected" sourceRef="finalDecision" targetRef="rejectedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == false}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow_final_approved" sourceRef="finalDecision" targetRef="approvedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true}]]></conditionExpression>
+        </sequenceFlow>
+
+        <endEvent id="approvedEnd" name="Approved" />
+        <endEvent id="rejectedEnd" name="Rejected" />
+    </process>
+</definitions>

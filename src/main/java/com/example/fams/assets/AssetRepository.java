@@ -8,5 +8,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
 
     List<Asset> findAllByOrderByCreatedAtDesc();
 
+    List<Asset> findByStatusNotIgnoreCaseOrderByCreatedAtDesc(String status);
+
     long countByCategoryIgnoreCase(String category);
 }

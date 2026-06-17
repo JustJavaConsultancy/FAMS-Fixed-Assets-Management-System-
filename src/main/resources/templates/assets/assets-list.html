@@ -154,17 +154,17 @@
                     <span class="material-symbols-outlined text-4xl">visibility</span>
                     <span class="text-sm font-medium">View</span>
                 </button>
-                <button onclick="performAction('edit')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">edit</span>
-                    <span class="text-sm font-medium">Edit</span>
+                <button onclick="performAction('assign')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl">person_add</span>
+                    <span class="text-sm font-medium">Assign</span>
                 </button>
-                <button onclick="performAction('qr')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">qr_code</span>
-                    <span class="text-sm font-medium">QR Code</span>
+                <button onclick="performAction('transfer')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl">sync_alt</span>
+                    <span class="text-sm font-medium">Transfer</span>
                 </button>
-                <button onclick="performAction('maintenance')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">home_repair_service</span>
-                    <span class="text-sm font-medium">Maintenance</span>
+                <button onclick="performAction('dispose')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl">delete_forever</span>
+                    <span class="text-sm font-medium">Dispose</span>
                 </button>
             </div>
 
@@ -225,9 +225,9 @@
             if (!currentAssetId) return;
 
             if (action === 'view') window.location.href = `/assets/${currentAssetId}`;
-            else if (action === 'edit') window.location.href = `/assets/${currentAssetId}/edit`;
-            else if (action === 'qr') alert(`QR Code for asset ${currentAssetId}`);
-            else if (action === 'maintenance') window.location.href = `/maintenance/${currentAssetId}`;
+            else if (action === 'assign') window.location.href = `/assets/${currentAssetId}/assignment`;
+            else if (action === 'transfer') window.location.href = `/assets/${currentAssetId}/transfer`;
+            else if (action === 'dispose') window.location.href = `/assets/${currentAssetId}/disposal`;
         }
 
         function deleteAsset() {

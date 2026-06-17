@@ -1,6 +1,7 @@
 package com.example.fams.assets;
 
 import com.example.fams.settings.AdminSettingsService;
+import com.example.fams.lifecycle.AssetLifecycleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,20 +17,23 @@ public class AssetService {
     private final CloudinaryUploadService cloudinaryUploadService;
     private final AssetTagGenerationService assetTagGenerationService;
     private final AdminSettingsService adminSettingsService;
+    private final AssetLifecycleService assetLifecycleService;
 
     public AssetService(AssetRepository assetRepository,
                         CloudinaryUploadService cloudinaryUploadService,
                         AssetTagGenerationService assetTagGenerationService,
-                        AdminSettingsService adminSettingsService) {
+                        AdminSettingsService adminSettingsService,
+                        AssetLifecycleService assetLifecycleService) {
         this.assetRepository = assetRepository;
         this.cloudinaryUploadService = cloudinaryUploadService;
         this.assetTagGenerationService = assetTagGenerationService;
         this.adminSettingsService = adminSettingsService;
+        this.assetLifecycleService = assetLifecycleService;
     }
 
     @Transactional(readOnly = true)
     public List<Asset> findAll() {
-        return assetRepository.findAllByOrderByCreatedAtDesc();
+        return assetRepository.findByStatusNotIgnoreCaseOrderByCreatedAtDesc("Disposed");
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +55,9 @@ public class AssetService {
             asset.setImageUrl(upload.secureUrl());
             asset.setImagePublicId(upload.publicId());
         });
-        return assetRepository.save(asset);
+        Asset savedAsset = assetRepository.save(asset);
+        assetLifecycleService.recordRegistration(savedAsset, "Asset Manager");
+        return savedAsset;
     }
 
     private void validateAssetCategory(String category) {

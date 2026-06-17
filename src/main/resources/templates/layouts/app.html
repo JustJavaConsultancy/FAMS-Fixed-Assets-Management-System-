@@ -856,9 +856,16 @@
 
                 <!-- All Assets -->
                 <div class="nav-link-wrap" data-label="All Assets">
-                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets')} ? ' sidebar-active' : ''" th:href="@{/assets}">
+                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets') && !#strings.startsWith(currentPath, '/assets/lifecycle')} ? ' sidebar-active' : ''" th:href="@{/assets}">
                         <span class="nav-icon material-symbols-outlined">inventory_2</span>
                         <span class="nav-label">All Assets</span>
+                    </a>
+                </div>
+
+                <div class="nav-link-wrap" data-label="Lifecycle Workflows">
+                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets/lifecycle')} ? ' sidebar-active' : ''" th:href="@{/assets/lifecycle/workflows}">
+                        <span class="nav-icon material-symbols-outlined">account_tree</span>
+                        <span class="nav-label">Lifecycle Workflows</span>
                     </a>
                 </div>
 

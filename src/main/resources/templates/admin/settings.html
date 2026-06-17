@@ -230,6 +230,11 @@
                             <option value="false" th:selected="${parameter.value == 'false'}">Disabled</option>
                         </select>
 
+                        <input th:if="${parameter.keyName == 'asset.lifecycle.approval.firstGroup' || parameter.keyName == 'asset.lifecycle.approval.finalGroup'}"
+                               th:id="${parameter.keyName}" th:name="${parameter.keyName}" th:value="${parameter.value}" maxlength="60" required
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                               placeholder="departmentHead">
+
                         <p class="text-label-small text-secondary" th:text="${parameter.description}">Description</p>
                     </div>
                     <button type="submit" class="w-full h-11 bg-primary text-on-primary rounded-xl hover:bg-brand-primary-dark transition-colors font-body-medium flex items-center justify-center gap-2">

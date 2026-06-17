@@ -5,313 +5,165 @@
 </head>
 <body>
 <main id="main-content" class="space-y-6" layout:fragment="content">
-    <!-- Breadcrumbs (consistent with dashboard.html secondary text) -->
     <nav class="flex items-center gap-2 text-secondary font-label-small text-label-small">
-        <a class="hover:text-primary transition-colors" href="#">Asset Management</a>
+        <a class="hover:text-primary transition-colors" th:href="@{/assets}">Asset Management</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <a class="hover:text-primary transition-colors" href="#">IT Equipment</a>
-        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <span class="text-on-surface font-medium">AST-2026-00847</span>
+        <span class="text-on-surface font-medium" th:text="${asset.assetCode}">AST</span>
     </nav>
 
-    <!-- Header Section: Asset Identity + Actions (grid layout matching dashboard.html) -->
+    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p class="font-body-medium" th:text="${successMessage}">Workflow submitted.</p>
+    </div>
+    <div th:if="${errorMessage}" class="bg-error-container border border-error/20 text-on-error-container rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-body-medium" th:text="${errorMessage}">Unable to complete request.</p>
+    </div>
+
     <div class="grid grid-cols-12 gap-6">
-        <!-- Asset Identity Card (8 columns) -->
-        <div class="col-span-12 lg:col-span-8 bg-surface-card rounded-xl card-shadow border border-border-default p-5 flex flex-wrap gap-5 items-start">
-            <div class="w-32 h-32 bg-surface-canvas rounded-xl overflow-hidden border border-border-default flex-shrink-0">
-                <img alt="MacBook Pro" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuMNVKYGlX0tMk_QcG9yXvkKOeR7JMQCan6i27nOq3lIS3FWJ973GSva2iARLqDeNIRm3a5ER9mk_jJtWx_2fL07QeCC58jUKG78rUN-aGRRvENVFhoS_urkHqmW5dJn4lv4685P35xfOBiweRPw0dPZ9HR5Hr60DXaxFP7prcew1yLqwtTHeaAkA8BzddTLghU74TnsuQSGvjEJfkonHD7B7Cd-7IBuhmj_g3Zm7LXloWwgWjvIgR">
+        <section class="col-span-12 lg:col-span-8 bg-surface-card rounded-xl card-shadow border border-border-default p-5 flex flex-wrap gap-5 items-start">
+            <div class="w-28 h-28 bg-surface-canvas rounded-xl overflow-hidden border border-border-default flex-shrink-0 flex items-center justify-center">
+                <img th:if="${asset.imageUrl}" th:src="${asset.imageUrl}" th:alt="${asset.name}" class="w-full h-full object-cover">
+                <span th:unless="${asset.imageUrl}" class="material-symbols-outlined text-primary text-[48px]">inventory_2</span>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-[220px]">
                 <div class="flex items-center gap-3 mb-2 flex-wrap">
-                    <span class="bg-surface-variant text-primary font-technical-data text-technical-data px-2 py-0.5 rounded font-medium">AST-2026-00847</span>
-                    <span class="bg-status-info/10 text-status-info font-badge-label text-badge-label px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-status-info"></span>
-                        Assigned
+                    <span class="bg-surface-variant text-primary font-technical-data text-technical-data px-2 py-0.5 rounded font-medium" th:text="${asset.assetCode}">AST</span>
+                    <span class="font-badge-label text-badge-label px-2 py-0.5 rounded-full flex items-center gap-1"
+                          th:classappend="${asset.status == 'Disposed'} ? ' bg-error/10 text-error' : ' bg-status-info/10 text-status-info'">
+                        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                        <span th:text="${asset.status}">Assigned</span>
                     </span>
                 </div>
-                <h2 class="font-page-title text-page-title text-on-surface mb-2">MacBook Pro M2 Max 14"</h2>
+                <h2 class="font-page-title text-page-title text-on-surface mb-2" th:text="${asset.name}">Asset Name</h2>
                 <div class="flex flex-wrap items-center gap-4 text-secondary text-body-default">
                     <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[18px]">category</span>
+                        <span th:text="${asset.category}">Category</span>
+                    </div>
+                    <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-[18px]">location_on</span>
-                        Lagos HQ, Engineering Dept
+                        <span th:text="${asset.branch + ', ' + asset.department}">Location</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-[18px]">person</span>
-                        Sarah Connor
+                        <span th:text="${asset.custodian}">Custodian</span>
                     </div>
                 </div>
             </div>
-            <div class="hidden sm:block border-l border-border-default pl-5 text-center">
-                <div class="w-20 h-20 bg-white border border-border-default p-1 mb-1 mx-auto rounded-md">
-                    <img alt="Asset QR Code" class="w-full h-full grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj-XXDY30ceVhWNfTr2b37H-My1JUx4ousXIt07WmJzdDXv7KfiATM4fRta43XSludmGXBx22CKNcKkVDaX1CmaXZcC0kikhNsnpch85_p-AoeSTQQN5CwgNcdkjkGXnHhGJsFOZUJ2_QRxKFf6SZeiPX93cxcj7XJKxA5j0eCiYvzx8jKr13ud7AMsJScE_ZfijY258LrrlEx-ZivEWta2UaXHUivRwsb6yK79rhM3HFhReThIBb7">
-                </div>
-                <span class="text-[10px] font-technical-data text-secondary uppercase tracking-widest">Scan to Audit</span>
-            </div>
-        </div>
+        </section>
 
-        <!-- Global Actions (4 columns) -->
-        <div class="col-span-12 lg:col-span-4 flex flex-col gap-2">
-            <button class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">edit</span>
-                Edit Details
-            </button>
+        <aside class="col-span-12 lg:col-span-4 flex flex-col gap-2">
+            <a th:if="${asset.status != 'Disposed'}" th:href="@{/assets/{id}/assignment(id=${asset.id})}" class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                Assign
+            </a>
             <div class="grid grid-cols-2 gap-2">
-                <button class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">person_add</span>
-                    Assign
-                </button>
-                <button class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
+                <a th:if="${asset.status != 'Disposed'}" th:href="@{/assets/{id}/transfer(id=${asset.id})}" class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">sync_alt</span>
                     Transfer
-                </button>
-                <button class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
+                </a>
+                <a th:if="${asset.status != 'Disposed'}" th:href="@{/assets/{id}/return(id=${asset.id})}" class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">assignment_return</span>
+                    Return
+                </a>
+                <a th:if="${asset.status != 'Disposed'}" th:href="@{/assets/{id}/disposal(id=${asset.id})}" class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">delete_forever</span>
                     Dispose
-                </button>
-                <button class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">print</span>
-                    Print Tag
-                </button>
+                </a>
+                <a th:href="@{/assets/lifecycle/workflows}" class="h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">account_tree</span>
+                    Workflows
+                </a>
             </div>
-        </div>
+        </aside>
     </div>
 
-    <!-- Tabs Navigation (consistent with border styles) -->
-    <div class="border-b border-border-default flex items-center gap-6 overflow-x-auto">
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-primary text-primary font-bold text-body-medium">Overview</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Assignment History</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Transfer History</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Maintenance</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Depreciation Schedule</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Documents</button>
-        <button class="whitespace-nowrap pb-3 px-1 border-b-2 border-transparent text-secondary hover:text-primary transition-colors font-body-medium">Audit Log</button>
-    </div>
-
-    <!-- Tab Content: Overview (grid matches dashboard.html) -->
     <div class="grid grid-cols-12 gap-6">
-        <!-- Left Column: Specs & Financials (8 cols) -->
-        <div class="col-span-12 lg:col-span-8 space-y-6">
-            <!-- Two sub-columns for specifications and financial snapshot -->
+        <section class="col-span-12 lg:col-span-8 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Specifications Card -->
                 <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
                     <div class="p-5 border-b border-border-default">
-                        <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
-                            <span class="w-1 h-5 bg-primary rounded-full"></span>
-                            Asset Specifications
-                        </h3>
+                        <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Specifications</h3>
                     </div>
                     <div class="p-5 space-y-3">
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Name</span>
-                            <span class="text-on-surface font-body-medium text-right">MacBook Pro M2</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Serial Number</span>
-                            <span class="text-on-surface font-technical-data text-right">C02JX7K2MD6X</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Manufacturer</span>
-                            <span class="text-on-surface font-body-medium text-right">Apple Inc.</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Model</span>
-                            <span class="text-on-surface font-body-medium text-right">M2 Max 14" (2024)</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Category</span>
-                            <span class="text-on-surface font-body-medium text-right">IT Equipment &gt; Laptops</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Purchase Date</span>
-                            <span class="text-on-surface font-body-medium text-right">Jan 12, 2024</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Vendor</span>
-                            <span class="text-on-surface font-body-medium text-right">Apple Enterprise</span>
-                        </div>
-                        <div class="flex justify-between py-2">
-                            <span class="text-secondary text-label-small">Warranty</span>
-                            <span class="text-on-surface font-body-medium text-right">Jan 12, 2024 - Jan 11, 2027</span>
-                        </div>
+                        <div class="flex justify-between py-2 border-b border-border-default"><span class="text-secondary text-label-small">Serial number</span><span class="text-on-surface font-technical-data text-right" th:text="${asset.serialNumber ?: 'Not recorded'}">SN</span></div>
+                        <div class="flex justify-between py-2 border-b border-border-default"><span class="text-secondary text-label-small">Manufacturer</span><span class="text-on-surface font-body-medium text-right" th:text="${asset.manufacturer ?: 'Not recorded'}">Maker</span></div>
+                        <div class="flex justify-between py-2 border-b border-border-default"><span class="text-secondary text-label-small">Model</span><span class="text-on-surface font-body-medium text-right" th:text="${asset.model ?: 'Not recorded'}">Model</span></div>
+                        <div class="flex justify-between py-2"><span class="text-secondary text-label-small">Vendor</span><span class="text-on-surface font-body-medium text-right" th:text="${asset.vendor ?: 'Not recorded'}">Vendor</span></div>
                     </div>
                 </div>
-
-                <!-- Financial Snapshot Card -->
                 <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
                     <div class="p-5 border-b border-border-default">
-                        <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
-                            <span class="w-1 h-5 bg-primary rounded-full"></span>
-                            Financial Snapshot
-                        </h3>
+                        <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Financial Snapshot</h3>
                     </div>
                     <div class="p-5 space-y-3">
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Purchase Cost</span>
-                            <span class="text-on-surface font-technical-data font-bold">&#8358;3,499.00</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Current Book Value</span>
-                            <span class="text-primary font-technical-data font-bold">&#8358;2,850.00</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Accumulated Depreciation</span>
-                            <span class="text-on-surface font-technical-data">&#8358;649.00</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-border-default">
-                            <span class="text-secondary text-label-small">Salvage Value</span>
-                            <span class="text-on-surface font-technical-data">&#8358;500.00</span>
-                        </div>
-                        <div class="flex justify-between py-2">
-                            <span class="text-secondary text-label-small">Useful Life</span>
-                            <span class="text-on-surface font-body-medium">5 Years (60 Months)</span>
-                        </div>
-                        <div class="pt-4 mt-2 border-t border-border-default">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-secondary text-label-small">Depreciation Progress</span>
-                                <span class="text-on-surface font-technical-data text-[11px]">18.5%</span>
-                            </div>
-                            <div class="w-full h-2 bg-surface-canvas rounded-full overflow-hidden">
-                                <div class="bg-primary h-full rounded-full" style="width: 18.5%"></div>
-                            </div>
-                        </div>
+                        <div class="flex justify-between py-2 border-b border-border-default"><span class="text-secondary text-label-small">Purchase date</span><span class="text-on-surface font-body-medium text-right" th:text="${asset.purchaseDate ?: 'Not recorded'}">Date</span></div>
+                        <div class="flex justify-between py-2 border-b border-border-default"><span class="text-secondary text-label-small">Purchase cost</span><span class="text-on-surface font-technical-data font-bold" th:text="${asset.purchaseCost ?: '0.00'}">0.00</span></div>
+                        <div class="flex justify-between py-2"><span class="text-secondary text-label-small">Warranty expiry</span><span class="text-on-surface font-body-medium text-right" th:text="${asset.warrantyExpiry ?: 'Not recorded'}">Warranty</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Lifecycle Timeline Card -->
             <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default">
-                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
-                        <span class="w-1 h-5 bg-primary rounded-full"></span>
-                        Asset Lifecycle
-                    </h3>
+                <div class="p-5 border-b border-border-default flex items-center justify-between gap-4">
+                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Lifecycle History</h3>
+                    <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label" th:text="${#lists.size(timeline)} + ' events'">0 events</span>
                 </div>
-                <div class="p-5">
-                    <div class="relative pt-2 pb-6 px-4">
-                        <div class="absolute top-1/2 left-0 w-full h-[2px] bg-border-default -translate-y-1/2"></div>
-                        <div class="flex justify-between relative z-10">
-                            <div class="flex flex-col items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary ring-4 ring-surface-card">
-                                    <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL'1">check</span>
-                                </div>
-                                <div class="text-center">
-                                    <p class="font-body-medium text-on-surface">Acquired</p>
-                                    <p class="text-label-small text-secondary">Jan 12, 2024</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary ring-4 ring-surface-card">
-                                    <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL'1">check</span>
-                                </div>
-                                <div class="text-center">
-                                    <p class="font-body-medium text-on-surface">Active</p>
-                                    <p class="text-label-small text-secondary">Jan 14, 2024</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary ring-4 ring-surface-card">
-                                    <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL'1">check</span>
-                                </div>
-                                <div class="text-center">
-                                    <p class="font-body-medium text-on-surface">Assigned</p>
-                                    <p class="text-label-small text-secondary">Jan 15, 2024</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-surface-card border-2 border-border-default flex items-center justify-center ring-4 ring-surface-card">
-                                    <div class="w-2 h-2 rounded-full bg-border-default"></div>
-                                </div>
-                                <div class="text-center opacity-40">
-                                    <p class="font-body-medium text-on-surface">Retired</p>
-                                    <p class="text-label-small text-secondary">Jan 12, 2029</p>
-                                </div>
-                            </div>
-                        </div>
+                <div th:if="${#lists.isEmpty(timeline)}" class="p-12 text-center">
+                    <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-[34px]">timeline</span>
                     </div>
+                    <h4 class="font-card-header text-card-header text-on-surface">No lifecycle history yet</h4>
+                    <p class="text-body-default text-secondary mt-2">Workflow, maintenance, audit and disposal events will appear here.</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(timeline)}" class="p-5">
+                    <ol class="relative border-l border-border-default ml-3 space-y-6">
+                        <li th:each="event : ${timeline}" class="ml-6">
+                            <span class="absolute -left-3 w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center ring-4 ring-surface-card">
+                                <span class="material-symbols-outlined text-[14px]">check</span>
+                            </span>
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
+                                <div>
+                                    <p class="font-body-medium text-on-surface" th:text="${event.title()}">Event</p>
+                                    <p class="text-body-default text-secondary mt-1" th:text="${event.details()}">Details</p>
+                                    <span class="mt-2 inline-flex px-2 py-0.5 rounded-full bg-surface-canvas text-secondary text-badge-label font-badge-label" th:text="${event.eventType()}">TYPE</span>
+                                </div>
+                                <div class="text-left md:text-right shrink-0">
+                                    <p class="text-label-small text-on-surface" th:text="${event.actor()}">Actor</p>
+                                    <p class="text-label-small text-secondary" th:text="${#temporals.format(event.eventAt(), 'dd MMM yyyy HH:mm')}">Time</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Right Column: Custodian & Location (4 cols) -->
-        <div class="col-span-12 lg:col-span-4 space-y-6">
-            <!-- Custodian Card -->
+        <aside class="col-span-12 lg:col-span-4 space-y-6">
             <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex justify-between items-center">
-                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
-                        <span class="w-1 h-5 bg-primary rounded-full"></span>
-                        Primary Custodian
-                    </h3>
-                    <button class="text-primary hover:underline text-label-small font-medium">History</button>
+                <div class="p-5 border-b border-border-default flex items-center justify-between">
+                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Workflow State</h3>
                 </div>
-                <div class="p-5">
-                    <div class="flex items-center gap-4 p-4 bg-surface-canvas rounded-xl border border-border-default mb-4">
-                        <img alt="Sarah Connor" class="w-14 h-14 rounded-full border-2 border-primary/20 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwnCPTByBIyqqd9oI0h5X7OwgraBHLq6fLUt2oLkaYXa2cazN37M6kmFlN_3DNqg2T3xXM0Mwz3d52VQzkbihJr3uDs3YcNwMnl5mXTkbBh0j3RuBm31v1TSWW-kGWzRQ60ugWdItVhefx9PLKrJ3rDdVy1Zeli0FkRyVmEi7H8x1voSCjzbTp0C6Jxl2nLMxT56tKtKn-cv_9kSvpUeJhenvgiNI5tggAv-IvTl-pszIOxr_1t5df">
-                        <div>
-                            <h4 class="font-section-header text-on-surface">Sarah Connor</h4>
-                            <p class="text-secondary text-body-default">Lead Systems Engineer</p>
-                            <p class="text-primary font-technical-data text-[11px] mt-1">Engineering Dept.</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-secondary text-label-small">Assigned On</span>
-                            <span class="text-on-surface font-body-medium">Jan 15, 2024</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-secondary text-label-small">Assignment Type</span>
-                            <span class="text-on-surface font-body-medium">Permanent</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-secondary text-label-small">ID Badge No.</span>
-                            <span class="text-on-surface font-technical-data">JJT-EN-084</span>
-                        </div>
-                    </div>
-                    <button class="w-full mt-5 py-2 border border-border-strong rounded-lg text-secondary font-body-medium hover:bg-surface-canvas transition-all">
-                        Release Custody
-                    </button>
+                <div th:if="${#lists.isEmpty(workflows)}" class="p-8 text-center">
+                    <span class="material-symbols-outlined text-[40px] text-secondary">account_tree</span>
+                    <p class="font-body-medium text-on-surface mt-3">No workflow requests</p>
+                    <p class="text-label-small text-secondary mt-1">Assignment, transfer, return and disposal requests will be listed here.</p>
                 </div>
-            </div>
-
-            <!-- Location Card -->
-            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex justify-between items-center">
-                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2">
-                        <span class="w-1 h-5 bg-primary rounded-full"></span>
-                        Current Location
-                    </h3>
-                    <button class="text-primary hover:underline text-label-small font-medium">Update</button>
-                </div>
-                <div class="p-5">
-                    <div class="relative h-36 rounded-lg overflow-hidden border border-border-default mb-4 bg-surface-canvas flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[48px] text-border-strong">map</span>
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                            <div class="w-5 h-5 bg-primary rounded-full border-2 border-surface-card animate-pulse"></div>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div>
-                            <p class="text-secondary text-label-small uppercase tracking-wider mb-1">Regional HQ</p>
-                            <p class="text-on-surface font-section-header">Lagos Head Office</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
+                <div th:unless="${#lists.isEmpty(workflows)}" class="divide-y divide-border-default">
+                    <div th:each="workflow : ${workflows}" class="p-5">
+                        <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="text-secondary text-label-small mb-1">Department</p>
-                                <p class="text-on-surface font-body-medium">Engineering</p>
+                                <p class="font-body-medium text-on-surface" th:text="${workflow.type}">TRANSFER</p>
+                                <p class="text-label-small text-secondary" th:text="${#temporals.format(workflow.requestedAt, 'dd MMM yyyy HH:mm')}">Date</p>
                             </div>
-                            <div>
-                                <p class="text-secondary text-label-small mb-1">Floor/Room</p>
-                                <p class="text-on-surface font-body-medium">3rd Floor, Rm 312</p>
-                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info" th:text="${workflow.status}">Pending</span>
                         </div>
-                        <div class="flex gap-2 pt-2 text-secondary">
-                            <span class="material-symbols-outlined text-[18px] text-primary shrink-0">info</span>
-                            <p class="text-label-small leading-tight">This asset is geofenced to the Lagos HQ premises. Movement outside requires a Gate Pass.</p>
-                        </div>
+                        <p class="text-body-default text-secondary mt-3" th:text="${workflow.reason ?: 'No notes provided.'}">Reason</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 </main>
 </body>
