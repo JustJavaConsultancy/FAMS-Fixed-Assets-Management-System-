@@ -141,6 +141,41 @@
         </section>
 
         <aside class="col-span-12 lg:col-span-4 space-y-6">
+            <!-- Asset tags (QR / Barcode) -->
+            <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
+                <div class="p-5 border-b border-border-default flex items-center justify-between">
+                    <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Asset Tags</h3>
+                </div>
+                <div class="p-5 space-y-3">
+                    <div th:if="${asset.qrCodeImageDataUri != null}">
+                        <p class="text-label-small text-secondary">QR Code</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <img th:src="${asset.qrCodeImageDataUri}" alt="QR code" style="width:120px;height:120px;object-fit:contain;border:1px solid #e6e9ef;padding:8px;background:#fff;border-radius:8px;" />
+                            <div class="flex-1">
+                                <p class="text-body-default">Scan to open asset: <span class="font-technical-data" th:text="${asset.assetCode}">AST</span></p>
+                                <div class="mt-3 flex gap-2">
+                                    <a th:href="${asset.qrCodeImageDataUri}" th:download="${asset.assetCode + '-qr.png'}" class="h-[36px] px-3 bg-surface-card border border-border-strong rounded-lg inline-flex items-center gap-2">Download QR</a>
+                                    <button type="button" th:onclick="|printImage('${asset.qrCodeImageDataUri}')|" class="h-[36px] px-3 bg-surface-card border border-border-strong rounded-lg">Print</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${asset.barcodeImageDataUri != null}">
+                        <p class="text-label-small text-secondary">Barcode</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <img th:src="${asset.barcodeImageDataUri}" alt="Barcode" style="width:200px;height:60px;object-fit:contain;border:1px solid #e6e9ef;padding:8px;background:#fff;border-radius:8px;" />
+                            <div class="flex-1">
+                                <p class="text-body-default">Code: <span class="font-technical-data" th:text="${asset.barcodeValue != null ? asset.barcodeValue : asset.assetCode}">AST</span></p>
+                                <div class="mt-3 flex gap-2">
+                                    <a th:href="${asset.barcodeImageDataUri}" th:download="${asset.assetCode + '-barcode.png'}" class="h-[36px] px-3 bg-surface-card border border-border-strong rounded-lg inline-flex items-center gap-2">Download Barcode</a>
+                                    <button type="button" th:onclick="|printImage('${asset.barcodeImageDataUri}')|" class="h-[36px] px-3 bg-surface-card border border-border-strong rounded-lg">Print</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="bg-surface-card rounded-xl card-shadow border border-border-default overflow-hidden">
                 <div class="p-5 border-b border-border-default flex items-center justify-between">
                     <h3 class="font-section-header text-section-header text-on-surface flex items-center gap-2"><span class="w-1 h-5 bg-primary rounded-full"></span>Workflow State</h3>
@@ -165,6 +200,21 @@
             </div>
         </aside>
     </div>
+    <script>
+        function printImage(dataUri) {
+            try {
+                const w = window.open('', '_blank');
+                if (!w) return alert('Popup blocked. Please allow popups to print asset tag.');
+                w.document.write('<img src="' + dataUri + '" style="max-width:100%;height:auto;display:block;margin:0 auto;" />');
+                w.document.close();
+                w.focus();
+                setTimeout(() => { w.print(); /* w.close(); */ }, 350);
+            } catch (e) {
+                console.error(e);
+                alert('Unable to open print preview.');
+            }
+        }
+    </script>
 </main>
 </body>
 </html>

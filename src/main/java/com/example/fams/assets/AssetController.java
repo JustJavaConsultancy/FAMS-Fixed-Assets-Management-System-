@@ -218,7 +218,8 @@ public class AssetController {
         try {
             Asset savedAsset = assetService.create(asset, image);
             redirectAttributes.addFlashAttribute("successMessage", savedAsset.getAssetCode() + " was registered successfully.");
-            return "redirect:/assets";
+            // Redirect to the newly created asset details so the user can download/print tags
+            return "redirect:/assets/" + savedAsset.getId();
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             redirectAttributes.addFlashAttribute("asset", asset);
