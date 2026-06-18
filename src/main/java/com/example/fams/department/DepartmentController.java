@@ -58,7 +58,7 @@ public class DepartmentController {
     public String departmentHeadDashboard(Model model) {
         DepartmentHeadContext context = context();
         List<Asset> assets = departmentAssets(context.departments());
-        List<AssetLifecycleWorkflow> approvals = pendingIntraDepartmentTransfers(context.departmentKeys());
+        List<AssetLifecycleWorkflow> approvals = pendingDepartmentTransfers(context.departmentKeys());
         Map<Long, List<Task>> pendingTasks = pendingTasks(approvals);
 
         model.addAttribute("departmentNames", context.departments());
@@ -85,7 +85,7 @@ public class DepartmentController {
     @GetMapping("/department-head/approvals")
     public String departmentApprovals(Model model) {
         DepartmentHeadContext context = context();
-        List<AssetLifecycleWorkflow> approvals = pendingIntraDepartmentTransfers(context.departmentKeys());
+        List<AssetLifecycleWorkflow> approvals = pendingDepartmentTransfers(context.departmentKeys());
         model.addAttribute("departmentNames", context.departments());
         model.addAttribute("departmentLabel", departmentLabel(context.departments()));
         model.addAttribute("pendingApprovals", approvals);
@@ -96,9 +96,15 @@ public class DepartmentController {
     @PostMapping("/department-head/approvals/{workflowId}/tasks/{taskId}/decision")
     public String decideDepartmentTransfer(@PathVariable Long workflowId,
                                            @PathVariable String taskId,
-                                           @RequestParam ApprovalDecision decision,
+                                           @RequestParam(name = "decision", required = false) ApprovalDecision decision,
                                            @RequestParam(required = false) String comment,
                                            RedirectAttributes redirectAttributes) {
+        if (decision == null) {
+            // Missing or invalid decision parameter — return friendly message instead of letting Spring return 400
+            redirectAttributes.addFlashAttribute("errorMessage", "A decision (approve/decline) is required to proceed.");
+            return "redirect:/department-head/approvals";
+        }
+
         try {
             AssetLifecycleWorkflow workflow = requireEligibleWorkflow(workflowId);
             assetLifecycleService.decide(workflow.getId(), taskId, decision, comment);
@@ -114,13 +120,11 @@ public class DepartmentController {
         AssetLifecycleWorkflow workflow = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new NoSuchElementException("Workflow not found."));
         String fromDepartment = clean(workflow.getFromDepartment());
-        String toDepartment = clean(workflow.getToDepartment());
         boolean fromOwned = fromDepartment != null && context.departmentKeys().contains(fromDepartment.toLowerCase());
-        boolean toOwnedOrCurrent = toDepartment == null || toDepartment.isBlank() || context.departmentKeys().contains(toDepartment.toLowerCase());
-        if (workflow.getType().name().equals("TRANSFER") && fromOwned && toOwnedOrCurrent) {
+        if (workflow.getType().name().equals("TRANSFER") && fromOwned) {
             return workflow;
         }
-        throw new IllegalArgumentException("Only intra-department transfers for your department can be approved here.");
+        throw new IllegalArgumentException("Only transfers from your department can be approved here.");
     }
 
     private List<Asset> departmentAssets(List<String> departments) {
@@ -130,11 +134,11 @@ public class DepartmentController {
         return assetRepository.findByDepartmentInOrderByCreatedAtDesc(departments);
     }
 
-    private List<AssetLifecycleWorkflow> pendingIntraDepartmentTransfers(List<String> departmentKeys) {
+    private List<AssetLifecycleWorkflow> pendingDepartmentTransfers(List<String> departmentKeys) {
         if (departmentKeys.isEmpty()) {
             return List.of();
         }
-        return workflowRepository.findPendingIntraDepartmentTransfers(departmentKeys);
+        return workflowRepository.findPendingTransfersFromDepartments(departmentKeys);
     }
 
     private List<AssetLifecycleWorkflow> recentDepartmentWorkflows(List<String> departmentKeys) {

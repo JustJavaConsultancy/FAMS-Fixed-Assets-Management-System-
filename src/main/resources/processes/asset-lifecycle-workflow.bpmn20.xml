@@ -16,8 +16,11 @@
         <sequenceFlow id="flow_first_rejected" sourceRef="firstDecision" targetRef="rejectedEnd">
             <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == false}]]></conditionExpression>
         </sequenceFlow>
+        <sequenceFlow id="flow_transfer_approved" sourceRef="firstDecision" targetRef="approvedEnd">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true && workflowType == 'TRANSFER'}]]></conditionExpression>
+        </sequenceFlow>
         <sequenceFlow id="flow_first_approved" sourceRef="firstDecision" targetRef="finalApprovalTask">
-            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true}]]></conditionExpression>
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved == true && workflowType != 'TRANSFER'}]]></conditionExpression>
         </sequenceFlow>
 
         <userTask id="finalApprovalTask"

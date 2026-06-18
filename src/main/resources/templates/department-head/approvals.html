@@ -8,7 +8,7 @@
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
             <h2 class="font-page-title text-page-title text-on-background">Transfer Approvals</h2>
-            <p class="text-body-default text-secondary mt-1">Approve or decline intra-department asset transfers for <span th:text="${departmentLabel}">Department</span>.</p>
+            <p class="text-body-default text-secondary mt-1">Approve or decline asset transfers from <span th:text="${departmentLabel}">Department</span>.</p>
         </div>
         <a th:href="@{/department-head/assets}" class="h-[38px] px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas inline-flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">inventory_2</span>
@@ -29,7 +29,7 @@
         <div th:if="${#lists.isEmpty(pendingApprovals)}" class="p-12 sm:p-20 text-center">
             <span class="material-symbols-outlined text-[48px] text-secondary">task_alt</span>
             <h3 class="font-card-header text-card-header text-on-surface mt-4">No pending transfer approvals</h3>
-            <p class="text-body-default text-secondary mt-2">Eligible intra-department transfers will appear here when submitted.</p>
+            <p class="text-body-default text-secondary mt-2">Eligible department transfer requests will appear here when submitted.</p>
         </div>
         <div th:unless="${#lists.isEmpty(pendingApprovals)}" class="divide-y divide-border-default">
             <div th:each="workflow : ${pendingApprovals}" class="p-5 flex flex-col xl:flex-row xl:items-start justify-between gap-5">
@@ -51,6 +51,9 @@
                         No active approval task is available for this workflow.
                     </div>
                     <form th:unless="${tasks == null || #lists.isEmpty(tasks)}" th:action="@{/department-head/approvals/{workflowId}/tasks/{taskId}/decision(workflowId=${workflow.id},taskId=${tasks[0].id})}" method="post" class="space-y-3" data-spinner-form>
+                        <th:block th:if="${_csrf != null}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        </th:block>
                         <textarea name="comment" rows="3" placeholder="Approval comment" class="w-full px-3 py-2 border border-border-default rounded-lg bg-surface-canvas text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
                         <div class="flex gap-2">
                             <button name="decision" value="APPROVED" type="submit" class="flex-1 h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark inline-flex items-center justify-center gap-2">
@@ -66,8 +69,13 @@
         </div>
     </div>
     <script>
+        // Add a small compatibility fallback for browsers that don't expose event.submitter
         document.querySelectorAll('[data-spinner-form]').forEach(form => form.addEventListener('submit', event => {
-            const submitter = event.submitter;
+            let submitter = event.submitter || document.activeElement;
+            // If activeElement is outside the form, try to find a focused submit button inside the form
+            if (submitter && !form.contains(submitter)) {
+                submitter = form.querySelector('button[type="submit"]');
+            }
             submitter?.querySelector('.submit-icon')?.classList.add('hidden');
             submitter?.querySelector('.submit-spinner')?.classList.remove('hidden');
             form.querySelectorAll('button[type="submit"]').forEach(button => button.setAttribute('disabled', 'disabled'));

@@ -2,25 +2,33 @@ package com.example.fams.lifecycle;
 
 import com.example.fams.assets.Asset;
 import com.example.fams.assets.AssetRepository;
+import com.example.fams.core.config.AuthenticationManager;
 import com.example.fams.maintenance.MaintenanceRecord;
 import com.example.fams.maintenance.MaintenanceRecordRepository;
+import com.example.fams.organization.DepartmentHead;
+import com.example.fams.organization.DepartmentHeadRepository;
 import com.example.fams.settings.AdminSettingsService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class AssetLifecycleService {
@@ -32,27 +40,35 @@ public class AssetLifecycleService {
     private final AssetLifecycleApprovalActionRepository approvalActionRepository;
     private final AssetLifecycleHistoryRepository historyRepository;
     private final MaintenanceRecordRepository maintenanceRecordRepository;
+    private final DepartmentHeadRepository departmentHeadRepository;
     private final RuntimeService runtimeService;
     private final TaskService taskService;
     private final AdminSettingsService adminSettingsService;
+    private final AuthenticationManager authenticationManager;
 
     public AssetLifecycleService(AssetRepository assetRepository,
                                  AssetLifecycleWorkflowRepository workflowRepository,
                                  AssetLifecycleApprovalActionRepository approvalActionRepository,
                                  AssetLifecycleHistoryRepository historyRepository,
                                  MaintenanceRecordRepository maintenanceRecordRepository,
+                                 DepartmentHeadRepository departmentHeadRepository,
                                  RuntimeService runtimeService,
                                  TaskService taskService,
-                                 AdminSettingsService adminSettingsService) {
+                                 AdminSettingsService adminSettingsService,
+                                 AuthenticationManager authenticationManager) {
         this.assetRepository = assetRepository;
         this.workflowRepository = workflowRepository;
         this.approvalActionRepository = approvalActionRepository;
         this.historyRepository = historyRepository;
         this.maintenanceRecordRepository = maintenanceRecordRepository;
+        this.departmentHeadRepository = departmentHeadRepository;
         this.runtimeService = runtimeService;
         this.taskService = taskService;
         this.adminSettingsService = adminSettingsService;
+        this.authenticationManager = authenticationManager;
     }
+
+    private static final Logger log = LoggerFactory.getLogger(AssetLifecycleService.class);
 
     @Transactional
     public AssetLifecycleWorkflow submit(LifecycleWorkflowForm form) {
@@ -131,12 +147,17 @@ public class AssetLifecycleService {
     public AssetLifecycleWorkflow decide(Long workflowId, String taskId, ApprovalDecision decision, String comment) {
         AssetLifecycleWorkflow workflow = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new NoSuchElementException("Workflow not found."));
+        log.debug("Decide called for workflow id={}, taskId={}, decision={}, comment={}", workflowId, taskId, decision, comment);
         Task task = taskService.createTaskQuery()
                 .taskId(taskId)
                 .processInstanceId(workflow.getProcessInstanceId())
                 .singleResult();
+        log.debug("Found task: {} for processInstanceId={}", task == null ? null : task.getId(), workflow.getProcessInstanceId());
         if (task == null) {
             throw new IllegalArgumentException("The approval task is no longer available.");
+        }
+        if (workflow.getType() == LifecycleWorkflowType.TRANSFER && !currentUserHeadsDepartment(workflow.getFromDepartment())) {
+            throw new IllegalArgumentException("Only the department head of the asset's current department can approve this transfer.");
         }
 
         AssetLifecycleApprovalAction action = new AssetLifecycleApprovalAction();
@@ -160,11 +181,25 @@ public class AssetLifecycleService {
 
         addHistory(workflow.getAsset(), LifecycleEventType.APPROVAL, action.getActor(),
                 task.getName() + " approved", defaultText(comment, "Approval recorded."), null, null);
-
+        // After completing the Flowable task, determine if the process instance has ended.
+        // In some Flowable configurations the process may continue asynchronously and the
+        // runtimeService query may still return a live instance for a short period. As a
+        // pragmatic approach, treat the workflow as complete when either the process
+        // instance no longer exists OR there are no more active user tasks for the
+        // process instance (meaning no further approvals are pending).
         boolean processEnded = runtimeService.createProcessInstanceQuery()
                 .processInstanceId(workflow.getProcessInstanceId())
                 .singleResult() == null;
-        if (processEnded) {
+
+        long remainingUserTasks = taskService.createTaskQuery()
+                .processInstanceId(workflow.getProcessInstanceId())
+                .active()
+                .count();
+        log.debug("processEnded={}, remainingUserTasks={} for workflowId={}", processEnded, remainingUserTasks, workflowId);
+
+        if (processEnded || remainingUserTasks == 0) {
+            // No further user tasks — treat as completed and apply final changes
+            log.info("Completing workflow id={} after approval by {}", workflowId, action.getActor());
             completeWorkflow(workflow, action.getActor());
         } else {
             workflow.setStatus(LifecycleWorkflowStatus.PENDING_APPROVAL);
@@ -235,8 +270,14 @@ public class AssetLifecycleService {
         if ("Disposed".equalsIgnoreCase(asset.getStatus())) {
             throw new IllegalArgumentException("Disposed assets cannot start a new lifecycle workflow.");
         }
+        if (form.getType() == null) {
+            throw new IllegalArgumentException("Workflow type is required.");
+        }
         if (form.getRequestedEffectiveDate() == null || form.getRequestedEffectiveDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Requested effective date cannot be in the past.");
+        }
+        if (form.getType() == LifecycleWorkflowType.TRANSFER && !currentUserCanRequestTransfer(asset)) {
+            throw new IllegalArgumentException("Only an asset manager or the employee assigned to this asset can request a transfer.");
         }
         if (form.getType() == LifecycleWorkflowType.DISPOSAL) {
             if (!hasText(form.getDisposalMethod())) {
@@ -300,6 +341,68 @@ public class AssetLifecycleService {
             return "System";
         }
         return authentication.getName();
+    }
+
+    private boolean currentUserCanRequestTransfer(Asset asset) {
+        if (authenticationManager.isAssetManager()) {
+            return true;
+        }
+        String custodian = clean(asset.getCustodian());
+        return custodian != null && userLookupCandidates().stream()
+                .anyMatch(candidate -> custodian.equalsIgnoreCase(candidate));
+    }
+
+    private boolean currentUserHeadsDepartment(String department) {
+        String departmentKey = clean(department);
+        if (departmentKey == null) {
+            return false;
+        }
+        Set<Long> matchedHeadIds = new LinkedHashSet<>();
+        for (String candidate : userLookupCandidates()) {
+            for (DepartmentHead head : departmentHeadRepository.findByUserIdAndIsActiveTrueOrderByAssignedAtDesc(candidate)) {
+                if (matchedHeadIds.add(head.getId()) && departmentMatches(head, departmentKey)) {
+                    return true;
+                }
+            }
+            for (DepartmentHead head : departmentHeadRepository.findByUserNameIgnoreCaseAndIsActiveTrueOrderByAssignedAtDesc(candidate)) {
+                if (matchedHeadIds.add(head.getId()) && departmentMatches(head, departmentKey)) {
+                    return true;
+                }
+            }
+            for (DepartmentHead head : departmentHeadRepository.findByUserEmailIgnoreCaseAndIsActiveTrueOrderByAssignedAtDesc(candidate)) {
+                if (matchedHeadIds.add(head.getId()) && departmentMatches(head, departmentKey)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean departmentMatches(DepartmentHead head, String departmentKey) {
+        return head.getDepartment() != null
+                && head.getDepartment().getName() != null
+                && head.getDepartment().getName().trim().equalsIgnoreCase(departmentKey);
+    }
+
+    private List<String> userLookupCandidates() {
+        Set<String> candidates = new LinkedHashSet<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getName() != null) {
+            candidates.add(auth.getName());
+        }
+        if (auth != null && auth.getPrincipal() instanceof DefaultOidcUser oidc) {
+            addClaim(candidates, oidc.getSubject());
+            addClaim(candidates, oidc.getClaims().get("preferred_username"));
+            addClaim(candidates, oidc.getClaims().get("email"));
+            addClaim(candidates, oidc.getClaims().get("name"));
+        }
+        return candidates.stream().filter(value -> value != null && !value.isBlank()).toList();
+    }
+
+    private void addClaim(Set<String> candidates, Object value) {
+        if (value instanceof String text && !text.isBlank()) {
+            candidates.add(text);
+        }
     }
 
     private boolean hasText(String value) {

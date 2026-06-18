@@ -103,7 +103,7 @@
             </div>
             <div th:if="${#lists.isEmpty(pendingApprovals)}" class="p-12 text-center">
                 <span class="material-symbols-outlined text-[42px] text-secondary">task_alt</span>
-                <p class="font-body-medium text-on-surface mt-3">No pending intra-department transfers</p>
+                <p class="font-body-medium text-on-surface mt-3">No pending department transfers</p>
                 <p class="text-body-default text-secondary mt-1">Transfer approvals routed to your department will appear here.</p>
             </div>
             <div th:unless="${#lists.isEmpty(pendingApprovals)}" class="flex-1 p-5 space-y-4 overflow-y-auto custom-scrollbar max-h-[420px]">

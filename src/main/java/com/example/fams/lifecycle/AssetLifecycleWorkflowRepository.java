@@ -25,10 +25,9 @@ public interface AssetLifecycleWorkflowRepository extends JpaRepository<AssetLif
             where w.type = com.example.fams.lifecycle.LifecycleWorkflowType.TRANSFER
               and w.status = com.example.fams.lifecycle.LifecycleWorkflowStatus.PENDING_APPROVAL
               and lower(w.fromDepartment) in :departments
-              and (w.toDepartment is null or w.toDepartment = '' or lower(w.toDepartment) in :departments)
             order by w.requestedAt desc
             """)
-    List<AssetLifecycleWorkflow> findPendingIntraDepartmentTransfers(@Param("departments") List<String> departments);
+    List<AssetLifecycleWorkflow> findPendingTransfersFromDepartments(@Param("departments") List<String> departments);
 
     @EntityGraph(attributePaths = "asset")
     List<AssetLifecycleWorkflow> findAllByOrderByRequestedAtDesc();

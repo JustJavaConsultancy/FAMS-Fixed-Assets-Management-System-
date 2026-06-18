@@ -134,7 +134,11 @@ public class AssetController {
         List<AssetLifecycleWorkflow> workflows = assetLifecycleService.findAllWorkflows();
         Map<Long, List<Task>> pendingTasks = new HashMap<>();
         for (AssetLifecycleWorkflow workflow : workflows) {
-            pendingTasks.put(workflow.getId(), assetLifecycleService.pendingTasks(workflow.getId()));
+            if (workflow.getType() == LifecycleWorkflowType.TRANSFER) {
+                pendingTasks.put(workflow.getId(), List.of());
+            } else {
+                pendingTasks.put(workflow.getId(), assetLifecycleService.pendingTasks(workflow.getId()));
+            }
         }
         model.addAttribute("workflows", workflows);
         model.addAttribute("pendingTasks", pendingTasks);
@@ -144,9 +148,15 @@ public class AssetController {
     @PostMapping("/assets/lifecycle/workflows/{workflowId}/tasks/{taskId}/decision")
     public String decideLifecycleTask(@PathVariable Long workflowId,
                                       @PathVariable String taskId,
-                                      @RequestParam ApprovalDecision decision,
+                                      @RequestParam(name = "decision", required = false) ApprovalDecision decision,
                                       @RequestParam(required = false) String comment,
                                       RedirectAttributes redirectAttributes) {
+        if (decision == null) {
+            // Missing or invalid decision parameter — handle gracefully instead of throwing MissingServletRequestParameterException
+            redirectAttributes.addFlashAttribute("errorMessage", "A decision (approve/decline) is required to proceed.");
+            return "redirect:/assets/lifecycle/workflows";
+        }
+
         try {
             AssetLifecycleWorkflow workflow = assetLifecycleService.decide(workflowId, taskId, decision, comment);
             redirectAttributes.addFlashAttribute("successMessage", "Workflow " + workflow.getStatus().name().toLowerCase().replace('_', ' ') + ".");
