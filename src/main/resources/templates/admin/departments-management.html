@@ -1444,11 +1444,11 @@
     </div>
 
     <!-- ─── Alert Messages ─── -->
-    <div th:if="${successMessage}" class="cs-alert cs-alert-success">
+    <div style="margin-bottom: 1rem;" th:if="${successMessage}" class="cs-alert cs-alert-success">
         <span class="material-symbols-outlined">check_circle</span>
         <p class="font-body-medium" th:text="${successMessage}"></p>
     </div>
-    <div th:if="${errorMessage}" class="cs-alert cs-alert-error">
+    <div style="margin-bottom: 1rem;" th:if="${errorMessage}" class="cs-alert cs-alert-error">
         <span class="material-symbols-outlined">error</span>
         <p class="font-body-medium" th:text="${errorMessage}"></p>
     </div>

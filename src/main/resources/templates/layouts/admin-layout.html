@@ -161,10 +161,8 @@
             display: flex;
             flex-direction: column;
             overflow: visible;
-            /* ← critical: allow tooltips to escape */;
         }
 
-        /* Inner wrapper for scroll & clipping */
         #sidebar-inner {
             flex: 1;
             display: flex;
@@ -175,7 +173,6 @@
             width: 100%;
         }
 
-        /* Scrollable nav area */
         #sidebar-nav {
             flex: 1;
             overflow-y: auto;
@@ -194,7 +191,6 @@
             border-radius: 10px;
         }
 
-        /* Brand */
         .sidebar-brand {
             display: flex;
             align-items: center;
@@ -242,7 +238,6 @@
             margin: 0;
         }
 
-        /* Nav links */
         .nav-link-wrap {
             position: relative;
             display: flex;
@@ -294,10 +289,8 @@
             color: #fff !important;
         }
 
-        /* Tooltip – positioned outside sidebar overflow */
         .nav-tooltip {
             position: fixed;
-            /* will be positioned via JS */
             background: #1A1D23;
             color: #fff;
             font-size: 12px;
@@ -327,7 +320,6 @@
             transform: scale(1);
         }
 
-        /* ── Sidebar collapsed state ── */
         #sidebar.collapsed {
             width: var(--sidebar-collapsed-w);
         }
@@ -356,7 +348,7 @@
         #sidebar.collapsed .nav-link .nav-icon {
             margin: 0;
         }
-        /* User profile in footer */
+
         .sidebar-user {
             display: flex;
             align-items: center;
@@ -498,8 +490,6 @@
         }
 
         /* ── Responsive ── */
-
-        /* Tablets & small laptops: auto‑collapse */
         @media (max-width: 1023px) {
             :root {
                 --sidebar-margin: 14px;
@@ -537,14 +527,12 @@
             body:not(.manual-override) #main-content {
                 margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
             }
-            /* Hide toggle on auto-collapse (show on manual override) */
             body:not(.manual-override) #toggle-btn {
                 opacity: 0.5;
                 pointer-events: none;
             }
         }
 
-        /* Phones */
         @media (max-width: 640px) {
             :root {
                 --sidebar-margin: 8px;
@@ -616,7 +604,6 @@
             #toggle-btn .icon-close {
                 font-size: 18px;
             }
-            /* Hide "Register Asset" text on small screens, keep icon */
             .topbar-register span.label {
                 display: none;
             }
@@ -628,7 +615,6 @@
             .topbar-register .material-symbols-outlined {
                 font-size: 20px !important;
             }
-            /* reduce search width */
             #topbar .search-wrap {
                 max-width: 140px;
             }
@@ -644,7 +630,6 @@
             }
         }
 
-        /* Very small phones */
         @media (max-width: 400px) {
             :root {
                 --sidebar-margin: 6px;
@@ -750,7 +735,6 @@
             color: #9aa0aa;
         }
 
-        /* topbar actions */
         .topbar-actions {
             display: flex;
             align-items: center;
@@ -857,7 +841,7 @@
             </div>
         </div>
 
-        <!-- Navigation (updated with admin menu) -->
+        <!-- Navigation -->
         <nav id="sidebar-nav">
             <div class="space-y-1">
 
@@ -876,6 +860,7 @@
                         <span class="nav-label">User Management</span>
                     </a>
                 </div>
+
                 <!-- Company Structure (Super Admin) -->
                 <div class="nav-link-wrap" data-label="Company Structure">
                     <a class="nav-link" th:classappend="${currentPath == '/superadmin/company-structure'} ? ' sidebar-active' : ''" th:href="@{/superadmin/company-structure}">
@@ -914,7 +899,6 @@
         <!-- User profile -->
         <div class="sidebar-user">
             <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
-                <!-- initials derived from authenticated user via GlobalControllerAdvice -->
                 <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
             </div>
             <div class="user-text">
@@ -929,7 +913,7 @@
     </div>
 </aside>
 
-<!-- ══ TOPBAR (Register Asset button removed) ══ -->
+<!-- ══ TOPBAR ══ -->
 <header id="topbar">
     <button id="toggle-btn" aria-label="Toggle sidebar">
         <span class="material-symbols-outlined icon-open">menu_open</span>
@@ -942,7 +926,6 @@
     </div>
 
     <div class="topbar-actions">
-        <!-- Register Asset button and divider removed -->
         <a class="icon-btn" th:href="@{/notifications}" aria-label="Notifications">
             <span class="material-symbols-outlined">notifications</span>
             <span class="badge-dot"></span>
@@ -955,7 +938,6 @@
 
 <!-- ══ MAIN CONTENT ══ -->
 <main id="main-content" class="space-y-6" layout:fragment="content">
-    <!-- Page content goes here -->
     <div class="bg-white rounded-2xl border border-border-default p-6 card-shadow">
         <h2 class="text-page-title">Dashboard</h2>
         <p class="text-body-default text-secondary mt-2">Welcome back, Alex. Here's your asset overview.</p>
@@ -1002,8 +984,8 @@
     </div>
 </div>
 
+<!-- ══ SIDEBAR & TOOLTIP SCRIPT ══ -->
 <script>
-
     (function() {
         'use strict';
 
@@ -1015,12 +997,11 @@
         let isManualOverride = false;
         let isCollapsed = false;
         let resizeTimer = null;
-        // backdrop for small-screen sidebar (click outside to close)
         let backdropEl = null;
 
         // ── Create tooltip element ──
         function createTooltip() {
-            if (!tooltipContainer) return;
+            if (!tooltipContainer) return null;
             const el = document.createElement('div');
             el.className = 'nav-tooltip';
             el.textContent = '';
@@ -1029,11 +1010,10 @@
         }
         tooltipEl = createTooltip();
 
-        // create backdrop element and append to body (hidden by default)
+        // ── Create backdrop ──
         function createBackdrop() {
             const b = document.createElement('div');
             b.id = 'sidebar-backdrop';
-            // minimal inline styles to ensure it sits below the sidebar but above content
             b.style.position = 'fixed';
             b.style.left = '0';
             b.style.top = '0';
@@ -1054,15 +1034,12 @@
             if (collapse) {
                 body.classList.add('sidebar-collapsed');
                 sidebar.classList.add('collapsed');
-                // hide backdrop when collapsed
                 if (backdropEl) backdropEl.style.display = 'none';
             } else {
                 body.classList.remove('sidebar-collapsed');
                 sidebar.classList.remove('collapsed');
-                // show backdrop on small screens when opened
                 if (backdropEl && window.innerWidth < 1024) backdropEl.style.display = 'block';
             }
-            // hide tooltip on toggle
             if (tooltipEl) {
                 tooltipEl.classList.remove('visible');
             }
@@ -1077,35 +1054,23 @@
                 tooltipEl.classList.remove('visible');
                 return;
             }
-            // position to the right of the anchor
             const gap = 10;
             const left = rect.right + gap;
             const top = rect.top + rect.height / 2;
             tooltipEl.textContent = label || anchor.getAttribute('data-label') || '';
 
-            // get dimensions
             const tw = tooltipEl.offsetWidth || 0;
             const th = tooltipEl.offsetHeight || 0;
 
-            // adjust for viewport
             let finalLeft = left;
             let finalTop = top - th / 2;
 
-            // keep in viewport horizontally
-            if (finalLeft + tw > window.innerWidth - 12) {
+            // Determine if tooltip should flip to the left
+            const flipToLeft = finalLeft + tw > window.innerWidth - 12;
+            if (flipToLeft) {
                 finalLeft = rect.left - tw - gap;
-                // flip arrow
-                tooltipEl.style.setProperty('--arrow-left', 'auto');
-                tooltipEl.style.setProperty('--arrow-right', '-6px');
-                tooltipEl.style.setProperty('--arrow-border-right', 'transparent');
-                tooltipEl.style.setProperty('--arrow-border-left', '#1A1D23');
-            } else {
-                tooltipEl.style.setProperty('--arrow-left', '-6px');
-                tooltipEl.style.setProperty('--arrow-right', 'auto');
-                tooltipEl.style.setProperty('--arrow-border-right', '#1A1D23');
-                tooltipEl.style.setProperty('--arrow-border-left', 'transparent');
             }
-            // keep in viewport vertically
+
             if (finalTop < 8) finalTop = 8;
             if (finalTop + th > window.innerHeight - 8) {
                 finalTop = window.innerHeight - th - 8;
@@ -1115,20 +1080,34 @@
             tooltipEl.style.top = finalTop + 'px';
             tooltipEl.classList.add('visible');
 
-            // fix arrow pseudo
+            // Update arrow direction via a style element
+            const arrowPointsRight = flipToLeft;
             const pseudoStyle = document.createElement('style');
             pseudoStyle.id = 'tooltip-arrow-style';
             const oldStyle = document.getElementById('tooltip-arrow-style');
             if (oldStyle) oldStyle.remove();
-            const arrowDir = finalLeft === left ? 'right' : 'left';
-            pseudoStyle.textContent = `
-                            .nav-tooltip::before {
-                                left: ${arrowDir === 'right' ? '-6px' : 'auto'} !important;
-                                right: ${arrowDir === 'left' ? '-6px' : 'auto'} !important;
-                                border-right-color: ${arrowDir === 'right' ? '#1A1D23' : 'transparent'} !important;
-                                border-left-color: ${arrowDir === 'left' ? '#1A1D23' : 'transparent'} !important;
-                            }
-                        `;
+
+            if (arrowPointsRight) {
+                // Tooltip is to the left of the anchor → arrow points right
+                pseudoStyle.textContent = `
+                    .nav-tooltip::before {
+                        left: auto !important;
+                        right: -6px !important;
+                        border-right-color: transparent !important;
+                        border-left-color: #1A1D23 !important;
+                    }
+                `;
+            } else {
+                // Tooltip is to the right of the anchor → arrow points left
+                pseudoStyle.textContent = `
+                    .nav-tooltip::before {
+                        left: -6px !important;
+                        right: auto !important;
+                        border-right-color: #1A1D23 !important;
+                        border-left-color: transparent !important;
+                    }
+                `;
+            }
             document.head.appendChild(pseudoStyle);
         }
 
@@ -1145,8 +1124,6 @@
 
                 wrap.addEventListener('mouseenter', function(e) {
                     if (!sidebar.classList.contains('collapsed')) return;
-                    const rect = link.getBoundingClientRect();
-                    // only show if the label is hidden (collapsed)
                     const labelEl = link.querySelector('.nav-label');
                     if (labelEl && labelEl.offsetWidth > 0) return;
                     positionTooltip(link, label);
@@ -1158,7 +1135,6 @@
                     }
                 });
 
-                // also handle link hover directly
                 link.addEventListener('mouseenter', function(e) {
                     if (!sidebar.classList.contains('collapsed')) return;
                     const labelEl = link.querySelector('.nav-label');
@@ -1180,21 +1156,17 @@
         // ── Handle resize ──
         function handleResize() {
             const isSmallScreen = window.innerWidth < 1024;
-
             if (isSmallScreen) {
-                // auto-collapse
                 if (!body.classList.contains('sidebar-collapsed')) {
                     applyCollapse(true);
                 }
                 isManualOverride = false;
                 body.classList.remove('manual-override');
             } else {
-                // large screen: if no manual override, expand
                 if (!isManualOverride && body.classList.contains('sidebar-collapsed')) {
                     applyCollapse(false);
                 }
             }
-            // hide tooltip on resize
             if (tooltipEl) {
                 tooltipEl.classList.remove('visible');
             }
@@ -1204,31 +1176,28 @@
         toggleBtn.addEventListener('click', function(e) {
             const isSmallScreen = window.innerWidth < 1024;
             if (isSmallScreen) {
-                // On small screens, manual toggle overrides auto-collapse
                 isManualOverride = true;
                 body.classList.add('manual-override');
                 const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
                 applyCollapse(!currentlyCollapsed);
                 return;
             }
-            // large screen
             isManualOverride = true;
             body.classList.add('manual-override');
             const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
             applyCollapse(!currentlyCollapsed);
         });
 
-        // ── Backdrop click: close sidebar on small screens when open ──
+        // ── Backdrop click ──
         if (backdropEl) {
             backdropEl.addEventListener('click', function() {
-                // mark as manual override (user intentionally closed it)
                 isManualOverride = true;
                 body.classList.add('manual-override');
                 applyCollapse(true);
             });
         }
 
-        // ── Close on Escape key when sidebar is open (small screens)
+        // ── Escape key ──
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'Esc') {
                 if (!body.classList.contains('sidebar-collapsed') && window.innerWidth < 1024) {
@@ -1248,24 +1217,9 @@
             });
         });
 
-        // ── Init ──
-        function init() {
-            // start collapsed on small screens
-            if (window.innerWidth < 1024) {
-                applyCollapse(true);
-                body.classList.remove('manual-override');
-            } else {
-                applyCollapse(false);
-            }
-            setupTooltips();
-            // re-check on load
-            setTimeout(handleResize, 100);
-        }
-
-        // Also reposition tooltip on scroll
+        // ── Scroll: hide tooltip ──
         window.addEventListener('scroll', function() {
             if (tooltipEl && tooltipEl.classList.contains('visible')) {
-                // find which link is being hovered
                 const activeWrap = document.querySelector('.nav-link-wrap:hover');
                 if (activeWrap) {
                     const link = activeWrap.querySelector('.nav-link');
@@ -1277,20 +1231,34 @@
             }
         }, { passive: true });
 
-        // Re-run on DOM changes (for Thymeleaf fragments)
+        // ── MutationObserver for dynamic nav changes ──
         if (window.MutationObserver) {
             const observer = new MutationObserver(function() {
                 setupTooltips();
             });
-            observer.observe(document.getElementById('sidebar-nav'), {
-                childList: true,
-                subtree: true
-            });
+            const nav = document.getElementById('sidebar-nav');
+            if (nav) {
+                observer.observe(nav, {
+                    childList: true,
+                    subtree: true
+                });
+            }
         }
 
+        // ── Init ──
+        function init() {
+            if (window.innerWidth < 1024) {
+                applyCollapse(true);
+                body.classList.remove('manual-override');
+            } else {
+                applyCollapse(false);
+            }
+            setupTooltips();
+            setTimeout(handleResize, 100);
+        }
         init();
 
-        // ── Expose for debugging ──
+        // ── Debug ──
         window.__sidebar = {
             toggle: function() { toggleBtn.click(); },
             collapse: function(v) { applyCollapse(v); },
@@ -1298,51 +1266,54 @@
         };
 
     })();
-    <script>
-        (function() {
-            'use strict';
+</script>
 
-            const logoutModal = document.getElementById('logout-modal');
-            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
-            const logoutCancelBtn = document.getElementById('logout-cancel-btn');
-            const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
+<!-- ══ LOGOUT MODAL SCRIPT ══ -->
+<script>
+    (function() {
+        'use strict';
 
-            if (!logoutModal || !sidebarLogoutBtn) return;
+        const logoutModal = document.getElementById('logout-modal');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+        const logoutCancelBtn = document.getElementById('logout-cancel-btn');
+        const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
 
-            sidebarLogoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                logoutModal.classList.add('visible');
-                setTimeout(() => logoutCancelBtn?.focus(), 50);
-            });
+        if (!logoutModal || !sidebarLogoutBtn) return;
 
-            logoutCancelBtn.addEventListener('click', function(e) {
-                e.preventDefault();
+        sidebarLogoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.classList.add('visible');
+            setTimeout(() => logoutCancelBtn?.focus(), 50);
+        });
+
+        logoutCancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.classList.remove('visible');
+        });
+
+        logoutModal.addEventListener('click', function(e) {
+            if (e.target === logoutModal) {
                 logoutModal.classList.remove('visible');
-            });
+            }
+        });
 
-            logoutModal.addEventListener('click', function(e) {
-                if (e.target === logoutModal) {
+        logoutConfirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutConfirmBtn.disabled = true;
+            logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
+            window.location.href = '/users/logout';
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                if (logoutModal.classList.contains('visible')) {
                     logoutModal.classList.remove('visible');
                 }
-            });
+            }
+        });
 
-            logoutConfirmBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                logoutConfirmBtn.disabled = true;
-                logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
-                window.location.href = '/users/logout';
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' || e.key === 'Esc') {
-                    if (logoutModal.classList.contains('visible')) {
-                        logoutModal.classList.remove('visible');
-                    }
-                }
-            });
-
-        })();
-    </script>
+    })();
+</script>
 
 </body>
 </html>

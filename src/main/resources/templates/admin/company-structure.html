@@ -1372,17 +1372,17 @@
     </div>
 
     <!-- ─── Alert Messages ─── -->
-    <div th:if="${successMessage}" class="cs-alert cs-alert-success">
+    <div style="margin-bottom: 1rem;" th:if="${successMessage}" class="cs-alert cs-alert-success">
         <span class="material-symbols-outlined">check_circle</span>
         <p class="font-body-medium" th:text="${successMessage}"></p>
     </div>
-    <div th:if="${errorMessage}" class="cs-alert cs-alert-error">
+    <div style="margin-bottom: 1rem;" th:if="${errorMessage}" class="cs-alert cs-alert-error">
         <span class="material-symbols-outlined">error</span>
         <p class="font-body-medium" th:text="${errorMessage}"></p>
     </div>
 
     <!-- ─── Hierarchy Summary Strip ─── -->
-    <div style="margin-bottom: 1rem" class="cs-strip">
+    <div style="margin-bottom: 1rem;" class="cs-strip">
         <div class="cs-hcard active" id="hcard-companies" onclick="csShowSection('companies')">
             <div class="cs-hcard-icon"><span class="material-symbols-outlined">business</span></div>
             <div class="cs-hcard-count" id="countCompanies" th:text="${#lists.size(companies)}">0</div>
