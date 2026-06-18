@@ -3,33 +3,10 @@
 <head>
     <title>User Management | JustJava FAMS</title>
     <style>
-        /* Additional overrides and animations – keep but blend with dashboard */
-        .form-field {
-            background: #F4F5F7;
-            border: 1.5px solid #E4E6EA;
-            border-radius: 0.75rem;
-            width: 100%;
-            padding: 0.625rem 0.875rem;
-            font-size: 0.875rem;
-            color: #151b29;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .form-field::placeholder { color: #8a8fa6; }
-        .form-field:focus {
-            background: #ffffff;
-            border-color: #98001a;
-            box-shadow: 0 0 0 3px rgba(152,0,26,0.15);
-        }
-        .form-field:hover:not(:focus) {
-            border-color: #CBD0D8;
-            background: #F4F5F7;
-        }
-        .form-field-icon { padding-left: 2.5rem; }
-        .form-field-error {
-            border-color: #ba1a1a !important;
-            box-shadow: 0 0 0 3px rgba(186,26,26,0.12) !important;
-        }
+        /* Use the application's shared utility/input styles instead of local overrides.
+           Removed local `.form-field` rules so this page inherits the consistent
+           input appearance defined globally (responsive.css / layout styles).
+        */
         .attr-chip {
             display: inline-flex;
             align-items: center;
@@ -225,7 +202,7 @@
                 </div>
                 <form th:action="@{/admin/users}" method="get" class="md:hidden flex items-center gap-2">
                     <input type="hidden" name="page" value="0"/>
-                    <input type="text" name="search" th:value="${search}" placeholder="Search…" class="form-field text-xs py-1.5 px-3 rounded-full w-36">
+                    <input type="text" name="search" th:value="${search}" placeholder="Search…" class="h-[38px] text-xs py-1.5 px-3 rounded-full w-36 bg-surface-canvas border border-border-default outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                     <button type="submit" class="p-1.5 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg"><span class="material-symbols-outlined text-sm">search</span></button>
                 </form>
                 <a th:href="@{/admin/users(search=${search})}" class="p-2 text-secondary hover:text-primary hover:bg-surface-canvas rounded-xl transition-colors" title="Refresh">
@@ -345,14 +322,14 @@
                             <label for="cu-firstName" class="text-label-small font-semibold text-secondary uppercase tracking-wider">First Name <span class="text-error">*</span></label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">badge</span>
-                                <input type="text" id="cu-firstName" name="firstName" required placeholder="e.g. Marcus" class="form-field form-field-icon">
+                                <input type="text" id="cu-firstName" name="firstName" required placeholder="e.g. Marcus" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                         </div>
                         <div class="space-y-1.5">
                             <label for="cu-lastName" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Last Name <span class="text-error">*</span></label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">badge</span>
-                                <input type="text" id="cu-lastName" name="lastName" required placeholder="e.g. Chen" class="form-field form-field-icon">
+                                <input type="text" id="cu-lastName" name="lastName" required placeholder="e.g. Chen" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                         </div>
                     </div>
@@ -360,7 +337,7 @@
                         <label for="cu-username" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Username <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">alternate_email</span>
-                            <input type="text" id="cu-username" name="username" required placeholder="e.g. marcus.chen" autocomplete="off" class="form-field form-field-icon">
+                            <input type="text" id="cu-username" name="username" required placeholder="e.g. marcus.chen" autocomplete="off" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                         </div>
                         <p class="text-label-small text-secondary/60 pl-1">Lowercase, numbers, dots and underscores only.</p>
                     </div>
@@ -368,7 +345,7 @@
                         <label for="cu-email" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Email Address <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">mail</span>
-                            <input type="email" id="cu-email" name="email" required placeholder="e.g. marcus@company.com" autocomplete="off" class="form-field form-field-icon">
+                            <input type="email" id="cu-email" name="email" required placeholder="e.g. marcus@company.com" autocomplete="off" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                         </div>
                     </div>
                 </div>
@@ -378,7 +355,7 @@
                         <label for="cu-password" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Password <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">lock</span>
-                            <input type="password" id="cu-password" name="password" required placeholder="Min. 8 characters" class="form-field form-field-icon pr-12" oninput="cuEvalStrength(this.value)">
+                            <input type="password" id="cu-password" name="password" required placeholder="Min. 8 characters" class="w-full h-[38px] pl-10 pr-12 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" oninput="cuEvalStrength(this.value)">
                             <button type="button" onclick="cuTogglePwd('cu-password','cu-pwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/50 hover:text-secondary">
                                 <span id="cu-pwd-icon" class="material-symbols-outlined text-[18px]">visibility</span>
                             </button>
@@ -397,7 +374,7 @@
                         <label for="cu-confirm" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Confirm Password <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">lock_reset</span>
-                            <input type="password" id="cu-confirm" placeholder="Repeat password" class="form-field form-field-icon pr-12" oninput="cuCheckMatch()">
+                            <input type="password" id="cu-confirm" placeholder="Repeat password" class="w-full h-[38px] pl-10 pr-12 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" oninput="cuCheckMatch()">
                             <button type="button" onclick="cuTogglePwd('cu-confirm','cu-cpwd-icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/50 hover:text-secondary">
                                 <span id="cu-cpwd-icon" class="material-symbols-outlined text-[18px]">visibility</span>
                             </button>
@@ -419,11 +396,11 @@
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">key</span>
-                                <input type="text" id="cu-attrKey" placeholder="Key (e.g. department)" class="form-field form-field-icon">
+                                <input type="text" id="cu-attrKey" placeholder="Key (e.g. department)" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                             <div class="relative flex-1">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">data_object</span>
-                                <input type="text" id="cu-attrVal" placeholder="Value" class="form-field form-field-icon" onkeydown="if(event.key==='Enter'){event.preventDefault();cuAddAttr();}">
+                                <input type="text" id="cu-attrVal" placeholder="Value" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" onkeydown="if(event.key==='Enter'){event.preventDefault();cuAddAttr();}">
                             </div>
                             <button type="button" onclick="cuAddAttr()" class="shrink-0 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-semibold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[18px]">add</span>
@@ -469,7 +446,7 @@
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">create_new_folder</span>
-                                <input type="text" name="groupName" required placeholder="Group name…" class="form-field form-field-icon">
+                                <input type="text" name="groupName" required placeholder="Group name…" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                             <button type="submit" class="shrink-0 px-5 rounded-xl text-sm font-semibold text-on-primary bg-primary hover:bg-brand-primary-dark shadow-sm hover:shadow-md flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[18px]">add</span> Create
@@ -479,7 +456,7 @@
                             <label class="text-label-small font-semibold text-secondary uppercase tracking-wider">Parent Group <span class="text-secondary/40 font-normal normal-case">(optional)</span></label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">account_tree</span>
-                                <select name="parentGroupId" class="form-field form-field-icon appearance-none pr-8">
+                                <select name="parentGroupId" class="w-full h-[38px] pl-10 pr-8 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none">
                                     <option value="">— No parent (top-level) —</option>
                                     <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}">Group</option>
                                 </select>
@@ -584,7 +561,7 @@
                             <input type="hidden" name="userId" id="mg-userId-addGroup"/>
                             <div class="relative flex-1">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[16px] pointer-events-none">folder_shared</span>
-                                <select name="groupName" required class="form-field form-field-icon text-label-small py-2 appearance-none pr-6">
+                                <select name="groupName" required class="w-full h-[38px] pl-10 pr-6 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary appearance-none text-label-small">
                                     <option value="">Select a group…</option>
                                     <option th:each="g : ${groups}" th:value="${g.name}" th:text="${g.name}">Group</option>
                                 </select>

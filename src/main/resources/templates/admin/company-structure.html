@@ -268,35 +268,6 @@
             background: #fafafa;
             flex-wrap: wrap;
         }
-        .cs-search {
-            flex: 1;
-            min-width: 140px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 0 10px;
-            height: 32px;
-        }
-        .cs-search .material-symbols-outlined {
-            font-size: 1rem;
-            color: #9ca3af;
-        }
-        .cs-search input {
-            border: none;
-            outline: none;
-            background: transparent;
-            font-size: 0.8125rem;
-            color: #111827;
-            flex: 1;
-            font-family: inherit;
-            min-width: 0;
-        }
-        .cs-search input::placeholder {
-            color: #d1d5db;
-        }
         .cs-view-toggle {
             display: flex;
             border: 1px solid #e5e7eb;
@@ -625,9 +596,6 @@
         }
         .cs-modal-body {
             padding: 1.25rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
         }
         .cs-modal-footer {
             display: flex;
@@ -657,61 +625,6 @@
         }
         .cs-close-btn .material-symbols-outlined {
             font-size: 1rem;
-        }
-
-        /* ── Form fields ── */
-        .cs-field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .cs-field-label {
-            font-size: 0.6875rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .cs-field-input {
-            width: 100%;
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background: #fafafa;
-            color: #111827;
-            font-size: 0.8125rem;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-            font-family: inherit;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .cs-field-input:focus {
-            border-color: rgba(152, 0, 26, 0.5);
-            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.08);
-            background: #fff;
-        }
-        .cs-field-input::placeholder {
-            color: #d1d5db;
-        }
-        select.cs-field-input {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 32px;
-        }
-        textarea.cs-field-input {
-            height: auto;
-            padding: 8px 10px;
-            resize: vertical;
-            min-height: 60px;
-        }
-        .cs-field-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
         }
 
         /* ── Submit / cancel ── */
@@ -927,15 +840,10 @@
             }
             .cs-modal-body {
                 padding: 1rem 1.25rem;
-                gap: 12px;
             }
             .cs-modal-footer {
                 padding: 0.875rem 1.25rem;
                 flex-wrap: wrap;
-            }
-            .cs-field-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
             }
         }
 
@@ -1065,14 +973,6 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            .cs-search {
-                height: 30px;
-                padding: 0 8px;
-                min-width: 0;
-            }
-            .cs-search input {
-                font-size: 0.75rem;
-            }
             .cs-view-toggle {
                 align-self: flex-start;
             }
@@ -1173,7 +1073,6 @@
             }
             .cs-modal-body {
                 padding: 0.875rem 1rem;
-                gap: 10px;
             }
             .cs-modal-footer {
                 padding: 0.75rem 1rem;
@@ -1186,22 +1085,6 @@
             .cs-modal-footer .cs-btn-secondary {
                 width: 100%;
             }
-            .cs-field-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .cs-field-input {
-                height: 34px;
-                font-size: 0.75rem;
-                padding: 0 8px;
-            }
-            textarea.cs-field-input {
-                min-height: 50px;
-                padding: 6px 8px;
-            }
-            .cs-field-label {
-                font-size: 0.625rem;
-            }
 
             .cs-alert {
                 padding: 10px 12px;
@@ -1211,6 +1094,11 @@
             }
             .cs-alert .material-symbols-outlined {
                 font-size: 1rem;
+            }
+
+            /* Search input in toolbar – we keep flex row but stack on mobile */
+            .cs-toolbar .flex.items-center.gap-2 {
+                width: 100%;
             }
         }
 
@@ -1486,9 +1374,11 @@
                     </button>
                 </div>
                 <div class="cs-toolbar">
-                    <div class="cs-search">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search companies…" oninput="csFilterTable(this, 'tbl-companies')" aria-label="Search companies" />
+                    <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <input type="text" placeholder="Search companies…"
+                               class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                               oninput="csFilterTable(this, 'tbl-companies')" aria-label="Search companies" />
                     </div>
                     <div class="cs-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="cs-view-btn active" id="vt-co-table" onclick="csSetView('co', 'table')" title="Table view" aria-pressed="true">
@@ -1625,9 +1515,11 @@
                     </button>
                 </div>
                 <div class="cs-toolbar">
-                    <div class="cs-search">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search locations…" oninput="csFilterTable(this, 'tbl-locations')" aria-label="Search locations" />
+                    <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <input type="text" placeholder="Search locations…"
+                               class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                               oninput="csFilterTable(this, 'tbl-locations')" aria-label="Search locations" />
                     </div>
                     <div class="cs-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="cs-view-btn active" id="vt-loc-table" onclick="csSetView('loc', 'table')" title="Table view" aria-pressed="true">
@@ -1762,9 +1654,11 @@
                     </button>
                 </div>
                 <div class="cs-toolbar">
-                    <div class="cs-search">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search branches…" oninput="csFilterTable(this, 'tbl-branches')" aria-label="Search branches" />
+                    <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <input type="text" placeholder="Search branches…"
+                               class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                               oninput="csFilterTable(this, 'tbl-branches')" aria-label="Search branches" />
                     </div>
                     <div class="cs-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="cs-view-btn active" id="vt-br-table" onclick="csSetView('br', 'table')" title="Table view" aria-pressed="true">
@@ -1895,37 +1789,37 @@
 
             <!-- ── Company Form ── -->
             <form method="POST" th:action="@{/superadmin/company/create}" id="csCompanyForm" class="cs-hidden">
-                <div class="cs-modal-body">
+                <div class="cs-modal-body space-y-4">
                     <input type="hidden" name="companyId" id="csCompanyEditId" value="" />
                     <th:block th:if="${_csrf != null}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </th:block>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csCompanyName">Company Name *</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csCompanyName">Company Name *</label>
                         <input type="text" id="csCompanyName" name="name" required placeholder="e.g., JustJava Inc."
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csCompanyIndustry">Industry</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csCompanyIndustry">Industry</label>
                         <input type="text" id="csCompanyIndustry" name="industry" placeholder="e.g., Technology"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-grid">
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csCompanyReg">Registration Number</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csCompanyReg">Registration Number</label>
                             <input type="text" id="csCompanyReg" name="registrationNumber" placeholder="RC-0000-000"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csCompanyTax">Tax ID</label>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csCompanyTax">Tax ID</label>
                             <input type="text" id="csCompanyTax" name="taxId" placeholder="Tax ID"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csCompanyDesc">Description</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csCompanyDesc">Description</label>
                         <textarea id="csCompanyDesc" name="description" rows="2" placeholder="Brief company description…"
-                                  class="cs-field-input"></textarea>
+                                  class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
                 </div>
                 <div class="cs-modal-footer">
@@ -1936,54 +1830,56 @@
 
             <!-- ── Location Form ── -->
             <form method="POST" th:action="@{/superadmin/location/create}" id="csLocationForm" class="cs-hidden">
-                <div class="cs-modal-body">
+                <div class="cs-modal-body space-y-4">
                     <th:block th:if="${_csrf != null}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </th:block>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csLocCompany">Company *</label>
-                        <select id="csLocCompany" name="companyId" required class="cs-field-input">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csLocCompany">Company *</label>
+                        <select id="csLocCompany" name="companyId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                             <option value="">Select company…</option>
                             <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csLocName">Location Name *</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csLocName">Location Name *</label>
                         <input type="text" id="csLocName" name="name" required placeholder="e.g., Main Office"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csLocAddress">Address</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csLocAddress">Address</label>
                         <input type="text" id="csLocAddress" name="address" placeholder="Street address"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-grid">
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csLocCity">City</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csLocCity">City</label>
                             <input type="text" id="csLocCity" name="city" placeholder="City"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csLocState">State</label>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csLocState">State</label>
                             <input type="text" id="csLocState" name="state" placeholder="State"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
-                    <div class="cs-field-grid">
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csLocCountry">Country</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csLocCountry">Country</label>
                             <input type="text" id="csLocCountry" name="country" placeholder="Country"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csLocPostal">Postal Code</label>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csLocPostal">Postal Code</label>
                             <input type="text" id="csLocPostal" name="postalCode" placeholder="Postal code"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csLocType">Location Type</label>
-                        <select id="csLocType" name="locationType" class="cs-field-input">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csLocType">Location Type</label>
+                        <select id="csLocType" name="locationType"
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                             <option th:each="type : ${locationTypes}" th:value="${type}" th:text="${type}"></option>
                         </select>
                     </div>
@@ -1996,37 +1892,39 @@
 
             <!-- ── Branch Form ── -->
             <form method="POST" th:action="@{/superadmin/branch/create}" id="csBranchForm" class="cs-hidden">
-                <div class="cs-modal-body">
+                <div class="cs-modal-body space-y-4">
                     <th:block th:if="${_csrf != null}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </th:block>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csBranchCompany">Company *</label>
-                        <select id="csBranchCompany" name="companyId" required class="cs-field-input">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csBranchCompany">Company *</label>
+                        <select id="csBranchCompany" name="companyId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                             <option value="">Select company…</option>
                             <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csBranchLocation">Location *</label>
-                        <select id="csBranchLocation" name="locationId" required class="cs-field-input" disabled>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csBranchLocation">Location *</label>
+                        <select id="csBranchLocation" name="locationId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" disabled>
                             <option value="">Select company first…</option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csBranchName">Branch Name *</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csBranchName">Branch Name *</label>
                         <input type="text" id="csBranchName" name="name" required placeholder="e.g., Lagos Branch"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csBranchManager">Manager Name</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csBranchManager">Manager Name</label>
                         <input type="text" id="csBranchManager" name="managerName" placeholder="Manager name"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csBranchDesc">Description</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csBranchDesc">Description</label>
                         <textarea id="csBranchDesc" name="description" rows="2" placeholder="Brief branch description…"
-                                  class="cs-field-input"></textarea>
+                                  class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
                 </div>
                 <div class="cs-modal-footer">

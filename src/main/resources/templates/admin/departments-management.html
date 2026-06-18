@@ -23,24 +23,8 @@
             font-size: 1.1rem;
         }
 
-        /* ── Adjust modal body spacing for head form ── */
-        .cs-modal-body .cs-field-check {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding-top: 0.25rem;
-        }
-        .cs-modal-body .cs-field-check input[type="checkbox"] {
-            width: 1.1rem;
-            height: 1.1rem;
-            accent-color: #98001a;
-            cursor: pointer;
-        }
-        .cs-modal-body .cs-field-check label {
-            font-size: 0.8125rem;
-            color: #374151;
-            cursor: pointer;
-        }
+        /* ── Adjust modal body spacing — now using Tailwind space-y-4 ── */
+        /* Removed custom .cs-field-group, .cs-field-label, .cs-field-input, etc. */
 
         /* ── Inline user info fields (readonly) ── */
         .cs-field-input[readonly] {
@@ -75,7 +59,6 @@
         }
 
         /* ── Keep all .cs-* classes from parent ── */
-        /* (Included via the decorated layout, but we redeclare them here for safety) */
         .cs-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -313,6 +296,7 @@
             color: #9ca3af;
             margin-top: 2px;
         }
+
         .cs-toolbar {
             display: flex;
             align-items: center;
@@ -322,35 +306,7 @@
             background: #fafafa;
             flex-wrap: wrap;
         }
-        .cs-search {
-            flex: 1;
-            min-width: 140px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 0 10px;
-            height: 32px;
-        }
-        .cs-search .material-symbols-outlined {
-            font-size: 1rem;
-            color: #9ca3af;
-        }
-        .cs-search input {
-            border: none;
-            outline: none;
-            background: transparent;
-            font-size: 0.8125rem;
-            color: #111827;
-            flex: 1;
-            font-family: inherit;
-            min-width: 0;
-        }
-        .cs-search input::placeholder {
-            color: #d1d5db;
-        }
+
         .cs-view-toggle {
             display: flex;
             border: 1px solid #e5e7eb;
@@ -674,9 +630,6 @@
         }
         .cs-modal-body {
             padding: 1.25rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
         }
         .cs-modal-footer {
             display: flex;
@@ -708,77 +661,7 @@
             font-size: 1rem;
         }
 
-        .cs-field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .cs-field-label {
-            font-size: 0.6875rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .cs-field-input {
-            width: 100%;
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background: #fafafa;
-            color: #111827;
-            font-size: 0.8125rem;
-            outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
-            font-family: inherit;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .cs-field-input:focus {
-            border-color: rgba(152, 0, 26, 0.5);
-            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.08);
-            background: #fff;
-        }
-        .cs-field-input::placeholder {
-            color: #d1d5db;
-        }
-        select.cs-field-input {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 32px;
-        }
-        textarea.cs-field-input {
-            height: auto;
-            padding: 8px 10px;
-            resize: vertical;
-            min-height: 60px;
-        }
-        .cs-field-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .cs-field-check {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding-top: 0.25rem;
-        }
-        .cs-field-check input[type="checkbox"] {
-            width: 1.1rem;
-            height: 1.1rem;
-            accent-color: #98001a;
-            cursor: pointer;
-        }
-        .cs-field-check label {
-            font-size: 0.8125rem;
-            color: #374151;
-            cursor: pointer;
-        }
-
+        /* ── Submit / cancel ── */
         .cs-btn-primary {
             flex: 1;
             height: 38px;
@@ -986,15 +869,10 @@
             }
             .cs-modal-body {
                 padding: 1rem 1.25rem;
-                gap: 12px;
             }
             .cs-modal-footer {
                 padding: 0.875rem 1.25rem;
                 flex-wrap: wrap;
-            }
-            .cs-field-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
             }
             .cs-mini-stats {
                 grid-template-columns: repeat(3, 1fr);
@@ -1129,14 +1007,6 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            .cs-search {
-                height: 30px;
-                padding: 0 8px;
-                min-width: 0;
-            }
-            .cs-search input {
-                font-size: 0.75rem;
-            }
             .cs-view-toggle {
                 align-self: flex-start;
             }
@@ -1232,7 +1102,6 @@
             }
             .cs-modal-body {
                 padding: 0.875rem 1rem;
-                gap: 10px;
             }
             .cs-modal-footer {
                 padding: 0.75rem 1rem;
@@ -1244,22 +1113,6 @@
             }
             .cs-modal-footer .cs-btn-secondary {
                 width: 100%;
-            }
-            .cs-field-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .cs-field-input {
-                height: 34px;
-                font-size: 0.75rem;
-                padding: 0 8px;
-            }
-            textarea.cs-field-input {
-                min-height: 50px;
-                padding: 6px 8px;
-            }
-            .cs-field-label {
-                font-size: 0.625rem;
             }
             .cs-alert {
                 padding: 10px 12px;
@@ -1284,6 +1137,10 @@
             }
             .cs-mini-stat .cs-stat-label {
                 font-size: 0.6rem;
+            }
+            /* Search input in toolbar – full width */
+            .cs-toolbar .flex.items-center.gap-2 {
+                width: 100%;
             }
         }
 
@@ -1548,9 +1405,11 @@
                     </button>
                 </div>
                 <div class="cs-toolbar">
-                    <div class="cs-search">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search departments…" oninput="csFilterTable(this, 'tbl-departments')" aria-label="Search departments" />
+                    <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <input type="text" placeholder="Search departments…"
+                               class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                               oninput="csFilterTable(this, 'tbl-departments')" aria-label="Search departments" />
                     </div>
                     <div class="cs-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="cs-view-btn active" id="vt-dept-table" onclick="csSetView('dept', 'table')" title="Table view" aria-pressed="true">
@@ -1722,9 +1581,11 @@
                 </div>
 
                 <div class="cs-toolbar">
-                    <div class="cs-search">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search heads…" oninput="csFilterTable(this, 'tbl-heads')" aria-label="Search heads" />
+                    <div class="flex items-center gap-2 flex-1 min-w-[140px]">
+                        <span class="material-symbols-outlined text-secondary">search</span>
+                        <input type="text" placeholder="Search heads…"
+                               class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                               oninput="csFilterTable(this, 'tbl-heads')" aria-label="Search heads" />
                     </div>
                     <div class="cs-view-toggle" role="group" aria-label="View mode">
                         <button type="button" class="cs-view-btn active" id="vt-head-table" onclick="csSetView('head', 'table')" title="Table view" aria-pressed="true">
@@ -1864,44 +1725,46 @@
 
             <!-- ── Department Form ── -->
             <form method="POST" th:action="@{/superadmin/department/create}" id="csDepartmentForm" class="cs-hidden">
-                <div class="cs-modal-body">
+                <div class="cs-modal-body space-y-4">
                     <input type="hidden" name="departmentId" id="csDepartmentEditId" value="" />
                     <th:block th:if="${_csrf != null}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </th:block>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csDeptCompany">Company *</label>
-                        <select id="csDeptCompany" name="companyId" required class="cs-field-input">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csDeptCompany">Company *</label>
+                        <select id="csDeptCompany" name="companyId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                             <option value="">Select company…</option>
                             <option th:each="company : ${companies}" th:value="${company.id}" th:text="${company.name}"></option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csDeptBranch">Branch *</label>
-                        <select id="csDeptBranch" name="branchId" required class="cs-field-input" disabled>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csDeptBranch">Branch *</label>
+                        <select id="csDeptBranch" name="branchId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" disabled>
                             <option value="">Select company first…</option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csDeptName">Department Name *</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csDeptName">Department Name *</label>
                         <input type="text" id="csDeptName" name="name" required placeholder="e.g., Finance"
-                               class="cs-field-input" />
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csDeptDesc">Description</label>
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csDeptDesc">Description</label>
                         <textarea id="csDeptDesc" name="description" rows="2" placeholder="Department description…"
-                                  class="cs-field-input"></textarea>
+                                  class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
-                    <div class="cs-field-grid">
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csDeptCode">Department Code</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csDeptCode">Department Code</label>
                             <input type="text" id="csDeptCode" name="departmentCode" placeholder="e.g., DEPT-001"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
-                        <div class="cs-field-group">
-                            <label class="cs-field-label" for="csDeptBudget">Budget</label>
+                        <div class="space-y-1.5">
+                            <label class="font-label-small text-label-small text-secondary" for="csDeptBudget">Budget</label>
                             <input type="text" id="csDeptBudget" name="budget" placeholder="e.g., 500000"
-                                   class="cs-field-input" />
+                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
                 </div>
@@ -1913,21 +1776,23 @@
 
             <!-- ── Head Assignment Form ── -->
             <form method="POST" th:action="@{/superadmin/department-head/assign}" id="csHeadForm" class="cs-hidden">
-                <div class="cs-modal-body">
+                <div class="cs-modal-body space-y-4">
                     <th:block th:if="${_csrf != null}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     </th:block>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csHeadDepartment">Department *</label>
-                        <select id="csHeadDepartment" name="departmentId" required class="cs-field-input">
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csHeadDepartment">Department *</label>
+                        <select id="csHeadDepartment" name="departmentId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                             <option value="">Select department…</option>
                             <option th:each="dept : ${departments}" th:value="${dept.id}"
                                     th:text="${dept.companyName} + ' > ' + ${dept.branchName} + ' > ' + ${dept.name}"></option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csHeadUser">User *</label>
-                        <select id="csHeadUser" name="userId" required class="cs-field-input"
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csHeadUser">User *</label>
+                        <select id="csHeadUser" name="userId" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                 onchange="updateUserInfo()">
                             <option value="">Select user…</option>
                             <option th:each="user : ${users}" th:value="${user.id}"
@@ -1935,17 +1800,21 @@
                                     th:data-email="${user.email}"></option>
                         </select>
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csHeadEmail">User Email</label>
-                        <input type="email" id="csHeadEmail" readonly class="cs-field-input" placeholder="auto-filled" />
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csHeadEmail">User Email</label>
+                        <input type="email" id="csHeadEmail" readonly
+                               class="w-full h-11 px-4 bg-surface-variant border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-not-allowed"
+                               placeholder="auto-filled" />
                     </div>
-                    <div class="cs-field-group">
-                        <label class="cs-field-label" for="csHeadName">Full Name</label>
-                        <input type="text" id="csHeadName" name="fullName" class="cs-field-input" placeholder="Optional" />
+                    <div class="space-y-1.5">
+                        <label class="font-label-small text-label-small text-secondary" for="csHeadName">Full Name</label>
+                        <input type="text" id="csHeadName" name="fullName" placeholder="Optional"
+                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
-                    <div class="cs-field-check">
-                        <input type="checkbox" name="isPrimary" id="csHeadPrimary" value="true" />
-                        <label for="csHeadPrimary">Set as Primary Head</label>
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="checkbox" name="isPrimary" id="csHeadPrimary" value="true"
+                               class="w-4 h-4 text-primary focus:ring-primary border-border-default rounded accent-primary" />
+                        <label for="csHeadPrimary" class="text-body-default text-on-surface cursor-pointer">Set as Primary Head</label>
                     </div>
                 </div>
                 <div class="cs-modal-footer">
