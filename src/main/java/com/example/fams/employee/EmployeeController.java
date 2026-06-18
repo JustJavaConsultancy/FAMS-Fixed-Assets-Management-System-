@@ -135,14 +135,22 @@ public class EmployeeController {
     }
 
     private List<Asset> assignedAssets() {
-        return assetRepository.findByCustodianIgnoreCaseOrCustodianIgnoreCaseOrderByCreatedAtDesc(currentUsername(), currentDisplayName());
+        List<String> candidates = userLookupCandidates();
+        if (candidates.isEmpty()) return List.of();
+        // normalize to lower-case for the repository query
+        List<String> lowered = candidates.stream().map(String::toLowerCase).toList();
+        return assetRepository.findByCustodianInIgnoreCaseOrderByCreatedAtDesc(lowered);
     }
 
     private Asset requireAssignedAsset(Long id) {
         Asset asset = assetService.findById(id);
         String custodian = asset.getCustodian();
-        if (custodian != null && (custodian.equalsIgnoreCase(currentUsername()) || custodian.equalsIgnoreCase(currentDisplayName()))) {
-            return asset;
+        if (custodian != null) {
+            for (String candidate : userLookupCandidates()) {
+                if (custodian.equalsIgnoreCase(candidate)) {
+                    return asset;
+                }
+            }
         }
         throw new NoSuchElementException("Asset is not assigned to the current employee.");
     }
@@ -200,5 +208,31 @@ public class EmployeeController {
             }
         }
         return currentUsername();
+    }
+
+    /**
+     * Build a list of possible user identifiers to match against stored custodian values.
+     * This mirrors the logic used elsewhere so custodian matches work whether stored as
+     * subject id, preferred_username, email or display name.
+     */
+    private List<String> userLookupCandidates() {
+        java.util.Set<String> candidates = new java.util.LinkedHashSet<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getName() != null) {
+            candidates.add(auth.getName());
+        }
+        if (auth != null && auth.getPrincipal() instanceof DefaultOidcUser oidc) {
+            addClaim(candidates, oidc.getSubject());
+            addClaim(candidates, oidc.getClaims().get("preferred_username"));
+            addClaim(candidates, oidc.getClaims().get("email"));
+            addClaim(candidates, oidc.getClaims().get("name"));
+        }
+        return candidates.stream().filter(value -> value != null && !value.isBlank()).toList();
+    }
+
+    private void addClaim(java.util.Set<String> candidates, Object value) {
+        if (value instanceof String text && !text.isBlank()) {
+            candidates.add(text);
+        }
     }
 }
