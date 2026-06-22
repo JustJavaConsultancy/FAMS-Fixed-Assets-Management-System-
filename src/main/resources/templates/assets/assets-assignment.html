@@ -18,10 +18,13 @@
             <h2 class="font-page-title text-page-title text-on-background">Assign Asset</h2>
             <p class="text-body-default text-secondary mt-1">Create a controlled custody workflow with approval and lifecycle history.</p>
         </div>
-        <a th:href="@{/assets/{id}(id=${asset.id})}" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center gap-2">
+        <div class="flex items-center gap-3">
+            <a th:href="@{/assets/{id}(id=${asset.id})}" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
             Asset Details
         </a>
+            <a href="/assets" class="h-[38px] px-4 text-secondary border border-border-default rounded-lg inline-flex items-center hover:bg-surface-canvas">Switch to Bulk Mode</a>
+        </div>
     </div>
 
     <div th:if="${errorMessage}" class="bg-error-container border border-error/20 text-on-error-container rounded-xl p-4 flex items-center gap-3">

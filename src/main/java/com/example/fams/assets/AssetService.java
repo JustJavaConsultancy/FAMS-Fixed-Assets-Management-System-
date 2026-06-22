@@ -17,6 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.example.fams.assets.dto.BulkAssignRequestDto;
+import com.example.fams.assets.dto.BulkTransferRequestDto;
+import com.example.fams.assets.dto.BulkRetireRequestDto;
+import com.example.fams.assets.dto.BulkOperationResultDto;
+import com.example.fams.assets.dto.BulkOperationItemResultDto;
 
 @Service
 public class AssetService {
@@ -224,6 +229,131 @@ public class AssetService {
         return savedAsset;
     }
 
+    @Transactional
+    public BulkOperationResultDto bulkAssign(BulkAssignRequestDto request) {
+        BulkOperationResultDto result = new BulkOperationResultDto();
+        result.setTotalRequested(request.getAssetIds() == null ? 0 : request.getAssetIds().size());
+        if (request.getAssetIds() == null || request.getAssetIds().isEmpty()) return result;
+
+        List<Asset> assets;
+        if (request.isSelectAllMatching()) {
+            assets = findAll();
+        } else {
+            assets = assetRepository.findAllById(request.getAssetIds());
+        }
+        List<Asset> processed = new ArrayList<>();
+        for (Long id : request.getAssetIds()) {
+            Asset asset = assets.stream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+            if (asset == null) {
+                result.addResult(new BulkOperationItemResultDto(id, null, false, "Asset not found"));
+                continue;
+            }
+            if ("Disposed".equalsIgnoreCase(asset.getStatus())) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Asset is already disposed and was skipped."));
+                continue;
+            }
+            try {
+                if (request.getAssignedTo() != null && !request.getAssignedTo().isBlank()) {
+                    asset.setCustodian(request.getAssignedTo());
+                }
+                if (request.getDepartment() != null && !request.getDepartment().isBlank()) {
+                    asset.setDepartment(request.getDepartment());
+                }
+                asset.setStatus("Assigned");
+                assetRepository.save(asset);
+                processed.add(asset);
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), true, "Assigned"));
+            } catch (Exception e) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Failed: " + e.getMessage()));
+            }
+        }
+        // Audit
+        if (!processed.isEmpty()) {
+            assetLifecycleService.recordBulkAssignment(processed, "System", defaultText(request.getNotes(), "Bulk assignment"));
+        }
+        return result;
+    }
+
+    @Transactional
+    public BulkOperationResultDto bulkTransfer(BulkTransferRequestDto request) {
+        BulkOperationResultDto result = new BulkOperationResultDto();
+        result.setTotalRequested(request.getAssetIds() == null ? 0 : request.getAssetIds().size());
+        if (request.getAssetIds() == null || request.getAssetIds().isEmpty()) return result;
+        List<Asset> assets;
+        if (request.isSelectAllMatching()) {
+            assets = findAll();
+        } else {
+            assets = assetRepository.findAllById(request.getAssetIds());
+        }
+        List<Asset> processed = new ArrayList<>();
+        for (Long id : request.getAssetIds()) {
+            Asset asset = assets.stream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+            if (asset == null) {
+                result.addResult(new BulkOperationItemResultDto(id, null, false, "Asset not found"));
+                continue;
+            }
+            if ("Disposed".equalsIgnoreCase(asset.getStatus())) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Asset is disposed and was skipped."));
+                continue;
+            }
+            try {
+                if (request.getTransferToDepartment() != null && !request.getTransferToDepartment().isBlank()) {
+                    asset.setDepartment(request.getTransferToDepartment());
+                }
+                if (request.getTransferToLocation() != null && !request.getTransferToLocation().isBlank()) {
+                    asset.setBranch(request.getTransferToLocation());
+                }
+                asset.setStatus("Assigned");
+                assetRepository.save(asset);
+                processed.add(asset);
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), true, "Transferred"));
+            } catch (Exception e) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Failed: " + e.getMessage()));
+            }
+        }
+        if (!processed.isEmpty()) {
+            assetLifecycleService.recordBulkTransfer(processed, "System", defaultText(request.getNotes(), "Bulk transfer"));
+        }
+        return result;
+    }
+
+    @Transactional
+    public BulkOperationResultDto bulkRetire(BulkRetireRequestDto request) {
+        BulkOperationResultDto result = new BulkOperationResultDto();
+        result.setTotalRequested(request.getAssetIds() == null ? 0 : request.getAssetIds().size());
+        if (request.getAssetIds() == null || request.getAssetIds().isEmpty()) return result;
+        List<Asset> assets;
+        if (request.isSelectAllMatching()) {
+            assets = findAll();
+        } else {
+            assets = assetRepository.findAllById(request.getAssetIds());
+        }
+        List<Asset> processed = new ArrayList<>();
+        for (Long id : request.getAssetIds()) {
+            Asset asset = assets.stream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+            if (asset == null) {
+                result.addResult(new BulkOperationItemResultDto(id, null, false, "Asset not found"));
+                continue;
+            }
+            if ("Disposed".equalsIgnoreCase(asset.getStatus())) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Asset already disposed and was skipped."));
+                continue;
+            }
+            try {
+                asset.setStatus("Disposed");
+                assetRepository.save(asset);
+                processed.add(asset);
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), true, "Retired"));
+            } catch (Exception e) {
+                result.addResult(new BulkOperationItemResultDto(id, asset.getAssetCode(), false, "Failed: " + e.getMessage()));
+            }
+        }
+        if (!processed.isEmpty()) {
+            assetLifecycleService.recordBulkDisposal(processed, "System", defaultText(request.getNotes(), "Bulk retirement"));
+        }
+        return result;
+    }
+
     private void validateAssetCategory(String category) {
         if (!adminSettingsService.isKnownActiveCategory(category)) {
             throw new IllegalArgumentException("Select an active asset category configured by an administrator.");
@@ -262,5 +392,10 @@ public class AssetService {
         long next = assetRepository.count() + 1;
         String prefix = adminSettingsService.getParameterValue("asset.code.prefix", "AST");
         return prefix + "-" + Year.now().getValue() + "-" + String.format("%05d", next);
+    }
+
+    private String defaultText(String value, String fallback) {
+        if (value == null || value.isBlank()) return fallback;
+        return value;
     }
 }

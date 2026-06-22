@@ -221,6 +221,39 @@ public class AssetLifecycleService {
                 "Asset registered", "Asset was added to the fixed asset register.", null, asset.getStatus());
     }
 
+    /**
+     * Record a bulk assignment action in the lifecycle history for each affected asset.
+     */
+    @Transactional
+    public void recordBulkAssignment(java.util.List<com.example.fams.assets.Asset> assets, String actor, String details) {
+        for (com.example.fams.assets.Asset asset : assets) {
+            addHistory(asset, LifecycleEventType.ASSIGNMENT, actor,
+                    "Bulk assignment", details, null, asset.getDepartment());
+        }
+    }
+
+    /**
+     * Record a bulk transfer action in the lifecycle history for each affected asset.
+     */
+    @Transactional
+    public void recordBulkTransfer(java.util.List<com.example.fams.assets.Asset> assets, String actor, String details) {
+        for (com.example.fams.assets.Asset asset : assets) {
+            addHistory(asset, LifecycleEventType.TRANSFER, actor,
+                    "Bulk transfer", details, null, asset.getBranch());
+        }
+    }
+
+    /**
+     * Record a bulk disposal/retirement action in the lifecycle history for each affected asset.
+     */
+    @Transactional
+    public void recordBulkDisposal(java.util.List<com.example.fams.assets.Asset> assets, String actor, String details) {
+        for (com.example.fams.assets.Asset asset : assets) {
+            addHistory(asset, LifecycleEventType.DISPOSAL, actor,
+                    "Bulk disposal", details, null, "Disposed");
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<LifecycleTimelineItem> timeline(Asset asset) {
         List<LifecycleTimelineItem> items = new ArrayList<>();

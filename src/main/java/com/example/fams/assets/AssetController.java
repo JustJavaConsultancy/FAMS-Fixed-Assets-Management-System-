@@ -24,6 +24,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.example.fams.assets.dto.BulkAssignRequestDto;
+import com.example.fams.assets.dto.BulkTransferRequestDto;
+import com.example.fams.assets.dto.BulkRetireRequestDto;
+import com.example.fams.assets.dto.BulkOperationResultDto;
 
 import java.util.ArrayList;
 import java.time.LocalDate;
@@ -247,6 +254,39 @@ public class AssetController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             redirectAttributes.addFlashAttribute("asset", asset);
             return "redirect:/assets/register";
+        }
+    }
+
+    @PostMapping("/api/assets/bulk-assign")
+    @ResponseBody
+    public ResponseEntity<BulkOperationResultDto> bulkAssignApi(@RequestBody BulkAssignRequestDto request) {
+        try {
+            BulkOperationResultDto res = assetService.bulkAssign(request);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BulkOperationResultDto());
+        }
+    }
+
+    @PostMapping("/api/assets/bulk-transfer")
+    @ResponseBody
+    public ResponseEntity<BulkOperationResultDto> bulkTransferApi(@RequestBody BulkTransferRequestDto request) {
+        try {
+            BulkOperationResultDto res = assetService.bulkTransfer(request);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BulkOperationResultDto());
+        }
+    }
+
+    @PostMapping("/api/assets/bulk-retire")
+    @ResponseBody
+    public ResponseEntity<BulkOperationResultDto> bulkRetireApi(@RequestBody BulkRetireRequestDto request) {
+        try {
+            BulkOperationResultDto res = assetService.bulkRetire(request);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BulkOperationResultDto());
         }
     }
 
