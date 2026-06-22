@@ -174,6 +174,19 @@ public class AssetController {
         return "assets/register-assets";
     }
 
+    @GetMapping("/assets/register/example-csv")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<byte[]> downloadExampleCsv() {
+        String header = "name,category,description,serialNumber,manufacturer,model,purchaseDate,purchaseCost,vendor,warrantyExpiry,department,branch,custodian,status\n";
+        String example = "Dell Latitude 5530,IT Equipment,Company laptop,ABC-1234,Dell,Latitude 5530,2024-06-01,350000.00,JustJava Supplies,2025-06-01,IT,Head Office,jdoe,In Stock\n";
+        String csv = header + example;
+        byte[] bytes = csv.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=assets-example.csv")
+                .header("Content-Type", "text/csv; charset=UTF-8")
+                .body(bytes);
+    }
+
     @GetMapping("/assets/{id}")
     public String assetDetails(@PathVariable Long id, Model model) {
         Asset asset = assetService.findById(id);
@@ -233,6 +246,36 @@ public class AssetController {
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
             redirectAttributes.addFlashAttribute("asset", asset);
+            return "redirect:/assets/register";
+        }
+    }
+
+    @PostMapping("/assets/bulk-upload")
+    public String bulkUpload(@RequestParam("file") MultipartFile file,
+                             RedirectAttributes redirectAttributes) {
+        if (file == null || file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please select a CSV file to upload.");
+            return "redirect:/assets/register";
+        }
+
+        try {
+            BulkUploadResult result = assetService.createFromCsv(file);
+
+            if (result.getSuccessCount() > 0) {
+                redirectAttributes.addFlashAttribute("successMessage", String.format("Successfully registered %d assets.", result.getSuccessCount()));
+                if (!result.getErrors().isEmpty()) {
+                    String summary = String.format("%d rows failed. First errors: %s", result.getErrors().size(), String.join("; ", result.getErrors().subList(0, Math.min(5, result.getErrors().size()))));
+                    redirectAttributes.addFlashAttribute("errorMessage", summary);
+                }
+                return "redirect:/assets";
+            } else {
+                String full = String.join("\n", result.getErrors());
+                redirectAttributes.addFlashAttribute("errorMessage", full.isEmpty() ? "No assets were created." : full);
+                return "redirect:/assets/register";
+            }
+        } catch (Exception e) {
+            String msg = e.getMessage() == null ? "Unexpected error during bulk upload." : e.getMessage();
+            redirectAttributes.addFlashAttribute("errorMessage", "Bulk upload failed: " + msg);
             return "redirect:/assets/register";
         }
     }

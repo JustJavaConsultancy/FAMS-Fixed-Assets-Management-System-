@@ -9,6 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AssetService {
@@ -29,6 +37,162 @@ public class AssetService {
         this.assetTagGenerationService = assetTagGenerationService;
         this.adminSettingsService = adminSettingsService;
         this.assetLifecycleService = assetLifecycleService;
+    }
+
+    /**
+     * Bulk create assets from a CSV file. The CSV must contain a header row. Supported headers (case-insensitive):
+     * name, category, description, serialNumber, manufacturer, model, purchaseDate (yyyy-MM-dd), purchaseCost,
+     * vendor, warrantyExpiry (yyyy-MM-dd), department, branch, custodian, status
+     *
+     * This method is defensive: it attempts to create as many assets as possible and returns a summary of successes
+     * and per-line errors.
+     */
+    public BulkUploadResult createFromCsv(org.springframework.web.multipart.MultipartFile csvFile) {
+        List<String> errors = new ArrayList<>();
+        int success = 0;
+
+        if (csvFile == null || csvFile.isEmpty()) {
+            errors.add("No CSV file provided.");
+            return new BulkUploadResult(success, errors);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(csvFile.getInputStream(), StandardCharsets.UTF_8))) {
+            String headerLine = null;
+            // Read until a non-empty header line
+            while ((headerLine = reader.readLine()) != null) {
+                if (!headerLine.trim().isEmpty()) break;
+            }
+            if (headerLine == null) {
+                errors.add("CSV file is empty.");
+                return new BulkUploadResult(success, errors);
+            }
+
+            List<String> headers = parseCsvLine(headerLine).stream().map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+
+            String line;
+            int lineNo = 1; // header
+            while ((line = reader.readLine()) != null) {
+                lineNo++;
+                if (line.trim().isEmpty()) continue;
+                List<String> cols = parseCsvLine(line);
+                try {
+                    Map<String, String> row = new java.util.HashMap<>();
+                    for (int i = 0; i < headers.size() && i < cols.size(); i++) {
+                        row.put(headers.get(i), cols.get(i).trim());
+                    }
+
+                    // Required fields
+                    String name = row.getOrDefault("name", "");
+                    String category = row.getOrDefault("category", "");
+                    String department = row.getOrDefault("department", "");
+                    String branch = row.getOrDefault("branch", "");
+                    String custodian = row.getOrDefault("custodian", "");
+
+                    if (name.isBlank() || category.isBlank() || department.isBlank() || branch.isBlank() || custodian.isBlank()) {
+                        errors.add("Line " + lineNo + ": missing required field (name, category, department, branch, custodian are required).");
+                        continue;
+                    }
+
+                    // validate category
+                    if (!adminSettingsService.isKnownActiveCategory(category)) {
+                        errors.add("Line " + lineNo + ": unknown or inactive category '" + category + "'.");
+                        continue;
+                    }
+
+                    Asset asset = new Asset();
+                    asset.setName(name);
+                    asset.setCategory(category);
+                    asset.setDescription(row.getOrDefault("description", null));
+                    asset.setSerialNumber(row.getOrDefault("serialnumber", null));
+                    asset.setManufacturer(row.getOrDefault("manufacturer", null));
+                    asset.setModel(row.getOrDefault("model", null));
+
+                    String purchaseDateStr = row.getOrDefault("purchasedate", "");
+                    if (!purchaseDateStr.isBlank()) {
+                        try {
+                            asset.setPurchaseDate(java.time.LocalDate.parse(purchaseDateStr));
+                        } catch (Exception e) {
+                            errors.add("Line " + lineNo + ": invalid purchaseDate '" + purchaseDateStr + "'. Use yyyy-MM-dd.");
+                            continue;
+                        }
+                    }
+
+                    String purchaseCostStr = row.getOrDefault("purchasecost", "");
+                    if (!purchaseCostStr.isBlank()) {
+                        try {
+                            // Allow commas
+                            String cleaned = purchaseCostStr.replaceAll(",", "");
+                            asset.setPurchaseCost(new BigDecimal(cleaned));
+                        } catch (Exception e) {
+                            errors.add("Line " + lineNo + ": invalid purchaseCost '" + purchaseCostStr + "'.");
+                            continue;
+                        }
+                    }
+
+                    asset.setVendor(row.getOrDefault("vendor", null));
+
+                    String warrantyExpiryStr = row.getOrDefault("warrantyexpiry", "");
+                    if (!warrantyExpiryStr.isBlank()) {
+                        try {
+                            asset.setWarrantyExpiry(java.time.LocalDate.parse(warrantyExpiryStr));
+                        } catch (Exception e) {
+                            errors.add("Line " + lineNo + ": invalid warrantyExpiry '" + warrantyExpiryStr + "'. Use yyyy-MM-dd.");
+                            continue;
+                        }
+                    }
+
+                    asset.setDepartment(department);
+                    asset.setBranch(branch);
+                    asset.setCustodian(custodian);
+
+                    String status = row.getOrDefault("status", null);
+                    if (status != null && !status.isBlank()) asset.setStatus(status);
+
+                    // Apply defaults and tags similar to single-create path
+                    applyGlobalDefaults(asset);
+                    asset.setAssetCode(nextAssetCode());
+                    AssetTags tags = assetTagGenerationService.generate(asset.getAssetCode());
+                    applyTagDefaults(asset, tags);
+
+                    // Save
+                    Asset saved = assetRepository.save(asset);
+                    assetLifecycleService.recordRegistration(saved, "Bulk Upload");
+                    success++;
+                } catch (Exception e) {
+                    errors.add("Line " + lineNo + ": unexpected error - " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            errors.add("Failed to read CSV file: " + e.getMessage());
+        }
+
+        return new BulkUploadResult(success, errors);
+    }
+
+    // Very small CSV parser that handles commas and double-quote quoting
+    private List<String> parseCsvLine(String line) {
+        List<String> cols = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    // escaped quote
+                    cur.append('"');
+                    i++; // skip next quote
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == ',' && !inQuotes) {
+                cols.add(cur.toString());
+                cur.setLength(0);
+            } else {
+                cur.append(c);
+            }
+        }
+        cols.add(cur.toString());
+        return cols;
     }
 
     @Transactional(readOnly = true)

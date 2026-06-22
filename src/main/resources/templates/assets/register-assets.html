@@ -20,7 +20,6 @@
             }
         }
 
-        /* Better mobile form spacing */
         .form-section {
             padding: 20px;
         }
@@ -28,6 +27,95 @@
         @media (max-width: 640px) {
             .form-section {
                 padding: 16px;
+            }
+        }
+
+        /* ─── CSV Upload Card ─── */
+        .csv-drop-zone {
+            transition: border-color 0.25s ease, background 0.25s ease, transform 0.15s ease;
+            cursor: pointer;
+        }
+        .csv-drop-zone:hover {
+            border-color: #7c3aed;
+            background: #f5f3ff;
+        }
+        .csv-drop-zone.drag-over {
+            border-color: #7c3aed;
+            background: #ede9fe;
+            transform: scale(1.005);
+        }
+        .csv-drop-zone .drop-icon {
+            transition: transform 0.3s ease;
+        }
+        .csv-drop-zone:hover .drop-icon {
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        /* file name truncation */
+        .file-name-truncate {
+            max-width: 180px;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+        @media (min-width: 480px) {
+            .file-name-truncate {
+                max-width: 240px;
+            }
+        }
+
+        /* ─── Button loader ─── */
+        .btn-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* ─── page loader overlay (kept from original) ─── */
+        #page-loader {
+            transition: opacity 0.3s ease;
+        }
+        #page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #page-loader:not(.hidden) {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ─── subtle card polish ─── */
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        /* ─── responsive tweaks ─── */
+        @media (max-width: 480px) {
+            .csv-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .csv-actions .btn,
+            .csv-actions .btn-outline {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -48,11 +136,81 @@
         </a>
     </div>
 
+    <!-- ─── Bulk CSV Upload – Professional Redesign ─── -->
+    <section class="mt-6">
+        <div class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
+            <!-- header -->
+            <div class="px-5 py-4 border-b border-border-default flex items-center gap-3 flex-wrap">
+                <span class="material-symbols-outlined text-primary text-[22px]">upload_file</span>
+                <div>
+                    <h4 class="font-card-header text-card-header text-on-surface">Bulk Register via CSV</h4>
+                    <p class="text-label-small text-secondary">Upload a CSV file to register multiple assets at once.</p>
+                </div>
+                <span class="ml-auto inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-[11px] font-semibold rounded-full tracking-wide uppercase">
+                        <span class="material-symbols-outlined text-[16px]">bolt</span>
+                        batch
+                    </span>
+            </div>
+
+            <!-- body -->
+            <form id="bulk-form" th:action="@{/assets/bulk-upload}" method="post" enctype="multipart/form-data" class="p-5">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-5">
+
+                    <!-- Drop zone -->
+                    <label for="csv-file" class="csv-drop-zone flex-1 border-2 border-dashed border-border-default rounded-2xl px-5 py-5 bg-surface-canvas/40 flex items-center gap-4 min-h-[80px] transition-all">
+                        <input id="csv-file" name="file" type="file" accept="text/csv,.csv" class="sr-only">
+                        <span class="drop-icon material-symbols-outlined text-4xl text-primary/70 flex-shrink-0">cloud_upload</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-body-medium font-medium text-on-surface" id="csv-file-label">Choose CSV file or drag &amp; drop</p>
+                            <p class="text-label-small text-secondary mt-0.5" id="csv-file-size">
+                                <span class="material-symbols-outlined text-[14px] align-middle">description</span>
+                                <span class="align-middle">.csv — max 10 MB</span>
+                            </p>
+                        </div>
+                        <span id="csv-file-badge" class="hidden px-3 py-1 bg-success/10 text-success text-[12px] font-medium rounded-full flex items-center gap-1.5 whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                <span id="csv-badge-label">ready</span>
+                            </span>
+                    </label>
+
+                    <!-- Actions -->
+                    <div class="csv-actions flex items-center gap-3 flex-shrink-0">
+                        <a th:href="@{/assets/register/example-csv}"
+                           class="btn-outline h-11 px-5 bg-surface-variant border border-border-default rounded-xl flex items-center gap-2 text-body-default hover:bg-surface-canvas transition-all text-sm font-medium">
+                            <span class="material-symbols-outlined text-[18px]">download</span>
+                            Example
+                        </a>
+                        <button type="submit"
+                                id="bulk-upload-btn"
+                                class="btn h-11 px-6 bg-primary text-on-primary rounded-xl font-medium flex items-center gap-2.5 transition-all hover:bg-brand-primary-dark shadow-sm focus:ring-2 focus:ring-primary/40 focus:outline-none">
+                            <span class="material-symbols-outlined text-[20px]">upload</span>
+                            <span id="bulk-btn-label">Upload</span>
+                            <!-- spinner (hidden by default) -->
+                            <span id="bulk-btn-spinner" class="btn-loader hidden"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- error / success messages (server-side) -->
+                <div th:if="${bulkErrorMessage}" class="mt-4 bg-error-container text-on-error-container border border-error/20 rounded-xl px-4 py-3 flex items-start gap-3">
+                    <span class="material-symbols-outlined text-[20px] mt-0.5">error</span>
+                    <p class="text-body-default" th:text="${bulkErrorMessage}">Upload failed.</p>
+                </div>
+                <div th:if="${bulkSuccessMessage}" class="mt-4 bg-success-container text-on-success-container border border-success/20 rounded-xl px-4 py-3 flex items-start gap-3">
+                    <span class="material-symbols-outlined text-[20px] mt-0.5">check_circle</span>
+                    <p class="text-body-default" th:text="${bulkSuccessMessage}">Upload successful.</p>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- inline error (from original) -->
     <div th:if="${errorMessage}" class="bg-error-container text-on-error-container border border-error/20 rounded-xl px-4 py-3 flex items-start gap-3">
         <span class="material-symbols-outlined text-[20px] mt-0.5">error</span>
         <p class="text-body-default" th:text="${errorMessage}">Unable to register asset.</p>
     </div>
 
+    <!-- ─── Main Asset Form ─── -->
     <form id="asset-form" th:action="@{/assets}" th:object="${asset}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
         <!-- Main Form -->
@@ -178,30 +336,30 @@
                 </div>
                 <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
-                         <label for="department" class="font-label-small text-label-small text-secondary">Department <span class="text-error">*</span></label>
-                         <select id="department" th:field="*{department}" required
-                                 class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                             <option value="">Select department</option>
-                             <option th:each="dept : ${departments}" th:value="${dept.name}" th:text="${dept.name}"></option>
-                         </select>
-                     </div>
+                        <label for="department" class="font-label-small text-label-small text-secondary">Department <span class="text-error">*</span></label>
+                        <select id="department" th:field="*{department}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Select department</option>
+                            <option th:each="dept : ${departments}" th:value="${dept.name}" th:text="${dept.name}"></option>
+                        </select>
+                    </div>
                     <div class="space-y-1.5">
-                         <label for="branch" class="font-label-small text-label-small text-secondary">Branch <span class="text-error">*</span></label>
-                         <select id="branch" th:field="*{branch}" required
-                                 class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                             <option value="">Select branch</option>
-                             <option th:each="br : ${branches}" th:value="${br.name}" th:text="${br.name}"></option>
-                         </select>
-                     </div>
+                        <label for="branch" class="font-label-small text-label-small text-secondary">Branch <span class="text-error">*</span></label>
+                        <select id="branch" th:field="*{branch}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Select branch</option>
+                            <option th:each="br : ${branches}" th:value="${br.name}" th:text="${br.name}"></option>
+                        </select>
+                    </div>
                     <div class="space-y-1.5">
-                         <label for="custodian" class="font-label-small text-label-small text-secondary">Custodian <span class="text-error">*</span>
-                         </label>
-                         <select id="custodian" th:field="*{custodian}" required
-                                 class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                             <option value="">Select custodian</option>
-                             <option th:each="custodian : ${custodians}" th:value="${custodian.username}" th:text="${custodian.name}"></option>
-                         </select>
-                     </div>
+                        <label for="custodian" class="font-label-small text-label-small text-secondary">Custodian <span class="text-error">*</span>
+                        </label>
+                        <select id="custodian" th:field="*{custodian}" required
+                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Select custodian</option>
+                            <option th:each="custodian : ${custodians}" th:value="${custodian.username}" th:text="${custodian.name}"></option>
+                        </select>
+                    </div>
                 </div>
             </section>
 
@@ -213,9 +371,11 @@
                 </a>
 
                 <button type="submit"
-                        class="flex-1 h-12 bg-primary text-on-primary font-medium rounded-2xl hover:bg-brand-primary-dark transition-all shadow-sm flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    Register Asset
+                        id="asset-submit-btn"
+                        class="flex-1 h-12 bg-primary text-on-primary font-medium rounded-2xl hover:bg-brand-primary-dark transition-all shadow-sm flex items-center justify-center gap-2.5 focus:ring-2 focus:ring-primary/40 focus:outline-none">
+                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                    <span id="asset-btn-label">Register Asset</span>
+                    <span id="asset-btn-spinner" class="btn-loader hidden"></span>
                 </button>
             </div>
         </div>
@@ -259,64 +419,245 @@
         </aside>
     </form>
 
-    <!-- Loader -->
-    <div id="page-loader" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100]">
+    <!-- ─── Page Loader Overlay (kept) ─── -->
+    <div id="page-loader" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] transition-opacity">
         <div class="bg-surface-card border border-border-default rounded-2xl card-shadow px-8 py-6 flex items-center gap-5 max-w-xs w-full">
             <span class="w-9 h-9 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></span>
             <div>
-                <p class="font-body-medium text-on-surface">Registering asset...</p>
+                <p class="font-body-medium text-on-surface">Registering asset…</p>
                 <p class="text-label-small text-secondary">Please wait</p>
             </div>
         </div>
     </div>
 
+    <!-- ─── Scripts ─── -->
     <script>
-        // Existing script + improvements
-        const form = document.getElementById('asset-form');
-        const loader = document.getElementById('page-loader');
-        const imageInput = document.getElementById('image');
-        const imagePreview = document.getElementById('image-preview');
-        const imagePlaceholder = document.getElementById('image-placeholder');
-        const imageLabel = document.getElementById('image-upload-label');
+        (function() {
+            'use strict';
 
-        const syncText = (sourceId, targetId, fallback) => {
-            const source = document.getElementById(sourceId);
-            const target = document.getElementById(targetId);
-            const update = () => target.textContent = source.value.trim() || fallback;
-            source.addEventListener('input', update);
-            source.addEventListener('change', update);
-            update();
-        };
+            // ─── 1. Asset form: submit loader ───
+            const assetForm = document.getElementById('asset-form');
+            const assetBtn = document.getElementById('asset-submit-btn');
+            const assetLabel = document.getElementById('asset-btn-label');
+            const assetSpinner = document.getElementById('asset-btn-spinner');
+            const pageLoader = document.getElementById('page-loader');
 
-        syncText('name', 'preview-name', 'Untitled Asset');
-        syncText('category', 'preview-category', 'Not selected');
-        syncText('department', 'preview-department', 'Not selected');
+            if (assetForm && assetBtn) {
+                assetForm.addEventListener('submit', function() {
+                    // disable button & show spinner
+                    assetBtn.classList.add('btn-loading');
+                    assetLabel.textContent = 'Registering…';
+                    assetSpinner.classList.remove('hidden');
 
-        document.getElementById('purchaseCost').addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value) || 0;
-            document.getElementById('preview-cost').textContent =
-                new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(val);
-        });
+                    // show overlay
+                    if (pageLoader) {
+                        pageLoader.classList.remove('hidden');
+                        pageLoader.classList.add('flex');
+                    }
+                });
+            }
 
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (!file) return;
+            // ─── 2. Bulk CSV form: button spinner ───
+            const bulkForm = document.getElementById('bulk-form');
+            const bulkBtn = document.getElementById('bulk-upload-btn');
+            const bulkLabel = document.getElementById('bulk-btn-label');
+            const bulkSpinner = document.getElementById('bulk-btn-spinner');
 
-            imageLabel.textContent = file.name.length > 35 ? file.name.substring(0, 32) + '...' : file.name;
+            if (bulkForm && bulkBtn) {
+                bulkForm.addEventListener('submit', function(e) {
+                    // only act if a file is selected
+                    const fileInput = document.getElementById('csv-file');
+                    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                        e.preventDefault();
+                        // show a quick feedback
+                        const zone = document.querySelector('.csv-drop-zone');
+                        if (zone) {
+                            zone.style.borderColor = '#dc2626';
+                            zone.style.background = '#fef2f2';
+                            setTimeout(function() {
+                                zone.style.borderColor = '';
+                                zone.style.background = '';
+                            }, 1200);
+                        }
+                        return;
+                    }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreview.classList.remove('hidden');
-                imagePlaceholder.classList.add('hidden');
+                    // show spinner
+                    bulkBtn.classList.add('btn-loading');
+                    bulkLabel.textContent = 'Uploading…';
+                    bulkSpinner.classList.remove('hidden');
+                });
+            }
+
+            // ─── 3. CSV file input: label & badge ───
+            const csvInput = document.getElementById('csv-file');
+            const csvLabel = document.getElementById('csv-file-label');
+            const csvBadge = document.getElementById('csv-file-badge');
+            const csvBadgeLabel = document.getElementById('csv-badge-label');
+            const csvSize = document.getElementById('csv-file-size');
+
+            if (csvInput) {
+                csvInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (!file) {
+                        csvLabel.textContent = 'Choose CSV file or drag & drop';
+                        if (csvBadge) csvBadge.classList.add('hidden');
+                        if (csvSize) {
+                            csvSize.innerHTML =
+                                '<span class="material-symbols-outlined text-[14px] align-middle">description</span> <span class="align-middle">.csv — max 10 MB</span>';
+                        }
+                        return;
+                    }
+
+                    // update label with filename
+                    const name = file.name.length > 32 ? file.name.slice(0, 29) + '…' : file.name;
+                    csvLabel.textContent = name;
+
+                    // show badge
+                    if (csvBadge) {
+                        csvBadge.classList.remove('hidden');
+                        if (csvBadgeLabel) csvBadgeLabel.textContent = file.name;
+                    }
+
+                    // update size info
+                    const sizeKB = (file.size / 1024).toFixed(0);
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    const sizeStr = file.size > 1024 * 1024 ? sizeMB + ' MB' : sizeKB + ' KB';
+                    if (csvSize) {
+                        csvSize.innerHTML =
+                            '<span class="material-symbols-outlined text-[14px] align-middle">check_circle</span> <span class="align-middle">' +
+                            file.name + ' · ' + sizeStr + '</span>';
+                    }
+
+                    // reset drop-zone border
+                    const zone = document.querySelector('.csv-drop-zone');
+                    if (zone) {
+                        zone.style.borderColor = '';
+                        zone.style.background = '';
+                    }
+                });
+
+                // ─── Drag & Drop support ───
+                const dropZone = document.querySelector('.csv-drop-zone');
+                if (dropZone) {
+                    ['dragenter', 'dragover'].forEach(function(evt) {
+                        dropZone.addEventListener(evt, function(e) {
+                            e.preventDefault();
+                            this.classList.add('drag-over');
+                        });
+                    });
+                    ['dragleave', 'drop'].forEach(function(evt) {
+                        dropZone.addEventListener(evt, function(e) {
+                            e.preventDefault();
+                            this.classList.remove('drag-over');
+                        });
+                    });
+                    dropZone.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        const dt = e.dataTransfer;
+                        if (dt && dt.files && dt.files.length > 0) {
+                            const input = document.getElementById('csv-file');
+                            if (input) {
+                                input.files = dt.files;
+                                input.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                        }
+                    });
+                }
+            }
+
+            // ─── 4. Asset preview sync (unchanged, with a small fix for cost) ───
+            const syncText = function(sourceId, targetId, fallback) {
+                const source = document.getElementById(sourceId);
+                const target = document.getElementById(targetId);
+                if (!source || !target) return;
+                const update = function() {
+                    target.textContent = source.value.trim() || fallback;
+                };
+                source.addEventListener('input', update);
+                source.addEventListener('change', update);
+                update();
             };
-            reader.readAsDataURL(file);
-        });
 
-        form.addEventListener('submit', () => {
-            loader.classList.remove('hidden');
-            loader.classList.add('flex');
-        });
+            syncText('name', 'preview-name', 'Untitled Asset');
+            syncText('category', 'preview-category', 'Not selected');
+            syncText('department', 'preview-department', 'Not selected');
+
+            // cost preview
+            const costInput = document.getElementById('purchaseCost');
+            const costPreview = document.getElementById('preview-cost');
+            if (costInput && costPreview) {
+                const updateCost = function() {
+                    const val = parseFloat(costInput.value) || 0;
+                    costPreview.textContent = new Intl.NumberFormat('en-NG', {
+                        style: 'currency',
+                        currency: 'NGN',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(val);
+                };
+                costInput.addEventListener('input', updateCost);
+                costInput.addEventListener('change', updateCost);
+                updateCost();
+            }
+
+            // image preview
+            const imageInput = document.getElementById('image');
+            const imagePreview = document.getElementById('image-preview');
+            const imagePlaceholder = document.getElementById('image-placeholder');
+            const imageLabel = document.getElementById('image-upload-label');
+
+            if (imageInput && imagePreview && imagePlaceholder && imageLabel) {
+                imageInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (!file) {
+                        imagePreview.classList.add('hidden');
+                        imagePlaceholder.classList.remove('hidden');
+                        imageLabel.textContent = 'Click or drag image to upload';
+                        return;
+                    }
+                    imageLabel.textContent = file.name.length > 35 ? file.name.slice(0, 32) + '…' : file.name;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                        imagePlaceholder.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // ─── 5. Restore button state if form fails / page loads with errors ───
+            // (if there's an error message, reset buttons)
+            const hasError = document.querySelector('.bg-error-container');
+            if (hasError) {
+                if (assetBtn) {
+                    assetBtn.classList.remove('btn-loading');
+                    if (assetLabel) assetLabel.textContent = 'Register Asset';
+                    if (assetSpinner) assetSpinner.classList.add('hidden');
+                }
+                if (bulkBtn) {
+                    bulkBtn.classList.remove('btn-loading');
+                    if (bulkLabel) bulkLabel.textContent = 'Upload';
+                    if (bulkSpinner) bulkSpinner.classList.add('hidden');
+                }
+                if (pageLoader) {
+                    pageLoader.classList.add('hidden');
+                    pageLoader.classList.remove('flex');
+                }
+            }
+
+            // Also reset if there's a bulk success message
+            const hasBulkSuccess = document.querySelector('.bg-success-container');
+            if (hasBulkSuccess) {
+                if (bulkBtn) {
+                    bulkBtn.classList.remove('btn-loading');
+                    if (bulkLabel) bulkLabel.textContent = 'Upload';
+                    if (bulkSpinner) bulkSpinner.classList.add('hidden');
+                }
+            }
+
+        })();
     </script>
 </main>
 </body>
