@@ -49,6 +49,7 @@ public class AssetController {
     private final KeycloakAdminService keycloakAdminService;
     private final AdminSettingsService adminSettingsService;
     private final AssetLifecycleService assetLifecycleService;
+    private final AssetCheckoutService assetCheckoutService;
 
     @Value("${keycloak.realm:fams}")
     private String realmName;
@@ -59,7 +60,8 @@ public class AssetController {
                            CompanyRepository companyRepository,
                            KeycloakAdminService keycloakAdminService,
                            AdminSettingsService adminSettingsService,
-                           AssetLifecycleService assetLifecycleService) {
+                           AssetLifecycleService assetLifecycleService,
+                           AssetCheckoutService assetCheckoutService) {
         this.assetService = assetService;
         this.departmentRepository = departmentRepository;
         this.branchRepository = branchRepository;
@@ -67,6 +69,7 @@ public class AssetController {
         this.keycloakAdminService = keycloakAdminService;
         this.adminSettingsService = adminSettingsService;
         this.assetLifecycleService = assetLifecycleService;
+        this.assetCheckoutService = assetCheckoutService;
     }
 
     /**
@@ -200,6 +203,16 @@ public class AssetController {
         model.addAttribute("asset", asset);
         model.addAttribute("timeline", assetLifecycleService.timeline(asset));
         model.addAttribute("workflows", assetLifecycleService.findWorkflowsForAsset(asset));
+        // Add active checkout (if any) so the template can show a Return button
+        try {
+            AssetCheckout active = assetCheckoutService.getCheckoutsForAsset(id).stream()
+                    .filter(c -> "Checked Out".equalsIgnoreCase(c.getStatus()))
+                    .findFirst()
+                    .orElse(null);
+            model.addAttribute("activeCheckout", active);
+        } catch (Exception e) {
+            model.addAttribute("activeCheckout", null);
+        }
         return "assets/assets-details";
     }
 

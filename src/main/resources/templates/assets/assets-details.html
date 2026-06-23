@@ -96,12 +96,24 @@
                     <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">delete_forever</span>
                     <span class="truncate">Dispose</span>
                 </a>
-                <a th:if="${asset.status != 'Disposed'}"
-                   th:href="@{/assets/checkout/{id}/form(id=${asset.id})}"
-                   class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">
-                    <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">assignment</span>
-                    <span class="truncate">Checkout</span>
-                </a>
+                <!-- Show Checkout button only when there is no active checkout for this asset -->
+                <th:block th:if="${activeCheckout == null}">
+                    <a th:if="${asset.status != 'Disposed'}"
+                       th:href="@{/assets/checkout/{id}/form(id=${asset.id})}"
+                       class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">
+                        <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">assignment</span>
+                        <span class="truncate">Checkout</span>
+                    </a>
+                </th:block>
+
+                <!-- If the asset is currently checked out, show Return Asset button which opens the checkout return fragment -->
+                <th:block th:if="${activeCheckout != null}">
+                    <a th:href="@{/assets/checkout/{id}/return-form(id=${activeCheckout.id})}"
+                       class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">
+                        <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">assignment_return</span>
+                        <span class="truncate">Return Asset</span>
+                    </a>
+                </th:block>
                 <a th:href="@{/assets/lifecycle/workflows}"
                    class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">
                     <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">account_tree</span>
@@ -350,7 +362,7 @@
     <div id="fragmentModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
         <div id="fragmentModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
         <div id="fragmentModalContent" style="position:relative; width:clamp(320px, 80%, 880px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:18px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
-            <button id="fragmentModalClose" aria-label="Close" style="position:absolute; top:12px; right:12px; background:transparent; border:none; font-size:20px; cursor:pointer;">×</button>
+            <button id="fragmentModalClose" aria-label="Close" style="position:absolute;display: none; top:12px; right:12px; background:transparent; border:none; font-size:20px; cursor:pointer;display: none;">×</button>
             <div id="fragmentModalInner"></div>
         </div>
     </div>

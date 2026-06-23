@@ -539,9 +539,48 @@
 
 <!-- ==================== VERIFY FORM ==================== -->
 <div th:fragment="verify-form" th:if="${checkout != null}" id="verifyFormFragment" class="modal-fragment">
-    <!-- same modal-fragment styles as above – included again for completeness -->
     <style>
-        /* same as above – ideally extract to a shared CSS file */
+        /* Repeat the modal-fragment styles so the fragment renders correctly when fetched alone */
+        .modal-fragment { max-width:100%; overflow:hidden; }
+        .modal-fragment .form-section { margin-bottom:16px; }
+        .modal-fragment .section-title { font-size:13px; font-weight:600; color:#1A1D23; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid #E4E6EA; }
+        .modal-fragment .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+        .modal-fragment .form-group { display:flex; flex-direction:column; }
+        .modal-fragment .form-label { font-size:12px; font-weight:500; color:#1A1D23; margin-bottom:4px; }
+        .modal-fragment .form-label .required { color:#ba1a1a; }
+        .modal-fragment .form-control { width:100%; padding:8px 10px; border:1px solid #E4E6EA; border-radius:8px; font-size:13px; font-family:inherit; transition:border-color 150ms, box-shadow 150ms; box-sizing:border-box; }
+        .modal-fragment .form-control:focus { outline:none; border-color:#c0182a; box-shadow:0 0 0 3px rgba(192,24,42,0.12); }
+        .modal-fragment textarea.form-control { resize:vertical; min-height:80px; }
+        .modal-fragment .helpers { font-size:11px; color:#5d5e65; margin-top:2px; }
+        .modal-fragment .card { background:#f9f9ff; border:1px solid #E4E6EA; border-radius:10px; padding:12px; margin-bottom:12px; }
+        .modal-fragment .card-title { font-weight:600; color:#1A1D23; margin-bottom:6px; }
+        .modal-fragment .card-info { font-size:12px; color:#5d5e65; }
+        .modal-fragment .card-info-row { display:flex; justify-content:space-between; padding:4px 0; }
+        .modal-fragment .asset-info { background:white; border:1px solid #E4E6EA; border-radius:10px; padding:12px; margin-bottom:16px; }
+        .modal-fragment .asset-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .modal-fragment .asset-icon { width:40px; height:40px; background:#c0182a; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0; }
+        .modal-fragment .asset-icon .material-symbols-outlined { font-size:20px; }
+        .modal-fragment .asset-header-text h3 { margin:0; font-size:14px; font-weight:600; color:#1A1D23; }
+        .modal-fragment .asset-header-text p { margin:2px 0 0 0; font-size:11px; color:#5d5e65; }
+        .modal-fragment .asset-details { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; }
+        .modal-fragment .detail-item { border-top:1px solid #E4E6EA; padding-top:6px; }
+        .modal-fragment .detail-label { font-size:10px; text-transform:uppercase; color:#5d5e65; font-weight:600; letter-spacing:0.3px; }
+        .modal-fragment .detail-value { font-size:12px; color:#1A1D23; margin-top:2px; word-break:break-word; }
+        .modal-fragment .spinner { display:inline-block; width:14px; height:14px; border:2px solid #f3f3f3; border-top:2px solid #c0182a; border-radius:50%; animation:spin 1s linear infinite; margin-right:6px; vertical-align:middle; }
+        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        .modal-fragment .button-group { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; padding-top:16px; border-top:1px solid #E4E6EA; flex-wrap:wrap; }
+        @media (max-width:480px) { .modal-fragment .button-group { justify-content:center; } }
+        .modal-fragment .btn { height:34px; padding:0 16px; border-radius:8px; font-size:12px; font-weight:500; border:none; cursor:pointer; transition:all 150ms; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .modal-fragment .btn-primary { background:#c0182a; color:white; }
+        .modal-fragment .btn-primary:hover { background:#8F0F1E; }
+        .modal-fragment .btn-primary:disabled { background:#d4a5a5; cursor:not-allowed; }
+        .modal-fragment .btn-secondary { background:#F4F5F7; color:#1A1D23; border:1px solid #E4E6EA; }
+        .modal-fragment .btn-secondary:hover { background:#e8eaef; }
+        .modal-fragment form { max-height:60vh; overflow-y:auto; padding-right:4px; }
+        .modal-fragment form::-webkit-scrollbar { width:4px; }
+        .modal-fragment form::-webkit-scrollbar-track { background:#f0f0f0; border-radius:4px; }
+        .modal-fragment form::-webkit-scrollbar-thumb { background:#c0182a; border-radius:4px; }
+        .modal-fragment select.form-control { appearance:auto; }
     </style>
 
     <div class="card-container">

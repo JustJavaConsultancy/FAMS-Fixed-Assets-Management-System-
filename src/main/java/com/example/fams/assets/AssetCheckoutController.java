@@ -123,7 +123,11 @@ public class AssetCheckoutController {
         model.addAttribute("checkout", checkout);
         model.addAttribute("asset", checkout.getAsset());
 
-        return "assets/fragments/return-form";
+        // The return and verify fragments are defined inside the
+        // `assets/fragments/checkout-form.html` file as named fragments
+        // (return-form and verify-form). Return the fragment using the
+        // Thymeleaf fragment syntax so the template resolver can locate it.
+        return "assets/fragments/checkout-form :: return-form";
     }
 
     /**
@@ -164,7 +168,8 @@ public class AssetCheckoutController {
         model.addAttribute("checkout", checkout);
         model.addAttribute("asset", checkout.getAsset());
 
-        return "assets/fragments/verify-form";
+        // Verify fragment lives in the same file as the return fragment.
+        return "assets/fragments/checkout-form :: verify-form";
     }
 
     /**
