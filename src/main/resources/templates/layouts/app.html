@@ -1043,7 +1043,13 @@
 
                 <!-- All Assets -->
                 <div class="nav-link-wrap" data-label="All Assets">
-                    <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets') && !#strings.startsWith(currentPath, '/assets/lifecycle')} ? ' sidebar-active' : ''" th:href="@{/assets}">
+                    <a class="nav-link"
+                       th:classappend="${
+       #strings.startsWith(currentPath, '/assets')
+       && !#strings.startsWith(currentPath, '/assets/lifecycle')
+       && !#strings.startsWith(currentPath, '/assets/checkout')
+   } ? ' sidebar-active' : ''"
+                       th:href="@{/assets}">
                         <span class="nav-icon material-symbols-outlined">inventory_2</span>
                         <span class="nav-label">All Assets</span>
                     </a>
@@ -1068,7 +1074,7 @@
                 <div class="nav-link-wrap" data-label="Check-In/Check-Out">
                     <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/assets/checkout')} ? ' sidebar-active' : ''" th:href="@{/assets/checkout}">
                         <span class="nav-icon material-symbols-outlined">assignment_return</span>
-                        <span class="nav-label">Check-In/Check-Out</span>
+                        <span class="nav-label">Check-Out</span>
                     </a>
                 </div>
 

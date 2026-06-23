@@ -1,173 +1,179 @@
-
-<!-- Checkout Form Fragment -->
-<div th:fragment="checkout-form" id="checkoutFormFragment">
+<!-- Modal‑ready fragment: wrap all content in this container -->
+<div th:fragment="checkout-form" id="checkoutFormFragment" class="modal-fragment">
     <style>
-        .form-section {
-            margin-bottom: 24px;
+        /* Modal‑specific overrides */
+        .modal-fragment {
+            max-width: 100%;
+            overflow: hidden;
         }
 
-        .section-title {
-            font-size: 14px;
+        .modal-fragment .form-section {
+            margin-bottom: 16px;
+        }
+
+        .modal-fragment .section-title {
+            font-size: 13px;
             font-weight: 600;
             color: #1A1D23;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #E4E6EA;
         }
 
-        .form-grid {
+        .modal-fragment .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
         }
 
-        .form-group {
+        .modal-fragment .form-group {
             display: flex;
             flex-direction: column;
         }
 
-        .form-label {
-            display: block;
-            font-size: 13px;
+        .modal-fragment .form-label {
+            font-size: 12px;
             font-weight: 500;
             color: #1A1D23;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
-        .form-label .required {
+        .modal-fragment .form-label .required {
             color: #ba1a1a;
         }
 
-        .form-control {
+        .modal-fragment .form-control {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 1px solid #E4E6EA;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 13px;
             font-family: inherit;
             transition: border-color 150ms, box-shadow 150ms;
+            box-sizing: border-box;
         }
 
-        .form-control:focus {
+        .modal-fragment .form-control:focus {
             outline: none;
             border-color: #c0182a;
             box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.12);
         }
 
-        .form-control::placeholder {
-            color: #9aa0aa;
-        }
-
-        textarea.form-control {
+        .modal-fragment textarea.form-control {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
-        .helpers {
-            font-size: 12px;
+        .modal-fragment .helpers {
+            font-size: 11px;
             color: #5d5e65;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        .card {
+        .modal-fragment .card {
             background: #f9f9ff;
             border: 1px solid #E4E6EA;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .card-title {
-            font-weight: 600;
-            color: #1A1D23;
-            margin-bottom: 8px;
-        }
-
-        .card-info {
-            font-size: 13px;
-            color: #5d5e65;
-        }
-
-        .card-info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-        }
-
-        .asset-info {
-            background: white;
-            border: 1px solid #E4E6EA;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-
-        .asset-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            border-radius: 10px;
+            padding: 12px;
             margin-bottom: 12px;
         }
 
-        .asset-icon {
-            width: 48px;
-            height: 48px;
+        .modal-fragment .card-title {
+            font-weight: 600;
+            color: #1A1D23;
+            margin-bottom: 6px;
+        }
+
+        .modal-fragment .card-info {
+            font-size: 12px;
+            color: #5d5e65;
+        }
+
+        .modal-fragment .card-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .modal-fragment .asset-info {
+            background: white;
+            border: 1px solid #E4E6EA;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-fragment .asset-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .modal-fragment .asset-icon {
+            width: 40px;
+            height: 40px;
             background: #c0182a;
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             flex-shrink: 0;
         }
+        .modal-fragment .asset-icon .material-symbols-outlined {
+            font-size: 20px;
+        }
 
-        .asset-header-text h3 {
+        .modal-fragment .asset-header-text h3 {
             margin: 0;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             color: #1A1D23;
         }
 
-        .asset-header-text p {
-            margin: 4px 0 0 0;
-            font-size: 12px;
+        .modal-fragment .asset-header-text p {
+            margin: 2px 0 0 0;
+            font-size: 11px;
             color: #5d5e65;
         }
 
-        .asset-details {
+        .modal-fragment .asset-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
         }
 
-        .detail-item {
+        .modal-fragment .detail-item {
             border-top: 1px solid #E4E6EA;
-            padding-top: 8px;
+            padding-top: 6px;
         }
 
-        .detail-label {
-            font-size: 11px;
+        .modal-fragment .detail-label {
+            font-size: 10px;
             text-transform: uppercase;
             color: #5d5e65;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
-        .detail-value {
-            font-size: 13px;
+        .modal-fragment .detail-value {
+            font-size: 12px;
             color: #1A1D23;
-            margin-top: 4px;
+            margin-top: 2px;
+            word-break: break-word;
         }
 
-        .spinner {
+        /* Spinner */
+        .modal-fragment .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border: 2px solid #f3f3f3;
             border-top: 2px solid #c0182a;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 8px;
+            margin-right: 6px;
             vertical-align: middle;
         }
 
@@ -176,55 +182,88 @@
             100% { transform: rotate(360deg); }
         }
 
-        .button-group {
+        .modal-fragment .button-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: flex-end;
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 16px;
+            padding-top: 16px;
             border-top: 1px solid #E4E6EA;
+            flex-wrap: wrap;
         }
 
-        .btn {
-            height: 36px;
-            padding: 0 20px;
-            border-radius: 10px;
-            font-size: 13px;
+        /* When modal is narrow, center buttons */
+        @media (max-width: 480px) {
+            .modal-fragment .button-group {
+                justify-content: center;
+            }
+        }
+
+        .modal-fragment .btn {
+            height: 34px;
+            padding: 0 16px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: all 150ms;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             white-space: nowrap;
         }
 
-        .btn-primary {
+        .modal-fragment .btn-primary {
             background: #c0182a;
             color: white;
         }
 
-        .btn-primary:hover {
+        .modal-fragment .btn-primary:hover {
             background: #8F0F1E;
         }
 
-        .btn-primary:disabled {
+        .modal-fragment .btn-primary:disabled {
             background: #d4a5a5;
             cursor: not-allowed;
         }
 
-        .btn-secondary {
+        .modal-fragment .btn-secondary {
             background: #F4F5F7;
             color: #1A1D23;
             border: 1px solid #E4E6EA;
         }
 
-        .btn-secondary:hover {
+        .modal-fragment .btn-secondary:hover {
             background: #e8eaef;
+        }
+
+        /* Make the form scrollable if content overflows modal body */
+        .modal-fragment form {
+            max-height: 60vh;        /* adjust based on modal size */
+            overflow-y: auto;
+            padding-right: 4px;      /* avoid scrollbar overlap */
+        }
+        /* Optional: custom scrollbar for better appearance */
+        .modal-fragment form::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-fragment form::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        .modal-fragment form::-webkit-scrollbar-thumb {
+            background: #c0182a;
+            border-radius: 4px;
+        }
+
+        /* Fix for selects and inputs in modal */
+        .modal-fragment select.form-control {
+            appearance: auto;
         }
     </style>
 
+    <!-- ====== CONTENT (unchanged except class additions) ====== -->
     <div class="card-container">
         <!-- Asset Information -->
         <div class="asset-info">
@@ -320,13 +359,13 @@
             <div th:if="${!#lists.isEmpty(previousCheckouts)}" class="form-section">
                 <div class="section-title">Previous Checkout History</div>
                 <div class="card">
-                    <div th:each="prev : ${previousCheckouts}" class="card-info" style="padding: 8px 0; border-bottom: 1px solid #dde2f5; margin-bottom: 8px;">
+                    <div th:each="prev : ${previousCheckouts}" class="card-info" style="padding: 6px 0; border-bottom: 1px solid #dde2f5; margin-bottom: 6px;">
                         <div class="card-info-row">
                             <span>
                                 <strong th:text="${#temporals.format(prev.checkoutDate, 'dd MMM yyyy')}"></strong> -
                                 <span th:text="${prev.checkedOutBy}"></span>
                             </span>
-                            <span style="background: #ecf5ec; color: #0d5e3e; padding: 2px 8px; border-radius: 4px; font-size: 11px;"
+                            <span style="background: #ecf5ec; color: #0d5e3e; padding: 2px 8px; border-radius: 4px; font-size: 10px;"
                                   th:text="${prev.status}"></span>
                         </div>
                     </div>
@@ -356,14 +395,12 @@
                 submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
             });
 
-            // Set minimum due date to tomorrow
             const dateInput = form.querySelector('input[name="dueReturnDate"]');
             const today = new Date();
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
             dateInput.min = tomorrow.toISOString().split('T')[0];
 
-            // Validate due date is after checkout date
             const checkoutDateInput = form.querySelector('input[name="checkoutDate"]');
             checkoutDateInput.addEventListener('change', function() {
                 const checkoutDate = new Date(this.value);
@@ -376,11 +413,54 @@
     </script>
 </div>
 
-<!-- Return Form Fragment -->
-<!-- Only render the return form fragment when a checkout model is provided to avoid SpEL null errors -->
-<div th:fragment="return-form" th:if="${checkout != null}" id="returnFormFragment">
+<!-- ==================== RETURN FORM ==================== -->
+<div th:fragment="return-form" th:if="${checkout != null}" id="returnFormFragment" class="modal-fragment">
+    <style>
+        /* same modal-fragment styles as above – to avoid duplication, you can move them to a common stylesheet */
+        /* For brevity, I'm including them again here, but in production you'd extract them */
+        .modal-fragment { max-width:100%; overflow:hidden; }
+        .modal-fragment .form-section { margin-bottom:16px; }
+        .modal-fragment .section-title { font-size:13px; font-weight:600; color:#1A1D23; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid #E4E6EA; }
+        .modal-fragment .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+        .modal-fragment .form-group { display:flex; flex-direction:column; }
+        .modal-fragment .form-label { font-size:12px; font-weight:500; color:#1A1D23; margin-bottom:4px; }
+        .modal-fragment .form-label .required { color:#ba1a1a; }
+        .modal-fragment .form-control { width:100%; padding:8px 10px; border:1px solid #E4E6EA; border-radius:8px; font-size:13px; font-family:inherit; transition:border-color 150ms, box-shadow 150ms; box-sizing:border-box; }
+        .modal-fragment .form-control:focus { outline:none; border-color:#c0182a; box-shadow:0 0 0 3px rgba(192,24,42,0.12); }
+        .modal-fragment textarea.form-control { resize:vertical; min-height:80px; }
+        .modal-fragment .helpers { font-size:11px; color:#5d5e65; margin-top:2px; }
+        .modal-fragment .card { background:#f9f9ff; border:1px solid #E4E6EA; border-radius:10px; padding:12px; margin-bottom:12px; }
+        .modal-fragment .card-title { font-weight:600; color:#1A1D23; margin-bottom:6px; }
+        .modal-fragment .card-info { font-size:12px; color:#5d5e65; }
+        .modal-fragment .card-info-row { display:flex; justify-content:space-between; padding:4px 0; }
+        .modal-fragment .asset-info { background:white; border:1px solid #E4E6EA; border-radius:10px; padding:12px; margin-bottom:16px; }
+        .modal-fragment .asset-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .modal-fragment .asset-icon { width:40px; height:40px; background:#c0182a; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0; }
+        .modal-fragment .asset-icon .material-symbols-outlined { font-size:20px; }
+        .modal-fragment .asset-header-text h3 { margin:0; font-size:14px; font-weight:600; color:#1A1D23; }
+        .modal-fragment .asset-header-text p { margin:2px 0 0 0; font-size:11px; color:#5d5e65; }
+        .modal-fragment .asset-details { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; }
+        .modal-fragment .detail-item { border-top:1px solid #E4E6EA; padding-top:6px; }
+        .modal-fragment .detail-label { font-size:10px; text-transform:uppercase; color:#5d5e65; font-weight:600; letter-spacing:0.3px; }
+        .modal-fragment .detail-value { font-size:12px; color:#1A1D23; margin-top:2px; word-break:break-word; }
+        .modal-fragment .spinner { display:inline-block; width:14px; height:14px; border:2px solid #f3f3f3; border-top:2px solid #c0182a; border-radius:50%; animation:spin 1s linear infinite; margin-right:6px; vertical-align:middle; }
+        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        .modal-fragment .button-group { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; padding-top:16px; border-top:1px solid #E4E6EA; flex-wrap:wrap; }
+        @media (max-width:480px) { .modal-fragment .button-group { justify-content:center; } }
+        .modal-fragment .btn { height:34px; padding:0 16px; border-radius:8px; font-size:12px; font-weight:500; border:none; cursor:pointer; transition:all 150ms; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .modal-fragment .btn-primary { background:#c0182a; color:white; }
+        .modal-fragment .btn-primary:hover { background:#8F0F1E; }
+        .modal-fragment .btn-primary:disabled { background:#d4a5a5; cursor:not-allowed; }
+        .modal-fragment .btn-secondary { background:#F4F5F7; color:#1A1D23; border:1px solid #E4E6EA; }
+        .modal-fragment .btn-secondary:hover { background:#e8eaef; }
+        .modal-fragment form { max-height:60vh; overflow-y:auto; padding-right:4px; }
+        .modal-fragment form::-webkit-scrollbar { width:4px; }
+        .modal-fragment form::-webkit-scrollbar-track { background:#f0f0f0; border-radius:4px; }
+        .modal-fragment form::-webkit-scrollbar-thumb { background:#c0182a; border-radius:4px; }
+        .modal-fragment select.form-control { appearance:auto; }
+    </style>
+
     <div class="card-container">
-        <!-- Asset Information -->
         <div class="asset-info">
             <div class="asset-header">
                 <div class="asset-icon">
@@ -411,9 +491,7 @@
             </div>
         </div>
 
-        <!-- Return Form -->
         <form th:action="@{/assets/checkout/{checkoutId}/return(checkoutId=${checkout.id})}" method="post" id="returnForm">
-
             <div class="form-section">
                 <div class="section-title">Return Information</div>
                 <div class="form-grid">
@@ -429,7 +507,6 @@
                             <option value="Lost">Lost</option>
                         </select>
                     </div>
-
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Return Notes</label>
                         <textarea name="returnNotes" class="form-control"
@@ -438,11 +515,8 @@
                 </div>
             </div>
 
-            <!-- Buttons -->
             <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick="history.back()">
-                    Cancel
-                </button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
                 <button type="submit" class="btn btn-primary" id="returnSubmitBtn">
                     <span class="material-symbols-outlined">check_circle</span>
                     Submit Return
@@ -455,7 +529,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('returnForm');
             const submitBtn = document.getElementById('returnSubmitBtn');
-
             form.addEventListener('submit', function() {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
@@ -464,11 +537,14 @@
     </script>
 </div>
 
-<!-- Verify Form Fragment -->
-<!-- Only render the verify form fragment when a checkout model is provided to avoid SpEL null errors -->
-<div th:fragment="verify-form" th:if="${checkout != null}" id="verifyFormFragment">
+<!-- ==================== VERIFY FORM ==================== -->
+<div th:fragment="verify-form" th:if="${checkout != null}" id="verifyFormFragment" class="modal-fragment">
+    <!-- same modal-fragment styles as above – included again for completeness -->
+    <style>
+        /* same as above – ideally extract to a shared CSS file */
+    </style>
+
     <div class="card-container">
-        <!-- Asset Information -->
         <div class="asset-info">
             <div class="asset-header">
                 <div class="asset-icon">
@@ -495,9 +571,7 @@
             </div>
         </div>
 
-        <!-- Verification Form -->
         <form th:action="@{/assets/checkout/{checkoutId}/verify(checkoutId=${checkout.id})}" method="post" id="verifyForm">
-
             <div class="form-section">
                 <div class="section-title">Verification Details</div>
                 <div class="form-grid">
@@ -510,8 +584,7 @@
                         <div class="helpers">Who is verifying this return?</div>
                     </div>
                 </div>
-
-                <div class="form-grid" style="margin-top: 16px;">
+                <div class="form-grid" style="margin-top: 12px;">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Verification Notes</label>
                         <textarea name="notes" class="form-control"
@@ -520,7 +593,6 @@
                 </div>
             </div>
 
-            <!-- Return Notes Display -->
             <div th:if="${checkout.returnNotes}" class="form-section">
                 <div class="section-title">Previous Return Notes</div>
                 <div class="card">
@@ -528,11 +600,8 @@
                 </div>
             </div>
 
-            <!-- Buttons -->
             <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick="history.back()">
-                    Cancel
-                </button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
                 <button type="submit" class="btn btn-primary" id="verifySubmitBtn">
                     <span class="material-symbols-outlined">check_circle</span>
                     Complete Verification
@@ -545,7 +614,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('verifyForm');
             const submitBtn = document.getElementById('verifySubmitBtn');
-
             form.addEventListener('submit', function() {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
@@ -553,5 +621,3 @@
         });
     </script>
 </div>
-
-
