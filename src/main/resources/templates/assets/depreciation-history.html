@@ -2,6 +2,63 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
 <head>
     <title>Depreciation History | JustJava FAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* ── Custom Tom-Select Styling for Professional Look ── */
+        .ts-wrapper {
+            width: 100%;
+        }
+        .ts-control {
+            background: rgb(249, 249, 255);
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.75rem;
+            min-height: 2.375rem;
+            font-size: 0.9375rem;
+            transition: all 200ms ease;
+        }
+        .ts-control:focus-within {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.1);
+            outline: none;
+        }
+        .ts-control input {
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+        .ts-dropdown-content {
+            padding: 0.25rem 0;
+        }
+        .ts-option, .ts-optgroup-header {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-option:hover {
+            background: #fce4e4;
+            color: #1a1d23;
+        }
+        .ts-option.selected {
+            background: #c0182a;
+            color: white;
+        }
+        .ts-optgroup-header {
+            background: #f9f9ff;
+            font-weight: 600;
+            color: #5d5e65;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #d1d5db;
+        }
+    </style>
 </head>
 <body>
 <main id="main-content" class="space-y-6" layout:fragment="content">
@@ -20,9 +77,13 @@
     <!-- Asset Selection -->
     <div class="bg-surface-card border border-border-default rounded-xl card-shadow p-4">
         <div class="flex flex-col md:flex-row gap-3 items-end">
-            <div class="flex-1">
+            <div class="flex-1 relative">
                 <label class="block text-body-default text-on-surface font-medium mb-2">Select Asset</label>
-                <select id="assetSelect" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <!-- Loading indicator -->
+                <div id="assetLoadingSpinner" class="absolute left-3 top-[2.75rem] hidden z-10">
+                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+                </div>
+                <select id="depreciation-history-asset-select" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     <option value="">-- Choose an asset --</option>
                 </select>
             </div>
@@ -119,7 +180,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const assetSelect = document.getElementById('assetSelect');
+            const assetSelect = document.getElementById('depreciation-history-asset-select');
             const searchBtn = document.getElementById('searchBtn');
             const loadingContainer = document.getElementById('loadingContainer');
             const emptyContainer = document.getElementById('emptyContainer');
@@ -128,6 +189,7 @@
             const historyTableBody = document.getElementById('historyTableBody');
             const detailModal = document.getElementById('detailModal');
             const exportBtn = document.getElementById('exportBtn');
+            const assetLoadingSpinner = document.getElementById('assetLoadingSpinner');
 
             // Load assets
             loadAssets();
@@ -139,6 +201,7 @@
             });
 
             function loadAssets() {
+                assetLoadingSpinner.classList.remove('hidden');
                 fetch('/api/assets')
                     .then(res => res.json())
                     .then(assets => {
@@ -150,11 +213,29 @@
                             option.dataset.cost = asset.purchaseCost || 0;
                             assetSelect.appendChild(option);
                         });
+                        assetLoadingSpinner.classList.add('hidden');
+                        // Initialize Tom-Select AFTER assets are loaded
+                        initializeTomSelect();
                     })
                     .catch(err => {
+                        assetLoadingSpinner.classList.add('hidden');
                         showAlert('Error loading assets', 'error');
                         console.error(err);
                     });
+            }
+
+            function initializeTomSelect() {
+                // Only initialize if not already initialized
+                if (!assetSelect.tomselect) {
+                    new TomSelect(assetSelect, {
+                        placeholder: 'Search and select an asset...',
+                        searchField: ['text', 'value'],
+                        create: false,
+                        plugins: {
+                            dropdown_input: {}
+                        }
+                    });
+                }
             }
 
             function loadHistory() {
@@ -334,6 +415,7 @@
             }
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <style>
         @keyframes fade-in {

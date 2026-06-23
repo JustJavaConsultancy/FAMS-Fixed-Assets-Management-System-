@@ -2,6 +2,63 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/employee-layout}">
 <head>
     <title>Return Requests | JustJava FAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* ── Custom Tom-Select Styling for Professional Look ── */
+        .ts-wrapper {
+            width: 100%;
+        }
+        .ts-control {
+            background: rgb(249, 249, 255);
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            min-height: 2.75rem;
+            font-size: 0.9375rem;
+            transition: all 200ms ease;
+        }
+        .ts-control:focus-within {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.1);
+            outline: none;
+        }
+        .ts-control input {
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+        .ts-dropdown-content {
+            padding: 0.25rem 0;
+        }
+        .ts-option, .ts-optgroup-header {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-option:hover {
+            background: #fce4e4;
+            color: #1a1d23;
+        }
+        .ts-option.selected {
+            background: #c0182a;
+            color: white;
+        }
+        .ts-optgroup-header {
+            background: #f9f9ff;
+            font-weight: 600;
+            color: #5d5e65;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #d1d5db;
+        }
+    </style>
 </head>
 <body>
 <main id="main-content" class="space-y-6" layout:fragment="content">
@@ -26,7 +83,7 @@
         <form th:action="@{/employee/return-requests}" method="post" class="p-5 grid grid-cols-1 lg:grid-cols-6 gap-4" data-spinner-form>
             <div class="lg:col-span-3 space-y-1.5">
                 <label class="text-label-small text-secondary">Asset</label>
-                <select name="assetId" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                <select name="assetId" id="returnAssetSelect" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                     <option value="">Select assigned asset</option>
                     <option th:each="asset : ${assignedAssets}" th:value="${asset.id}" th:selected="${param.assetId != null && param.assetId[0] == asset.id.toString()}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
                 </select>
@@ -89,6 +146,32 @@
             form.querySelector('.submit-spinner')?.classList.remove('hidden');
             form.querySelector('button[type="submit"]')?.setAttribute('disabled', 'disabled');
         }));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+            // Initialize searchable asset select
+            const assetSelect = document.getElementById('returnAssetSelect');
+            if (assetSelect) {
+                new TomSelect(assetSelect, {
+                    placeholder: 'Search and select an asset...',
+                    searchField: ['text', 'value'],
+                    create: false,
+                    plugins: {
+                        dropdown_input: {}
+                    },
+                    render: {
+                        option: function(data, escape) {
+                            return '<div class="flex flex-col"><span class="font-medium">' + escape(data.text) + '</span></div>';
+                        },
+                        item: function(data, escape) {
+                            return '<div>' + escape(data.text) + '</div>';
+                        }
+                    }
+                });
+            }
+        })();
     </script>
 </main>
 </body>

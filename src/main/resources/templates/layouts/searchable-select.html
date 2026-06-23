@@ -1,0 +1,105 @@
+<!-- Reusable Searchable Select Component -->
+<!-- Usage: Include Tom-Select library in your head, then use this fragment:
+     <div th:replace="~{layouts/searchable-select :: searchable-select(id='mySelect', name='myName', options=${optionsList})}"></div>
+
+     Options list should be a list of objects with 'id' and 'label' properties, or use th:replace with custom rendering.
+-->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+<style>
+    /* ── Custom Tom-Select Styling ── */
+    .ts-wrapper {
+        width: 100%;
+    }
+
+    .ts-control {
+        background: transparent;
+        border: 1px solid var(--border-default, #d1d5db);
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        min-height: 2.75rem;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        transition: all 200ms ease;
+    }
+
+    .ts-control:focus-within {
+        border-color: var(--primary, #c0182a);
+        box-shadow: 0 0 0 2px rgba(192, 24, 42, 0.1);
+        outline: none;
+    }
+
+    .ts-control input {
+        font-size: 0.9375rem;
+        padding: 0;
+        color: var(--on-surface, #1a1d23);
+    }
+
+    .ts-dropdown {
+        border: 1px solid var(--border-default, #d1d5db);
+        border-radius: 0.5rem;
+        background: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .ts-dropdown-content {
+        padding: 0.25rem 0;
+    }
+
+    .ts-option, .ts-optgroup-header {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9375rem;
+        color: var(--on-surface, #1a1d23);
+    }
+
+    .ts-option:hover, .ts-option.selected {
+        background: var(--primary-light, #fce4e4);
+        color: var(--on-surface, #1a1d23);
+    }
+
+    .ts-option.selected {
+        background: var(--primary, #c0182a);
+        color: white;
+    }
+
+    .ts-optgroup:first-child .ts-optgroup-header {
+        border-top: none;
+    }
+
+    .ts-optgroup-header {
+        background: var(--surface-canvas, #f9f9ff);
+        font-weight: 600;
+        color: var(--secondary, #5d5e65);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.03em;
+        border-top: 1px solid var(--border-default, #d1d5db);
+        padding: 0.5rem 0.75rem;
+    }
+
+    .ts-caption-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem 0.25rem 0.25rem 0;
+        background: var(--primary-light, #fce4e4);
+        border: 1px solid var(--primary, #c0182a);
+        border-radius: 0.375rem;
+        font-size: 0.8rem;
+        color: var(--primary, #c0182a);
+    }
+
+    .ts-caption-item .remove {
+        cursor: pointer;
+        opacity: 0.7;
+        margin-left: 0.25rem;
+    }
+
+    .ts-caption-item .remove:hover {
+        opacity: 1;
+    }
+</style>
+

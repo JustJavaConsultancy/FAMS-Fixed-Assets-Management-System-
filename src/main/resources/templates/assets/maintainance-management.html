@@ -2,6 +2,7 @@
 <html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
 <head>
     <title>Maintenance Management | JustJava FAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <style>
         .modal-panel {
             max-height: calc(100vh - 48px);
@@ -11,6 +12,61 @@
                 max-height: 92vh;
                 width: calc(100vw - 24px);
             }
+        }
+
+        /* ── Custom Tom-Select Styling for Professional Look ── */
+        .ts-wrapper {
+            width: 100%;
+        }
+        .ts-control {
+            background: rgb(249, 249, 255);
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            min-height: 2.75rem;
+            font-size: 0.9375rem;
+            transition: all 200ms ease;
+        }
+        .ts-control:focus-within {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.1);
+            outline: none;
+        }
+        .ts-control input {
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+        .ts-dropdown-content {
+            padding: 0.25rem 0;
+        }
+        .ts-option, .ts-optgroup-header {
+            padding: 0.625rem 0.75rem;
+            font-size: 0.9375rem;
+            color: #1a1d23;
+        }
+        .ts-option:hover {
+            background: #fce4e4;
+            color: #1a1d23;
+        }
+        .ts-option.selected {
+            background: #c0182a;
+            color: white;
+        }
+        .ts-optgroup-header {
+            background: #f9f9ff;
+            font-weight: 600;
+            color: #5d5e65;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #d1d5db;
         }
     </style>
 </head>
@@ -333,7 +389,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
                         <label for="schedule-asset" class="text-label-small text-secondary">Asset</label>
-                        <select id="schedule-asset" name="assetId" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <select id="schedule-asset-select" name="assetId" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                             <option value="">Use asset category instead</option>
                             <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
                         </select>
@@ -403,7 +459,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-1.5 md:col-span-2">
                         <label for="corrective-asset" class="text-label-small text-secondary">Asset <span class="text-error">*</span></label>
-                        <select id="corrective-asset" name="assetId" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <select id="corrective-asset-select" name="assetId" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                             <option value="">Select asset</option>
                             <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
                         </select>
@@ -491,6 +547,37 @@
                 document.querySelectorAll('[role="dialog"]').forEach(closeModal);
             }
         });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+            // Initialize searchable asset selects in modals
+            const scheduleAssetSelect = document.getElementById('schedule-asset-select');
+            const correctiveAssetSelect = document.getElementById('corrective-asset-select');
+
+            if (scheduleAssetSelect) {
+                new TomSelect(scheduleAssetSelect, {
+                    placeholder: 'Search and select an asset...',
+                    searchField: ['text', 'value'],
+                    create: false,
+                    plugins: {
+                        dropdown_input: {}
+                    }
+                });
+            }
+
+            if (correctiveAssetSelect) {
+                new TomSelect(correctiveAssetSelect, {
+                    placeholder: 'Search and select an asset...',
+                    searchField: ['text', 'value'],
+                    create: false,
+                    plugins: {
+                        dropdown_input: {}
+                    }
+                });
+            }
+        })();
     </script>
 </main>
 </body>
