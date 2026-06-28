@@ -12,8 +12,8 @@ import com.example.fams.settings.AssetCategory;
 import com.example.fams.lifecycle.ApprovalDecision;
 import com.example.fams.lifecycle.AssetLifecycleService;
 import com.example.fams.lifecycle.AssetLifecycleWorkflow;
-import com.example.fams.lifecycle.LifecycleWorkflowForm;
 import com.example.fams.lifecycle.LifecycleWorkflowType;
+import com.example.fams.lifecycle.LifecycleWorkflowForm;
 import jakarta.validation.Valid;
 import org.flowable.task.api.Task;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -74,10 +74,15 @@ public class AssetController {
 
     /**
      * Get the current active company or default to the first active company
+     * We return the oldest active company (first created) to ensure consistency
      */
     private Company getCurrentCompany() {
         List<Company> activeCompanies = companyRepository.findByIsActiveTrueOrderByCreatedAtDesc();
-        return activeCompanies.isEmpty() ? null : activeCompanies.get(0);
+        if (activeCompanies.isEmpty()) {
+            return null;
+        }
+        // Return the oldest company (last in the list sorted by createdAt descending)
+        return activeCompanies.get(activeCompanies.size() - 1);
     }
 
     @ModelAttribute("departments")
@@ -155,7 +160,7 @@ public class AssetController {
         return "assets/lifecycle-workflows";
     }
 
-    @PostMapping("/assets/lifecycle/workflows/{workflowId}/tasks/{taskId}/decision")
+    @PostMapping("/assets/lifecycle/workflows/{workflowId}/task/{taskId}/decision")
     public String decideLifecycleTask(@PathVariable Long workflowId,
                                       @PathVariable String taskId,
                                       @RequestParam(name = "decision", required = false) ApprovalDecision decision,
