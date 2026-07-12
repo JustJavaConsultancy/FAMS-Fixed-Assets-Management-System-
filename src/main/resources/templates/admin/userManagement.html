@@ -425,11 +425,11 @@
             </div>
             <div class="px-6 pt-4 pb-2 shrink-0 flex items-center gap-3">
                 <div class="flex gap-1.5">
-                    <div id="cu-dot-1" class="step-dot active"></div><div id="cu-dot-2" class="step-dot"></div><div id="cu-dot-3" class="step-dot"></div>
+                    <div id="cu-dot-1" class="step-dot active"></div><div id="cu-dot-2" class="step-dot"></div>
                 </div>
-                <p id="cu-step-label" class="text-label-small font-semibold text-secondary/70 uppercase tracking-wider">Step 1 of 3 — Identity</p>
+                <p id="cu-step-label" class="text-label-small font-semibold text-secondary/70 uppercase tracking-wider">Step 1 of 2 — Identity</p>
             </div>
-            <form id="createUserForm" th:action="@{/admin/create-user}" method="post" class="overflow-y-auto flex-1 px-6 pb-2 pt-3">
+            <form id="createUserForm" th:action="@{/admin/create-user}" method="post" novalidate onsubmit="return cuValidateSubmit()" class="overflow-y-auto flex-1 px-6 pb-2 pt-3">
                 <input type="hidden" name="realm" th:value="${realmName}"/>
                 <!-- Step 1 -->
                 <div id="cu-step-1" class="form-section active space-y-5">
@@ -497,35 +497,14 @@
                         </div>
                         <p id="cu-match-msg" class="text-label-small pl-0.5 hidden"></p>
                     </div>
-                    <div class="rounded-xl bg-primary/5 border border-primary/10 p-4 flex gap-3">
-                        <span class="material-symbols-outlined text-primary text-lg shrink-0 mt-0.5">info</span>
-                        <p class="text-label-small text-secondary leading-relaxed">Min. <strong>8 characters</strong>, one uppercase, one number, one special character.</p>
-                    </div>
-                </div>
-                <!-- Step 3 -->
-                <div id="cu-step-3" class="form-section space-y-5">
-                    <div class="rounded-xl bg-surface-canvas border border-border-default p-4">
-                        <p class="text-label-small text-secondary leading-relaxed"><span class="font-semibold text-on-surface">Optional:</span> Add extra information to this user's profile.</p>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-label-small font-semibold text-secondary uppercase tracking-wider">Add Attribute</label>
-                        <div class="flex gap-2">
-                            <div class="relative flex-1">
-                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">key</span>
-                                <input type="text" id="cu-attrKey" placeholder="Key (e.g. department)" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
-                            </div>
-                            <div class="relative flex-1">
-                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">data_object</span>
-                                <input type="text" id="cu-attrVal" placeholder="Value" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" onkeydown="if(event.key==='Enter'){event.preventDefault();cuAddAttr();}">
-                            </div>
-                            <button type="button" onclick="cuAddAttr()" class="shrink-0 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-semibold flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[18px]">add</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="cu-attrHidden"></div>
-                    <div id="cu-attrChips" class="flex flex-wrap gap-2 min-h-[2.75rem] rounded-xl border border-border-default bg-surface-canvas/50 p-3">
-                        <span class="text-label-small text-secondary/40 self-center">No attributes added yet</span>
+                    <div class="rounded-xl bg-surface-canvas border border-border-default p-4 space-y-2">
+                        <p class="text-label-small font-semibold text-secondary uppercase tracking-wider">Password must include:</p>
+                        <ul class="space-y-1.5 text-label-small">
+                            <li id="req-len" class="flex items-center gap-2 text-secondary/60"><span class="material-symbols-outlined text-[16px]">close</span> At least 8 characters</li>
+                            <li id="req-up" class="flex items-center gap-2 text-secondary/60"><span class="material-symbols-outlined text-[16px]">close</span> One uppercase letter (A–Z)</li>
+                            <li id="req-num" class="flex items-center gap-2 text-secondary/60"><span class="material-symbols-outlined text-[16px]">close</span> One number (0–9)</li>
+                            <li id="req-sym" class="flex items-center gap-2 text-secondary/60"><span class="material-symbols-outlined text-[16px]">close</span> One special character (e.g. !@#$%)</li>
+                        </ul>
                     </div>
                 </div>
             </form>
@@ -734,18 +713,17 @@
 
         // ── CREATE USER ──
         let cuStep = 1;
-        const cuTotal = 3;
-        const cuLabels = ['Step 1 of 3 — Identity', 'Step 2 of 3 — Security', 'Step 3 of 3 — Attributes'];
-        const cuAttrs = {};
+        const cuTotal = 2;
+        const cuLabels = ['Step 1 of 2 — Identity', 'Step 2 of 2 — Security'];
 
         function openCreateModal() { cuStep = 1;
             cuRenderStep();
+            cuUpdatePwdFeedback('');
             toggle('createUserModal', true);
             setTimeout(() => document.getElementById('cu-firstName')?.focus(), 350); }
 
         function closeCreateModal() { toggle('createUserModal', false);
-            document.getElementById('createUserForm')?.reset(); for (const k in cuAttrs) delete cuAttrs[k];
-            cuRenderAttrs(); }
+            document.getElementById('createUserForm')?.reset(); }
 
         function cuRenderStep() {
             for (let i = 1; i <= cuTotal; i++) { document.getElementById(`cu-step-${i}`).classList.toggle('active', i ===
@@ -781,9 +759,68 @@
                 if (!/^[a-z0-9._]+$/.test(un)) { cuHighlight('cu-username'); return false; }
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { cuHighlight('cu-email'); return false; }
             }
-            if (step === 2) { const pwd = v('cu-password'),
-                cpwd = v('cu-confirm'); if (pwd.length < 8) { cuHighlight('cu-password'); return false; } if (pwd !==
-                cpwd) { cuHighlight('cu-confirm'); return false; } }
+            if (step === 2) {
+                const pwd = v('cu-password'),
+                    cpwd = v('cu-confirm');
+                if (!cuValidatePassword(pwd, cpwd)) { cuShake(); return false; }
+            }
+            return true;
+        }
+
+        // ── Password policy ──
+        // Must be at least 8 characters and contain an uppercase letter, a number,
+        // and a special character. These match the requirements shown in the UI.
+        function cuPasswordChecks(pwd) {
+            return {
+                len: pwd.length >= 8,
+                up:  /[A-Z]/.test(pwd),
+                num: /[0-9]/.test(pwd),
+                sym: /[^A-Za-z0-9]/.test(pwd)
+            };
+        }
+
+        function cuValidatePassword(pwd, cpwd) {
+            const c = cuPasswordChecks(pwd);
+            if (!c.len || !c.up || !c.num || !c.sym) { cuHighlight('cu-password'); return false; }
+            if (pwd !== cpwd) { cuHighlight('cu-confirm'); return false; }
+            return true;
+        }
+
+        // Updates the strength meter and the live requirements checklist so the
+        // user gets clean, per-rule feedback as they type.
+        function cuUpdatePwdFeedback(pwd) {
+            const c = cuPasswordChecks(pwd);
+            const items = { 'req-len': c.len, 'req-up': c.up, 'req-num': c.num, 'req-sym': c.sym };
+            for (const id in items) {
+                const li = document.getElementById(id);
+                if (!li) continue;
+                const icon = li.querySelector('.material-symbols-outlined');
+                if (items[id]) {
+                    li.classList.remove('text-secondary/60');
+                    li.classList.add('text-status-success');
+                    if (icon) icon.textContent = 'check_circle';
+                } else {
+                    li.classList.add('text-secondary/60');
+                    li.classList.remove('text-status-success');
+                    if (icon) icon.textContent = 'close';
+                }
+            }
+            const s = Object.values(c).filter(Boolean).length;
+            const colors = ['', '#ba1a1a', '#f59e0b', '#0284c7', '#006242'];
+            const labels = ['Enter a password', 'Weak', 'Fair', 'Good', 'Strong'];
+            for (let i = 1; i <= 4; i++) {
+                const bar = document.getElementById('cu-bar' + i);
+                if (bar) bar.style.backgroundColor = i <= s ? colors[s] : '#c3c6d7';
+            }
+            const lbl = document.getElementById('cu-strength-label');
+            if (lbl) { lbl.textContent = pwd ? labels[s] : labels[0]; lbl.style.color = s > 0 ? colors[s] : ''; }
+        }
+
+        // Gate used on form submit: runs the full validation across every step and
+        // blocks the request (returns false) when any criterion is unmet.
+        function cuValidateSubmit() {
+            if (!cuValidate(1)) { cuStep = 1; cuRenderStep(); return false; }
+            if (!cuValidate(2)) { return false; }
             return true;
         }
 
@@ -812,20 +849,7 @@
             i.type = show ? 'text' : 'password';
             ic.textContent = show ? 'visibility_off' : 'visibility'; }
 
-        function cuEvalStrength(val) {
-            let s = 0;
-            if (val.length >= 8) s++;
-            if (/[A-Z]/.test(val)) s++;
-            if (/[0-9]/.test(val)) s++;
-            if (/[^A-Za-z0-9]/.test(val)) s++;
-            const colors = ['', '#ba1a1a', '#f59e0b', '#0284c7', '#006242'],
-                labels = ['Enter a password to check its strength', 'Weak', 'Fair', 'Good', 'Strong'];
-            [1, 2, 3, 4].forEach(i => { document.getElementById(`cu-bar${i}`).style.backgroundColor = i <= s ? colors[s] :
-                '#c3c6d7'; });
-            const lbl = document.getElementById('cu-strength-label');
-            lbl.textContent = val ? labels[s] : labels[0];
-            lbl.style.color = s > 0 ? colors[s] : '';
-        }
+        function cuEvalStrength(val) { cuUpdatePwdFeedback(val); }
 
         function cuCheckMatch() {
             const pwd = v('cu-password'),
@@ -839,42 +863,6 @@
                 msg.className = 'text-[11px] pl-0.5 text-error font-semibold'; }
         }
 
-        function cuAddAttr() {
-            const k = document.getElementById('cu-attrKey').value.trim(),
-                vl = document.getElementById('cu-attrVal').value.trim();
-            if (!k || !vl) return;
-            if (!cuAttrs[k]) cuAttrs[k] = [];
-            cuAttrs[k].push(vl);
-            document.getElementById('cu-attrKey').value = '';
-            document.getElementById('cu-attrVal').value = '';
-            document.getElementById('cu-attrKey').focus();
-            cuRenderAttrs();
-        }
-
-        function cuRemoveAttr(k, idx) { cuAttrs[k].splice(idx, 1); if (!cuAttrs[k].length) delete cuAttrs[k];
-            cuRenderAttrs(); }
-
-        function cuRenderAttrs() {
-            const chips = document.getElementById('cu-attrChips'),
-                hidden = document.getElementById('cu-attrHidden');
-            chips.innerHTML = '';
-            hidden.innerHTML = '';
-            const entries = Object.entries(cuAttrs);
-            if (!entries.length) { chips.innerHTML =
-                '<span class="text-xs text-secondary/40 self-center">No attributes added yet</span>'; return; }
-            entries.forEach(([k, vals]) => vals.forEach((vl, idx) => {
-                const chip = document.createElement('div');
-                chip.className = 'attr-chip';
-                chip.innerHTML =
-                    `<span class="material-symbols-outlined text-[13px]">key</span>${esc(k)}<span class="opacity-40 mx-0.5">→</span>${esc(vl)}<button type="button" onclick="cuRemoveAttr('${esc(k)}',${idx})" class="ml-1 opacity-60 hover:opacity-100"><span class="material-symbols-outlined text-[12px]">close</span></button>`;
-                chips.appendChild(chip);
-                const inp = document.createElement('input');
-                inp.type = 'hidden';
-                inp.name = `attribute[${k}][${idx}]`;
-                inp.value = vl;
-                hidden.appendChild(inp);
-            }));
-        }
 
         // ── GROUPS MODAL ──
         function openGroupsModal() { toggle('groupsModal', true); }
