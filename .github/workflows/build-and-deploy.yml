@@ -69,11 +69,14 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: 15274145-d441-4d6d-8f0e-4f45993a2e5b
-          RAILWAY_SERVICE_ID: fixed-assets
+          RAILWAY_SERVICE_ID: fixed-assets-copy
         run: |
           IMAGE_REF="kazeemakinrinde/fixed-assets:latest"
           echo "Updating service image to: $IMAGE_REF"
           railway variables --set "RAILWAY_SERVICE_IMAGE=$IMAGE_REF" --service $RAILWAY_SERVICE_ID
           
           #test
+          #testing
+          #testing2
+          #testing3
           
