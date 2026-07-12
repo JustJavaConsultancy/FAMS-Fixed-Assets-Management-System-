@@ -1024,7 +1024,7 @@
 
     <div class="search-wrap">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search audit logs…" />
+        <input type="text" placeholder="Search audit logs…" data-input-type="search" />
     </div>
 
     <div class="topbar-actions">
@@ -1520,5 +1520,6 @@
     })();
 </script>
 
+<script th:src="@{/js/input-restrict.js}"></script>
 </body>
 </html>

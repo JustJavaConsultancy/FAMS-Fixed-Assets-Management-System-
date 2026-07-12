@@ -17,9 +17,9 @@
             </summary>
             <form th:action="@{/auditor/audit-sessions}" method="post" class="absolute right-0 top-[calc(100%+8px)] z-30 bg-surface-card border border-border-default rounded-xl p-4 card-shadow w-[340px] sm:w-[420px] space-y-3" data-spinner-form>
                 <p class="font-card-header text-card-header text-on-surface">Start audit session</p>
-                <input name="title" required maxlength="160" th:value="${defaultAuditTitle}" class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                <input name="scopeLocation" maxlength="160" placeholder="Scope / location" class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                <textarea name="notes" rows="2" placeholder="Notes" class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
+                <input name="title" required maxlength="160" th:value="${defaultAuditTitle}" data-input-type="text" class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <input name="scopeLocation" maxlength="160" placeholder="Scope / location" data-input-type="text" class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <textarea name="notes" rows="2" placeholder="Notes" data-input-type="text" class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
                 <button type="submit" class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark inline-flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px] submit-icon">add_task</span>
                     <span class="hidden submit-spinner w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
@@ -61,7 +61,7 @@
             </div>
             <div class="p-5 space-y-5">
                 <div class="flex gap-2">
-                    <input id="manual-code" placeholder="Scan or enter asset code" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="flex-1 h-[42px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    <input id="manual-code" placeholder="Scan or enter asset code" th:disabled="${activeSession.status.name() != 'ACTIVE'}" data-input-type="alphanumeric" class="flex-1 h-[42px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     <button id="lookup-button" type="button" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="h-[42px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark inline-flex items-center gap-2 disabled:opacity-50">
                         <span class="material-symbols-outlined text-[18px]">search</span>
                         Lookup
@@ -82,8 +82,8 @@
                             <span th:text="${status}">FOUND</span>
                         </label>
                     </div>
-                    <input id="actual-location" placeholder="Actual location" class="w-full h-[42px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    <textarea id="condition-notes" rows="4" placeholder="Condition notes or discrepancy details" class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y"></textarea>
+                    <input id="actual-location" placeholder="Actual location" data-input-type="text" class="w-full h-[42px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    <textarea id="condition-notes" rows="4" placeholder="Condition notes or discrepancy details" data-input-type="text" class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y"></textarea>
                     <button id="submit-verification" type="submit" th:disabled="${activeSession.status.name() != 'ACTIVE'}" class="w-full h-[42px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark inline-flex items-center justify-center gap-2 disabled:opacity-50">
                         <span class="material-symbols-outlined text-[18px]">save</span>
                         Save Verification

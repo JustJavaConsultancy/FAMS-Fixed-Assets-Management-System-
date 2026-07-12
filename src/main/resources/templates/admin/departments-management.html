@@ -1407,7 +1407,7 @@
                 <div class="cs-toolbar">
                     <div class="flex items-center gap-2 flex-1 min-w-[140px]">
                         <span class="material-symbols-outlined text-secondary">search</span>
-                        <input type="text" placeholder="Search departments…"
+                        <input type="text" placeholder="Search departments…" data-input-type="search"
                                class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                oninput="csFilterTable(this, 'tbl-departments')" aria-label="Search departments" />
                     </div>
@@ -1582,7 +1582,7 @@
                 <div class="cs-toolbar">
                     <div class="flex items-center gap-2 flex-1 min-w-[140px]">
                         <span class="material-symbols-outlined text-secondary">search</span>
-                        <input type="text" placeholder="Search heads…"
+                        <input type="text" placeholder="Search heads…" data-input-type="search"
                                class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                oninput="csFilterTable(this, 'tbl-heads')" aria-label="Search heads" />
                     </div>
@@ -1740,23 +1740,23 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csDeptName">Department Name *</label>
-                        <input type="text" id="csDeptName" name="name" required placeholder="e.g., Finance"
+                        <input type="text" id="csDeptName" name="name" required placeholder="e.g., Finance" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csDeptDesc">Description</label>
-                        <textarea id="csDeptDesc" name="description" rows="2" placeholder="Department description…"
+                        <textarea id="csDeptDesc" name="description" rows="2" placeholder="Department description…" data-input-type="text"
                                   class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csDeptCode">Department Code</label>
-                            <input type="text" id="csDeptCode" name="departmentCode" placeholder="e.g., DEPT-001"
+                            <input type="text" id="csDeptCode" name="departmentCode" placeholder="e.g., DEPT-001" data-input-type="alphanumeric"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csDeptBudget">Budget</label>
-                            <input type="text" id="csDeptBudget" name="budget" placeholder="e.g., 500000"
+                            <input type="text" id="csDeptBudget" name="budget" placeholder="e.g., 500000" data-input-type="numeric"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
@@ -1804,13 +1804,13 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csHeadEmail">User Email</label>
-                        <input type="email" id="csHeadEmail" readonly
+                        <input type="email" id="csHeadEmail" readonly data-input-type="email"
                                class="w-full h-11 px-4 bg-surface-variant border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-not-allowed"
                                placeholder="auto-filled" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csHeadName">Full Name</label>
-                        <input type="text" id="csHeadName" name="fullName" placeholder="Optional"
+                        <input type="text" id="csHeadName" name="fullName" placeholder="Optional" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="flex items-center gap-2 pt-1">

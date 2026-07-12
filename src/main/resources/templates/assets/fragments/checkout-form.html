@@ -307,7 +307,7 @@
                         <label class="form-label">
                             Checked Out By <span class="required">*</span>
                         </label>
-                        <input type="text" name="checkedOutBy" class="form-control"
+                        <input type="text" name="checkedOutBy" data-input-type="text" class="form-control"
                                placeholder="Employee name or ID" required>
                         <div class="helpers">Who is checking out this asset?</div>
                     </div>
@@ -337,7 +337,7 @@
                 <div class="form-grid">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Purpose</label>
-                        <textarea name="purpose" class="form-control"
+                        <textarea name="purpose" data-input-type="text" class="form-control"
                                   placeholder="Why is this asset being checked out? (e.g., Field survey, training, repair)"></textarea>
                     </div>
 
@@ -509,7 +509,7 @@
                     </div>
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Return Notes</label>
-                        <textarea name="returnNotes" class="form-control"
+                        <textarea name="returnNotes" data-input-type="text" class="form-control"
                                   placeholder="Any observations or issues found? Document damage, maintenance needs, etc."></textarea>
                     </div>
                 </div>
@@ -618,7 +618,7 @@
                         <label class="form-label">
                             Verified By <span class="required">*</span>
                         </label>
-                        <input type="text" name="verifiedBy" class="form-control"
+                        <input type="text" name="verifiedBy" data-input-type="text" class="form-control"
                                placeholder="Your name or ID" required>
                         <div class="helpers">Who is verifying this return?</div>
                     </div>
@@ -626,7 +626,7 @@
                 <div class="form-grid" style="margin-top: 12px;">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label class="form-label">Verification Notes</label>
-                        <textarea name="notes" class="form-control"
+                        <textarea name="notes" data-input-type="text" class="form-control"
                                   placeholder="Record any findings from inspection: damage, repairs needed, etc."></textarea>
                     </div>
                 </div>

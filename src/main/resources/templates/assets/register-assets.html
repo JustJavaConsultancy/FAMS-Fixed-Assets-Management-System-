@@ -226,7 +226,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
                             <label for="name" class="font-label-small text-label-small text-secondary">Asset Name <span class="text-error">*</span></label>
-                            <input id="name" th:field="*{name}" type="text" required placeholder="e.g. Dell Latitude 5530"
+                            <input id="name" th:field="*{name}" type="text" data-input-type="text" required placeholder="e.g. Dell Latitude 5530"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
                         <div class="space-y-1.5">
@@ -246,7 +246,7 @@
 
                     <div class="space-y-1.5">
                         <label for="description" class="font-label-small text-label-small text-secondary">Description</label>
-                        <textarea id="description" th:field="*{description}" rows="3" placeholder="Short asset description..."
+                        <textarea id="description" th:field="*{description}" data-input-type="text" rows="3" placeholder="Short asset description..."
                                   class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
 
@@ -272,7 +272,7 @@
                 <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="space-y-1.5">
                         <label for="serialNumber" class="font-label-small text-label-small text-secondary">Serial Number</label>
-                        <input id="serialNumber" th:field="*{serialNumber}" type="text" placeholder="XXXX-XXXX-XXXX"
+                        <input id="serialNumber" th:field="*{serialNumber}" type="text" data-input-type="alphanumeric" placeholder="XXXX-XXXX-XXXX"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data uppercase focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
@@ -284,12 +284,12 @@
                     </div>
                     <div class="space-y-1.5">
                         <label for="manufacturer" class="font-label-small text-label-small text-secondary">Manufacturer</label>
-                        <input id="manufacturer" th:field="*{manufacturer}" type="text" placeholder="e.g. Dell Inc."
+                        <input id="manufacturer" th:field="*{manufacturer}" type="text" data-input-type="text" placeholder="e.g. Dell Inc."
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">
                         <label for="model" class="font-label-small text-label-small text-secondary">Model</label>
-                        <input id="model" th:field="*{model}" type="text" placeholder="e.g. Latitude 5530"
+                        <input id="model" th:field="*{model}" type="text" data-input-type="text" placeholder="e.g. Latitude 5530"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                 </div>
@@ -311,13 +311,13 @@
                         <label for="purchaseCost" class="font-label-small text-label-small text-secondary">Purchase Cost (₦)</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">₦</span>
-                            <input id="purchaseCost" th:field="*{purchaseCost}" type="number" min="0" step="0.01" placeholder="0.00"
+                            <input id="purchaseCost" th:field="*{purchaseCost}" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00"
                                    class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label for="vendor" class="font-label-small text-label-small text-secondary">Vendor</label>
-                        <input id="vendor" th:field="*{vendor}" type="text" placeholder="e.g. JustJava Supplies"
+                        <input id="vendor" th:field="*{vendor}" type="text" data-input-type="text" placeholder="e.g. JustJava Supplies"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     </div>
                     <div class="space-y-1.5">

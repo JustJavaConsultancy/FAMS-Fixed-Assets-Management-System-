@@ -596,7 +596,7 @@
     <div class="bg-surface-card border border-border-default rounded-xl p-4 card-shadow">
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">search</span>
-            <input id="asset-search" type="text" placeholder="Search by name, serial number, asset ID, category…"
+            <input id="asset-search" type="text" data-input-type="search" placeholder="Search by name, serial number, asset ID, category…"
                    class="w-full h-[38px] pl-10 pr-4 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
         </div>
     </div>
@@ -719,11 +719,11 @@
                 </div>
                 <div class="form-group">
                     <label for="assign-to">Assign To (Person / Employee)</label>
-                    <input id="assign-to" type="text" placeholder="e.g. John Doe" required>
+                    <input id="assign-to" type="text" data-input-type="letters" placeholder="e.g. John Doe" required>
                 </div>
                 <div class="form-group">
                     <label for="assign-department">Department</label>
-                    <input id="assign-department" type="text" placeholder="e.g. Engineering">
+                    <input id="assign-department" type="text" data-input-type="letters" placeholder="e.g. Engineering">
                 </div>
                 <div class="form-group">
                     <label for="assign-date">Assignment Date</label>
@@ -731,7 +731,7 @@
                 </div>
                 <div class="form-group">
                     <label for="assign-notes">Notes</label>
-                    <textarea id="assign-notes" placeholder="Additional details…" rows="2"></textarea>
+                    <textarea id="assign-notes" data-input-type="text" placeholder="Additional details…" rows="2"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -756,11 +756,11 @@
                 </div>
                 <div class="form-group">
                     <label for="transfer-to-location">Transfer To Location</label>
-                    <input id="transfer-to-location" type="text" placeholder="e.g. Warehouse B" required>
+                    <input id="transfer-to-location" type="text" data-input-type="text" placeholder="e.g. Warehouse B" required>
                 </div>
                 <div class="form-group">
                     <label for="transfer-to-department">Transfer To Department</label>
-                    <input id="transfer-to-department" type="text" placeholder="e.g. Logistics">
+                    <input id="transfer-to-department" type="text" data-input-type="letters" placeholder="e.g. Logistics">
                 </div>
                 <div class="form-group">
                     <label for="transfer-date">Transfer Date</label>
@@ -768,11 +768,11 @@
                 </div>
                 <div class="form-group">
                     <label for="transfer-reason">Reason</label>
-                    <input id="transfer-reason" type="text" placeholder="e.g. Reallocation">
+                    <input id="transfer-reason" type="text" data-input-type="text" placeholder="e.g. Reallocation">
                 </div>
                 <div class="form-group">
                     <label for="transfer-notes">Notes</label>
-                    <textarea id="transfer-notes" placeholder="Additional details…" rows="2"></textarea>
+                    <textarea id="transfer-notes" data-input-type="text" placeholder="Additional details…" rows="2"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -821,11 +821,11 @@
                 </div>
                 <div class="form-group">
                     <label for="retire-notes">Notes</label>
-                    <textarea id="retire-notes" placeholder="Please provide details (min 20 characters)…" rows="2"></textarea>
+                    <textarea id="retire-notes" data-input-type="text" placeholder="Please provide details (min 20 characters)…" rows="2"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="retire-confirm">Type <strong>RETIRE</strong> to confirm</label>
-                    <input id="retire-confirm" type="text" placeholder="RETIRE" autocomplete="off">
+                    <input id="retire-confirm" type="text" data-input-type="text" placeholder="RETIRE" autocomplete="off">
                 </div>
             </div>
             <div class="modal-footer">

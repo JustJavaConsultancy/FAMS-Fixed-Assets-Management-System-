@@ -1140,7 +1140,7 @@
 
     <div class="search-wrap">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search assets, locations, or personnel…" />
+        <input type="text" data-input-type="search" placeholder="Search assets, locations, or personnel…" />
     </div>
 
     <div class="topbar-actions">
@@ -1560,5 +1560,6 @@
     })();
 </script>
 
+<script th:src="@{/js/input-restrict.js}"></script>
 </body>
 </html>

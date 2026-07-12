@@ -1376,7 +1376,7 @@
                 <div class="cs-toolbar">
                     <div class="flex items-center gap-2 flex-1 min-w-[140px]">
                         <span class="material-symbols-outlined text-secondary">search</span>
-                        <input type="text" placeholder="Search companies…"
+                        <input type="text" placeholder="Search companies…" data-input-type="search"
                                class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                oninput="csFilterTable(this, 'tbl-companies')" aria-label="Search companies" />
                     </div>
@@ -1517,7 +1517,7 @@
                 <div class="cs-toolbar">
                     <div class="flex items-center gap-2 flex-1 min-w-[140px]">
                         <span class="material-symbols-outlined text-secondary">search</span>
-                        <input type="text" placeholder="Search locations…"
+                        <input type="text" placeholder="Search locations…" data-input-type="search"
                                class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                oninput="csFilterTable(this, 'tbl-locations')" aria-label="Search locations" />
                     </div>
@@ -1656,7 +1656,7 @@
                 <div class="cs-toolbar">
                     <div class="flex items-center gap-2 flex-1 min-w-[140px]">
                         <span class="material-symbols-outlined text-secondary">search</span>
-                        <input type="text" placeholder="Search branches…"
+                        <input type="text" placeholder="Search branches…" data-input-type="search"
                                class="w-full h-10 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                oninput="csFilterTable(this, 'tbl-branches')" aria-label="Search branches" />
                     </div>
@@ -1796,29 +1796,29 @@
                     </th:block>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csCompanyName">Company Name *</label>
-                        <input type="text" id="csCompanyName" name="name" required placeholder="e.g., JustJava Inc."
+                        <input type="text" id="csCompanyName" name="name" required placeholder="e.g., JustJava Inc." data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csCompanyIndustry">Industry</label>
-                        <input type="text" id="csCompanyIndustry" name="industry" placeholder="e.g., Technology"
+                        <input type="text" id="csCompanyIndustry" name="industry" placeholder="e.g., Technology" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csCompanyReg">Registration Number</label>
-                            <input type="text" id="csCompanyReg" name="registrationNumber" placeholder="RC-0000-000"
+                            <input type="text" id="csCompanyReg" name="registrationNumber" placeholder="RC-0000-000" data-input-type="alphanumeric"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csCompanyTax">Tax ID</label>
-                            <input type="text" id="csCompanyTax" name="taxId" placeholder="Tax ID"
+                            <input type="text" id="csCompanyTax" name="taxId" placeholder="Tax ID" data-input-type="alphanumeric"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csCompanyDesc">Description</label>
-                        <textarea id="csCompanyDesc" name="description" rows="2" placeholder="Brief company description…"
+                        <textarea id="csCompanyDesc" name="description" rows="2" placeholder="Brief company description…" data-input-type="text"
                                   class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
                 </div>
@@ -1844,35 +1844,35 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csLocName">Location Name *</label>
-                        <input type="text" id="csLocName" name="name" required placeholder="e.g., Main Office"
+                        <input type="text" id="csLocName" name="name" required placeholder="e.g., Main Office" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csLocAddress">Address</label>
-                        <input type="text" id="csLocAddress" name="address" placeholder="Street address"
+                        <input type="text" id="csLocAddress" name="address" placeholder="Street address" data-input-type="text"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csLocCity">City</label>
-                            <input type="text" id="csLocCity" name="city" placeholder="City"
+                            <input type="text" id="csLocCity" name="city" placeholder="City" data-input-type="letters"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csLocState">State</label>
-                            <input type="text" id="csLocState" name="state" placeholder="State"
+                            <input type="text" id="csLocState" name="state" placeholder="State" data-input-type="letters"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csLocCountry">Country</label>
-                            <input type="text" id="csLocCountry" name="country" placeholder="Country"
+                            <input type="text" id="csLocCountry" name="country" placeholder="Country" data-input-type="letters"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                         <div class="space-y-1.5">
                             <label class="font-label-small text-label-small text-secondary" for="csLocPostal">Postal Code</label>
-                            <input type="text" id="csLocPostal" name="postalCode" placeholder="Postal code"
+                            <input type="text" id="csLocPostal" name="postalCode" placeholder="Postal code" data-input-type="alphanumeric"
                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                         </div>
                     </div>
@@ -1913,17 +1913,17 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csBranchName">Branch Name *</label>
-                        <input type="text" id="csBranchName" name="name" required placeholder="e.g., Lagos Branch"
+                        <input type="text" id="csBranchName" name="name" required placeholder="e.g., Lagos Branch" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csBranchManager">Manager Name</label>
-                        <input type="text" id="csBranchManager" name="managerName" placeholder="Manager name"
+                        <input type="text" id="csBranchManager" name="managerName" placeholder="Manager name" data-input-type="letters"
                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" />
                     </div>
                     <div class="space-y-1.5">
                         <label class="font-label-small text-label-small text-secondary" for="csBranchDesc">Description</label>
-                        <textarea id="csBranchDesc" name="description" rows="2" placeholder="Brief branch description…"
+                        <textarea id="csBranchDesc" name="description" rows="2" placeholder="Brief branch description…" data-input-type="text"
                                   class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
                     </div>
                 </div>

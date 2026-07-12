@@ -135,13 +135,13 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="block text-body-default text-on-surface font-medium mb-2">Useful Life (Years)</label>
-                        <input id="usefulLifeInput" type="number" min="1" max="100" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="e.g., 5">
+                        <input id="usefulLifeInput" type="number" data-input-type="numeric" min="1" max="100" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="e.g., 5">
                     </div>
 
                     <!-- Residual Value -->
                     <div class="form-group">
                         <label class="block text-body-default text-on-surface font-medium mb-2">Residual Value (₦)</label>
-                        <input id="residualValueInput" type="number" min="0" step="0.01" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="0.00">
+                        <input id="residualValueInput" type="number" data-input-type="decimal" min="0" step="0.01" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="0.00">
                     </div>
                 </div>
 
@@ -155,7 +155,7 @@
                 <!-- Description -->
                 <div class="form-group">
                     <label class="block text-body-default text-on-surface font-medium mb-2">Notes</label>
-                    <textarea id="notesInput" class="w-full h-24 px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="Add any relevant depreciation notes or reasons for this configuration..."></textarea>
+                    <textarea id="notesInput" data-input-type="text" class="w-full h-24 px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="Add any relevant depreciation notes or reasons for this configuration..."></textarea>
                 </div>
 
                 <!-- Action Buttons -->

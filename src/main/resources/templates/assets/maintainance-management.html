@@ -407,7 +407,7 @@
                     </div>
                     <div class="space-y-1.5">
                         <label for="service-type" class="text-label-small text-secondary">Service Type <span class="text-error">*</span></label>
-                        <input id="service-type" name="serviceType" required placeholder="e.g. Safety inspection" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <input id="service-type" name="serviceType" required data-input-type="text" placeholder="e.g. Safety inspection" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                     </div>
                     <div class="space-y-1.5">
                         <label for="frequency" class="text-label-small text-secondary">Frequency <span class="text-error">*</span></label>
@@ -431,7 +431,7 @@
                 </div>
                 <div class="space-y-1.5">
                     <label for="responsible-party" class="text-label-small text-secondary">Responsible Party <span class="text-error">*</span></label>
-                    <input id="responsible-party" name="responsibleParty" required placeholder="Person, team, or vendor name" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    <input id="responsible-party" name="responsibleParty" required data-input-type="letters" placeholder="Person, team, or vendor name" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                 </div>
                 <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                     <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
@@ -466,13 +466,13 @@
                     </div>
                     <div class="space-y-1.5">
                         <label for="service-provider" class="text-label-small text-secondary">Service Provider <span class="text-error">*</span></label>
-                        <input id="service-provider" name="serviceProvider" required placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <input id="service-provider" name="serviceProvider" required data-input-type="letters" placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
                     </div>
                     <div class="space-y-1.5">
                         <label for="maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
-                            <input id="maintenance-cost" name="maintenanceCost" type="number" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+                            <input id="maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
                         </div>
                     </div>
                     <div class="space-y-1.5">
@@ -482,7 +482,7 @@
                 </div>
                 <div class="space-y-1.5">
                     <label for="issue-description" class="text-label-small text-secondary">Issue Description <span class="text-error">*</span></label>
-                    <textarea id="issue-description" name="issueDescription" required rows="4" placeholder="Describe the fault, symptoms, and repair outcome..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
+                    <textarea id="issue-description" name="issueDescription" required data-input-type="text" rows="4" placeholder="Describe the fault, symptoms, and repair outcome..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
                 </div>
                 <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                     <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>

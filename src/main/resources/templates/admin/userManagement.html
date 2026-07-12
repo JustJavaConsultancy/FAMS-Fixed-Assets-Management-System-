@@ -313,7 +313,7 @@
                 <!-- FIXED: Unified search pill — no inner box, red border on focus -->
                 <div class="search-pill">
                     <span class="material-symbols-outlined search-icon">search</span>
-                    <input type="text" id="tableSearch" placeholder="Search users…" aria-label="Search users">
+                    <input type="text" id="tableSearch" placeholder="Search users…" aria-label="Search users" data-input-type="search">
                     <button id="clearSearchBtn" class="clear-btn" aria-label="Clear search">
                         <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
                     </button>
@@ -322,7 +322,7 @@
                 <!-- Mobile fallback search -->
                 <form th:action="@{/admin/users}" method="get" class="md:hidden flex items-center gap-2">
                     <input type="hidden" name="page" value="0"/>
-                    <input type="text" name="search" th:value="${search}" placeholder="Search…" class="h-[38px] text-xs py-1.5 px-3 rounded-full w-36 bg-surface-canvas border border-border-default outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                    <input type="text" name="search" th:value="${search}" placeholder="Search…" data-input-type="search" class="h-[38px] text-xs py-1.5 px-3 rounded-full w-36 bg-surface-canvas border border-border-default outline-none focus:ring-2 focus:ring-primary focus:border-primary">
                     <button type="submit" class="p-1.5 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg"><span class="material-symbols-outlined text-sm">search</span></button>
                 </form>
             </div>
@@ -438,14 +438,14 @@
                             <label for="cu-firstName" class="text-label-small font-semibold text-secondary uppercase tracking-wider">First Name <span class="text-error">*</span></label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">badge</span>
-                                <input type="text" id="cu-firstName" name="firstName" required placeholder="e.g. Marcus" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                                <input type="text" id="cu-firstName" name="firstName" required placeholder="e.g. Marcus" data-input-type="letters" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                         </div>
                         <div class="space-y-1.5">
                             <label for="cu-lastName" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Last Name <span class="text-error">*</span></label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">badge</span>
-                                <input type="text" id="cu-lastName" name="lastName" required placeholder="e.g. Chen" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                                <input type="text" id="cu-lastName" name="lastName" required placeholder="e.g. Chen" data-input-type="letters" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                         </div>
                     </div>
@@ -453,7 +453,7 @@
                         <label for="cu-username" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Username <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">alternate_email</span>
-                            <input type="text" id="cu-username" name="username" required placeholder="e.g. marcus.chen" autocomplete="off" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                            <input type="text" id="cu-username" name="username" required placeholder="e.g. marcus.chen" autocomplete="off" data-input-type="alphanumeric" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                         </div>
                         <p class="text-label-small text-secondary/60 pl-1">Lowercase, numbers, dots and underscores only.</p>
                     </div>
@@ -461,7 +461,7 @@
                         <label for="cu-email" class="text-label-small font-semibold text-secondary uppercase tracking-wider">Email Address <span class="text-error">*</span></label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">mail</span>
-                            <input type="email" id="cu-email" name="email" required placeholder="e.g. marcus@company.com" autocomplete="off" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                            <input type="email" id="cu-email" name="email" required placeholder="e.g. marcus@company.com" autocomplete="off" data-input-type="email" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                         </div>
                     </div>
                 </div>
@@ -541,7 +541,7 @@
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary/50 text-[18px] pointer-events-none">create_new_folder</span>
-                                <input type="text" name="groupName" required placeholder="Group name…" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                                <input type="text" name="groupName" required placeholder="Group name…" data-input-type="text" class="w-full h-[38px] pl-10 pr-4 bg-white border border-border-default rounded-lg text-body-default text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
                             </div>
                             <button type="submit" class="shrink-0 px-5 rounded-xl text-sm font-semibold text-on-primary bg-primary hover:bg-brand-primary-dark shadow-sm hover:shadow-md flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[18px]">add</span> Create

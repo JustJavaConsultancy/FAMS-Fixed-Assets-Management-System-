@@ -912,7 +912,7 @@
 
   <div class="search-wrap">
     <span class="material-symbols-outlined">search</span>
-    <input type="text" placeholder="Search department assets, requests, or reports…" />
+    <input type="text" data-input-type="search" placeholder="Search department assets, requests, or reports…" />
   </div>
 
   <div class="topbar-actions">
@@ -1246,5 +1246,6 @@
   })();
 </script>
 
+<script th:src="@{/js/input-restrict.js}"></script>
 </body>
 </html>
