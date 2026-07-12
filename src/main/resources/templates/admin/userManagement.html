@@ -3,70 +3,187 @@
 <head>
     <title>User Management | JustJava FAMS</title>
     <style>
-        /* Use the application's shared utility/input styles instead of local overrides.
-           Removed local `.form-field` rules so this page inherits the consistent
-           input appearance defined globally (responsive.css / layout styles).
-        */
+        /* ── Shared styles ── */
         .attr-chip {
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
-            background: rgba(152,0,26,0.08);
+            background: rgba(152, 0, 26, 0.08);
             color: #98001a;
             font-size: 0.7rem;
             font-weight: 600;
             padding: 0.2rem 0.6rem;
             border-radius: 99px;
-            border: 1px solid rgba(152,0,26,0.15);
+            border: 1px solid rgba(152, 0, 26, 0.15);
         }
-        .modal-overlay { animation: overlayIn .25s ease-out forwards; }
-        .modal-panel { animation: modalIn .35s cubic-bezier(.34,1.56,.64,1) forwards; }
-        .slide-panel { animation: slideIn .35s cubic-bezier(.34,1.56,.64,1) forwards; }
-        @keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes modalIn { from { opacity:0; transform:translateY(20px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes slideIn { from { opacity:0; transform:translateX(100%); } to { opacity:1; transform:translateX(0); } }
-        .step-dot { width:6px; height:6px; border-radius:99px; background:#E4E6EA; }
-        .step-dot.active { background:#98001a; transform:scale(1.4); }
-        .form-section { display:none; }
-        .form-section.active { display:block; }
-        .tab-btn { font-size:.75rem; font-weight:600; padding:.375rem .75rem; border-radius:.5rem; color:#5d5e65; border:none; background:transparent; cursor:pointer; }
-        .tab-btn.active { background:#98001a; color:#fff; }
-        .strength-bar { height:3px; border-radius:99px; }
-        .toast-entering { animation: toastIn .4s cubic-bezier(.34,1.56,.64,1) forwards; }
-        .toast-leaving { animation: toastOut .3s ease-in forwards; }
-        @keyframes toastIn { from { opacity:0; transform:translateY(12px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes toastOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(-8px); } }
-        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+        .modal-overlay {
+            animation: overlayIn .25s ease-out forwards;
+        }
+        .modal-panel {
+            animation: modalIn .35s cubic-bezier(.34, 1.56, .64, 1) forwards;
+        }
+        .slide-panel {
+            animation: slideIn .35s cubic-bezier(.34, 1.56, .64, 1) forwards;
+        }
+        @keyframes overlayIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .step-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 99px;
+            background: #E4E6EA;
+        }
+        .step-dot.active {
+            background: #98001a;
+            transform: scale(1.4);
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .tab-btn {
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .375rem .75rem;
+            border-radius: .5rem;
+            color: #5d5e65;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #98001a;
+            color: #fff;
+        }
+        .strength-bar {
+            height: 3px;
+            border-radius: 99px;
+        }
+        .toast-entering {
+            animation: toastIn .4s cubic-bezier(.34, 1.56, .64, 1) forwards;
+        }
+        .toast-leaving {
+            animation: toastOut .3s ease-in forwards;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+        }
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0)
+            }
+            20% {
+                transform: translateX(-6px)
+            }
+            40% {
+                transform: translateX(6px)
+            }
+            60% {
+                transform: translateX(-4px)
+            }
+            80% {
+                transform: translateX(4px)
+            }
+        }
 
-        /* ── Improved search bar styles ── */
+        /* ── FIXED: Single unified search pill (no "inner box" appearance) ── */
         .search-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
             background: #f2f4f6;
             border: 1.5px solid #e2e4e8;
             border-radius: 9999px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.5rem 0.25rem 1rem;
+            padding: 0 0.5rem 0 1rem;
             width: 100%;
             max-width: 280px;
+            height: 38px;
+            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+            /* Ensure the container is the only visible "box" */
+            box-sizing: border-box;
         }
+
+        /* On focus: red border + subtle glow on the OUTER container only */
         .search-pill:focus-within {
             border-color: #98001a;
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(152,0,26,0.15);
+            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.15);
         }
+
+        /* Inner input: completely invisible — no border, no bg, no outline, no shadow */
         .search-pill input {
-            background: transparent;
-            border: none;
-            outline: none;
             flex: 1;
+            min-width: 80px;
+            border: none !important;
+            outline: none !important;
+            background: transparent !important;
             font-size: 0.875rem;
-            padding: 0.4rem 0;
+            padding: 0.3rem 0;
             color: #151b29;
-            min-width: 100px;
+            box-shadow: none !important;
+            -webkit-appearance: none;
+            appearance: none;
+            /* Kill any default browser focus ring */
+            ring: none;
         }
-        .search-pill input::placeholder { color: #8a8fa6; }
+        .search-pill input:focus {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            ring: none;
+        }
+        .search-pill input::placeholder {
+            color: #8a8fa6;
+        }
+
+        /* Clear button */
         .search-pill .clear-btn {
             display: none;
             background: none;
@@ -78,18 +195,29 @@
             transition: all 0.2s;
             font-size: 1rem;
             line-height: 1;
+            flex-shrink: 0;
         }
         .search-pill .clear-btn:hover {
             background: #e2e4e8;
             color: #151b29;
         }
-        .search-pill .clear-btn.visible { display: block; }
+        .search-pill .clear-btn.visible {
+            display: block;
+        }
+
+        /* Search icon */
         .search-pill .search-icon {
             color: #8a8fa6;
             font-size: 1.2rem;
+            flex-shrink: 0;
+            transition: color 0.2s;
         }
-        .search-pill:focus-within .search-icon { color: #98001a; }
-        .result-count-badge {
+        .search-pill:focus-within .search-icon {
+            color: #98001a;
+        }
+
+        /* Result count badge */
+        .search-pill .result-count-badge {
             font-size: 0.65rem;
             background: #e2e4e8;
             color: #5d5e65;
@@ -97,34 +225,40 @@
             border-radius: 9999px;
             font-weight: 600;
             white-space: nowrap;
+            flex-shrink: 0;
+            display: none;
         }
+        .search-pill .result-count-badge.visible {
+            display: inline;
+        }
+
         @media (max-width: 640px) {
-            .search-pill { max-width: 100%; }
+            .search-pill {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 <main id="main-content" class="space-y-6" layout:fragment="content">
 
-    <!-- Page Title Row (matches Dashboard) -->
+    <!-- Page Title Row -->
     <div class="flex justify-between items-end">
         <div>
             <h2 class="font-page-title text-page-title text-on-background">User Management</h2>
             <p class="text-body-default text-secondary">View and manage all user accounts</p>
         </div>
         <div class="flex gap-3">
-            <button onclick="openGroupsModal()"
-                    class="h-[38px] px-4 rounded-lg text-sm font-semibold text-primary border border-border-strong bg-surface-card hover:bg-surface-canvas shadow-sm flex items-center gap-1.5 transition-all">
+            <button onclick="openGroupsModal()" class="h-[38px] px-4 rounded-lg text-sm font-semibold text-primary border border-border-strong bg-surface-card hover:bg-surface-canvas shadow-sm flex items-center gap-1.5 transition-all">
                 <span class="material-symbols-outlined text-[18px]">folder_shared</span> Groups
             </button>
-            <button onclick="openCreateModal()"
-                    class="h-[38px] px-5 rounded-lg text-sm font-semibold text-on-primary bg-primary hover:bg-brand-primary-dark shadow-md transition-all flex items-center gap-2">
+            <button onclick="openCreateModal()" class="h-[38px] px-5 rounded-lg text-sm font-semibold text-on-primary bg-primary hover:bg-brand-primary-dark shadow-md transition-all flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">add_circle</span> Create User
             </button>
         </div>
     </div>
 
-    <!-- Stats (KPI Strip) — removed the Realm Groups card -->
+    <!-- Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div class="bg-surface-card p-5 rounded-xl card-shadow">
             <div class="flex items-center gap-4">
@@ -170,21 +304,22 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full" th:text="${totalUsers} + ' users'">0 users</span>
                 <span th:if="${search != null and !search.isBlank()}" class="bg-status-info/10 text-status-info text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                <span class="material-symbols-outlined text-[13px]">search</span>
-                <span th:text="'&quot;' + search + '&quot;'"></span>
-                <a th:href="@{/admin/users}" class="hover:text-error ml-0.5"><span class="material-symbols-outlined text-[13px]">close</span></a>
-            </span>
+                        <span class="material-symbols-outlined text-[13px]">search</span>
+                        <span th:text="'&quot;' + search + '&quot;'"></span>
+                        <a th:href="@{/admin/users}" class="hover:text-error ml-0.5"><span class="material-symbols-outlined text-[13px]">close</span></a>
+                    </span>
             </div>
             <div class="flex items-center gap-3">
-                <!-- Improved search bar -->
+                <!-- FIXED: Unified search pill — no inner box, red border on focus -->
                 <div class="search-pill">
                     <span class="material-symbols-outlined search-icon">search</span>
                     <input type="text" id="tableSearch" placeholder="Search users…" aria-label="Search users">
                     <button id="clearSearchBtn" class="clear-btn" aria-label="Clear search">
                         <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
                     </button>
-                    <span id="resultCountBadge" class="result-count-badge" style="display:none;">0</span>
+                    <span id="resultCountBadge" class="result-count-badge">0</span>
                 </div>
+                <!-- Mobile fallback search -->
                 <form th:action="@{/admin/users}" method="get" class="md:hidden flex items-center gap-2">
                     <input type="hidden" name="page" value="0"/>
                     <input type="text" name="search" th:value="${search}" placeholder="Search…" class="h-[38px] text-xs py-1.5 px-3 rounded-full w-36 bg-surface-canvas border border-border-default outline-none focus:ring-2 focus:ring-primary focus:border-primary">
@@ -208,8 +343,8 @@
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center shrink-0 ring-2 ring-white shadow-sm">
-                                <span class="text-xs font-bold text-primary"
-                                      th:text="${(user.firstName != null and !#strings.isEmpty(user.firstName) ? #strings.toUpperCase(#strings.substring(user.firstName,0,1)) : #strings.toUpperCase(#strings.substring(user.username,0,1))) + (user.lastName != null and !#strings.isEmpty(user.lastName) ? #strings.toUpperCase(#strings.substring(user.lastName,0,1)) : '')}">??</span>
+                                        <span class="text-xs font-bold text-primary"
+                                              th:text="${(user.firstName != null and !#strings.isEmpty(user.firstName) ? #strings.toUpperCase(#strings.substring(user.firstName,0,1)) : #strings.toUpperCase(#strings.substring(user.username,0,1))) + (user.lastName != null and !#strings.isEmpty(user.lastName) ? #strings.toUpperCase(#strings.substring(user.lastName,0,1)) : '')}">??</span>
                             </div>
                             <div>
                                 <p class="font-body-medium text-sm text-on-surface user-fullname" th:text="${(user.firstName != null ? user.firstName : '') + ' ' + (user.lastName != null ? user.lastName : '')}">Full Name</p>
@@ -251,7 +386,7 @@
                 </tbody>
             </table>
         </div>
-        <!-- Pagination (matches dashboard) -->
+        <!-- Pagination -->
         <div class="px-6 py-4 bg-surface-canvas/30 border-t border-border-default flex flex-wrap justify-between items-center gap-3">
             <p class="text-label-small text-secondary font-medium" th:text="'Showing ' + fromIndex + '–' + toIndex + ' of ' + totalUsers + ' users'">Showing …</p>
             <div class="flex items-center gap-2">
@@ -259,15 +394,15 @@
                     <span class="material-symbols-outlined text-sm">chevron_left</span> Prev
                 </a>
                 <span th:unless="${currentPage > 0}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-canvas text-secondary/30 cursor-not-allowed flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">chevron_left</span> Prev
-        </span>
+                    <span class="material-symbols-outlined text-sm">chevron_left</span> Prev
+                </span>
                 <span class="text-label-small font-semibold text-secondary px-2" th:text="(currentPage + 1) + ' / ' + totalPages">1 / 1</span>
                 <a th:if="${currentPage + 1 < totalPages}" th:href="@{/admin/users(page=${currentPage + 1}, search=${search}, size=${pageSize})}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-card hover:bg-surface-canvas shadow-sm flex items-center gap-1">
                     Next <span class="material-symbols-outlined text-sm">chevron_right</span>
                 </a>
                 <span th:unless="${currentPage + 1 < totalPages}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-canvas text-secondary/30 cursor-not-allowed flex items-center gap-1">
-            Next <span class="material-symbols-outlined text-sm">chevron_right</span>
-        </span>
+                    Next <span class="material-symbols-outlined text-sm">chevron_right</span>
+                </span>
             </div>
         </div>
     </div>
@@ -275,11 +410,10 @@
     <!-- Toast Area -->
     <div id="toastArea" class="fixed top-20 right-4 z-[200] flex flex-col gap-2 pointer-events-none"></div>
     <div th:if="${successMessage}" id="successFlash" th:attr="data-msg=${successMessage}" hidden></div>
-    <div th:if="${errorMessage}"   id="errorFlash"   th:attr="data-msg=${errorMessage}"   hidden></div>
+    <div th:if="${errorMessage}" id="errorFlash" th:attr="data-msg=${errorMessage}" hidden></div>
 
     <!-- ════════════════ CREATE USER MODAL ════════════════ -->
     <div id="createUserModal" class="fixed inset-0 z-[100] items-end sm:items-center justify-center p-0 sm:p-4 hidden" role="dialog" aria-modal="true">
-        <!-- Updated overlay: solid grey background with 50% opacity, no blur for cleaner greyout -->
         <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeCreateModal()"></div>
         <div class="modal-panel relative w-full sm:max-w-2xl bg-surface-card rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[86vh] border border-border-default">
             <div class="flex items-start justify-between px-6 pt-6 pb-5 border-b border-border-default shrink-0">
@@ -412,7 +546,6 @@
 
     <!-- ════════════════ GROUPS MODAL ════════════════ -->
     <div id="groupsModal" class="fixed inset-0 z-[100] items-center justify-center p-4 hidden" role="dialog" aria-modal="true">
-        <!-- Updated overlay: solid grey -->
         <div class="modal-overlay absolute inset-0 bg-black/50" onclick="closeGroupsModal()"></div>
         <div class="modal-panel relative w-full sm:max-w-lg bg-surface-card rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-border-default">
             <div class="flex items-start justify-between px-6 pt-6 pb-5 border-b border-border-default shrink-0">
@@ -468,7 +601,6 @@
 
     <!-- ════════════════ MANAGE USER SLIDE-OVER ════════════════ -->
     <div id="manageModal" class="fixed inset-0 z-[100] items-start justify-end hidden" role="dialog" aria-modal="true">
-        <!-- Updated overlay: solid grey -->
         <div class="absolute inset-0 bg-black/50" onclick="closeManageModal()"></div>
         <div class="slide-panel relative w-full sm:max-w-md bg-surface-card h-full shadow-2xl flex flex-col overflow-hidden border-l border-border-default">
             <div class="px-6 pt-6 pb-5 border-b border-border-default shrink-0">
@@ -494,8 +626,8 @@
                 </div>
                 <div class="flex gap-1 mt-4 bg-surface-canvas p-1 rounded-xl">
                     <button class="tab-btn active flex-1" onclick="mgTab('overview',this)">Overview</button>
-                    <button class="tab-btn flex-1"        onclick="mgTab('access',  this)">Groups</button>
-                    <button class="tab-btn flex-1"        onclick="mgTab('danger',  this)">Danger</button>
+                    <button class="tab-btn flex-1" onclick="mgTab('access',  this)">Groups</button>
+                    <button class="tab-btn flex-1" onclick="mgTab('danger',  this)">Danger</button>
                 </div>
             </div>
             <div class="overflow-y-auto flex-1 px-6 py-5 space-y-5">
@@ -570,151 +702,262 @@
     <!-- ════════════════ SCRIPTS ════════════════ -->
     <script>
         // ── Toast ──
-        function showToast(msg,type='success'){
-            const area=document.getElementById('toastArea'),toast=document.createElement('div'),isOk=type==='success';
-            toast.className=`pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg border max-w-sm toast-entering bg-white ${isOk?'border-status-success/20':'border-error/20'} text-on-surface`;
-            toast.innerHTML=`<span class="material-symbols-outlined text-lg mt-0.5 shrink-0 ${isOk?'text-status-success':'text-error'}">${isOk?'check_circle':'error'}</span><p class="text-sm font-medium flex-1">${esc(msg)}</p><button onclick="this.closest('div').remove()" class="text-secondary/40 hover:text-secondary shrink-0 mt-0.5"><span class="material-symbols-outlined text-sm">close</span></button>`;
+        function showToast(msg, type = 'success') {
+            const area = document.getElementById('toastArea'),
+                toast = document.createElement('div'),
+                isOk = type === 'success';
+            toast.className =
+                `pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-xl shadow-lg border max-w-sm toast-entering bg-white ${isOk ? 'border-status-success/20' : 'border-error/20'} text-on-surface`;
+            toast.innerHTML =
+                `<span class="material-symbols-outlined text-lg mt-0.5 shrink-0 ${isOk ? 'text-status-success' : 'text-error'}">${isOk ? 'check_circle' : 'error'}</span><p class="text-sm font-medium flex-1">${esc(msg)}</p><button onclick="this.closest('div').remove()" class="text-secondary/40 hover:text-secondary shrink-0 mt-0.5"><span class="material-symbols-outlined text-sm">close</span></button>`;
             area.appendChild(toast);
-            setTimeout(()=>{toast.classList.remove('toast-entering');toast.classList.add('toast-leaving');setTimeout(()=>toast.remove(),350);},5000);
+            setTimeout(() => {
+                toast.classList.remove('toast-entering');
+                toast.classList.add('toast-leaving');
+                setTimeout(() => toast.remove(), 350);
+            }, 5000);
         }
-        window.addEventListener('DOMContentLoaded',()=>{
-            const ok=document.getElementById('successFlash'),err=document.getElementById('errorFlash');
-            if(ok)showToast(ok.dataset.msg,'success');
-            if(err)showToast(err.dataset.msg,'error');
+        window.addEventListener('DOMContentLoaded', () => {
+            const ok = document.getElementById('successFlash'),
+                err = document.getElementById('errorFlash');
+            if (ok) showToast(ok.dataset.msg, 'success');
+            if (err) showToast(err.dataset.msg, 'error');
         });
 
-        function v(id){return document.getElementById(id)?.value?.trim()||'';}
-        function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-        function toggle(id,show){const el=document.getElementById(id);if(!el)return;el.classList.toggle('hidden',!show);el.classList.toggle('flex',show);document.body.style.overflow=show?'hidden':'';}
+        function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+        function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
+            '&quot;'); }
+
+        function toggle(id, show) { const el = document.getElementById(id); if (!el) return; el.classList.toggle('hidden', !show);
+            el.classList.toggle('flex', show); document.body.style.overflow = show ? 'hidden' : ''; }
 
         // ── CREATE USER ──
-        let cuStep=1;const cuTotal=3;
-        const cuLabels=['Step 1 of 3 — Identity','Step 2 of 3 — Security','Step 3 of 3 — Attributes'];
-        const cuAttrs={};
+        let cuStep = 1;
+        const cuTotal = 3;
+        const cuLabels = ['Step 1 of 3 — Identity', 'Step 2 of 3 — Security', 'Step 3 of 3 — Attributes'];
+        const cuAttrs = {};
 
-        function openCreateModal(){cuStep=1;cuRenderStep();toggle('createUserModal',true);setTimeout(()=>document.getElementById('cu-firstName')?.focus(),350);}
-        function closeCreateModal(){toggle('createUserModal',false);document.getElementById('createUserForm')?.reset();for(const k in cuAttrs)delete cuAttrs[k];cuRenderAttrs();}
+        function openCreateModal() { cuStep = 1;
+            cuRenderStep();
+            toggle('createUserModal', true);
+            setTimeout(() => document.getElementById('cu-firstName')?.focus(), 350); }
 
-        function cuRenderStep(){
-            for(let i=1;i<=cuTotal;i++){document.getElementById(`cu-step-${i}`).classList.toggle('active',i===cuStep);document.getElementById(`cu-dot-${i}`).classList.toggle('active',i===cuStep);}
-            document.getElementById('cu-step-label').textContent=cuLabels[cuStep-1];
-            const back=document.getElementById('cu-back'),cancel=document.getElementById('cu-cancel'),next=document.getElementById('cu-next'),submit=document.getElementById('cu-submit');
-            back.classList.toggle('hidden',cuStep===1);back.classList.toggle('flex',cuStep>1);
-            cancel.classList.toggle('hidden',cuStep>1);
-            next.classList.toggle('hidden',cuStep===cuTotal);next.classList.toggle('flex',cuStep<cuTotal);
-            submit.classList.toggle('hidden',cuStep!==cuTotal);submit.classList.toggle('flex',cuStep===cuTotal);
+        function closeCreateModal() { toggle('createUserModal', false);
+            document.getElementById('createUserForm')?.reset(); for (const k in cuAttrs) delete cuAttrs[k];
+            cuRenderAttrs(); }
+
+        function cuRenderStep() {
+            for (let i = 1; i <= cuTotal; i++) { document.getElementById(`cu-step-${i}`).classList.toggle('active', i ===
+                cuStep);
+                document.getElementById(`cu-dot-${i}`).classList.toggle('active', i === cuStep); }
+            document.getElementById('cu-step-label').textContent = cuLabels[cuStep - 1];
+            const back = document.getElementById('cu-back'),
+                cancel = document.getElementById('cu-cancel'),
+                next = document.getElementById('cu-next'),
+                submit = document.getElementById('cu-submit');
+            back.classList.toggle('hidden', cuStep === 1);
+            back.classList.toggle('flex', cuStep > 1);
+            cancel.classList.toggle('hidden', cuStep > 1);
+            next.classList.toggle('hidden', cuStep === cuTotal);
+            next.classList.toggle('flex', cuStep < cuTotal);
+            submit.classList.toggle('hidden', cuStep !== cuTotal);
+            submit.classList.toggle('flex', cuStep === cuTotal);
         }
-        function cuGoNext(){if(cuValidate(cuStep)){cuStep=Math.min(cuStep+1,cuTotal);cuRenderStep();}}
-        function cuGoBack(){cuStep=Math.max(1,cuStep-1);cuRenderStep();}
 
-        function cuValidate(step){
-            if(step===1){
-                const fn=v('cu-firstName'),ln=v('cu-lastName'),un=v('cu-username'),em=v('cu-email');
-                if(!fn||!ln||!un||!em){cuShake();return false;}
-                if(!/^[a-z0-9._]+$/.test(un)){cuHighlight('cu-username');return false;}
-                if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){cuHighlight('cu-email');return false;}
+        function cuGoNext() { if (cuValidate(cuStep)) { cuStep = Math.min(cuStep + 1, cuTotal);
+            cuRenderStep(); } }
+
+        function cuGoBack() { cuStep = Math.max(1, cuStep - 1);
+            cuRenderStep(); }
+
+        function cuValidate(step) {
+            if (step === 1) {
+                const fn = v('cu-firstName'),
+                    ln = v('cu-lastName'),
+                    un = v('cu-username'),
+                    em = v('cu-email');
+                if (!fn || !ln || !un || !em) { cuShake(); return false; }
+                if (!/^[a-z0-9._]+$/.test(un)) { cuHighlight('cu-username'); return false; }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { cuHighlight('cu-email'); return false; }
             }
-            if(step===2){const pwd=v('cu-password'),cpwd=v('cu-confirm');if(pwd.length<8){cuHighlight('cu-password');return false;}if(pwd!==cpwd){cuHighlight('cu-confirm');return false;}}
+            if (step === 2) { const pwd = v('cu-password'),
+                cpwd = v('cu-confirm'); if (pwd.length < 8) { cuHighlight('cu-password'); return false; } if (pwd !==
+                cpwd) { cuHighlight('cu-confirm'); return false; } }
             return true;
         }
-        function cuHighlight(id){const el=document.getElementById(id);el.classList.add('form-field-error');el.focus();setTimeout(()=>el.classList.remove('form-field-error'),2500);}
-        function cuShake(){const p=document.querySelector('#createUserModal .modal-panel');p.style.animation='none';p.offsetHeight;p.style.animation='shake .4s ease';setTimeout(()=>p.style.animation='',400);}
 
-        ['cu-firstName','cu-lastName'].forEach(id=>document.getElementById(id)?.addEventListener('blur',()=>{
-            const un=document.getElementById('cu-username');if(un.value)return;
-            const fn=v('cu-firstName').toLowerCase().replace(/\s+/g,'.'),ln=v('cu-lastName').toLowerCase().replace(/\s+/g,'.');
-            if(fn&&ln)un.value=`${fn}.${ln}`;
+        function cuHighlight(id) { const el = document.getElementById(id);
+            el.classList.add('form-field-error');
+            el.focus();
+            setTimeout(() => el.classList.remove('form-field-error'), 2500); }
+
+        function cuShake() { const p = document.querySelector('#createUserModal .modal-panel');
+            p.style.animation = 'none';
+            p.offsetHeight;
+            p.style.animation = 'shake .4s ease';
+            setTimeout(() => p.style.animation = '', 400); }
+
+        ['cu-firstName', 'cu-lastName'].forEach(id => document.getElementById(id)?.addEventListener('blur', () => {
+            const un = document.getElementById('cu-username');
+            if (un.value) return;
+            const fn = v('cu-firstName').toLowerCase().replace(/\s+/g, '.'),
+                ln = v('cu-lastName').toLowerCase().replace(/\s+/g, '.');
+            if (fn && ln) un.value = `${fn}.${ln}`;
         }));
 
-        function cuTogglePwd(inputId,iconId){const i=document.getElementById(inputId),ic=document.getElementById(iconId);const show=i.type==='password';i.type=show?'text':'password';ic.textContent=show?'visibility_off':'visibility';}
-        function cuEvalStrength(val){
-            let s=0;if(val.length>=8)s++;if(/[A-Z]/.test(val))s++;if(/[0-9]/.test(val))s++;if(/[^A-Za-z0-9]/.test(val))s++;
-            const colors=['','#ba1a1a','#f59e0b','#0284c7','#006242'],labels=['Enter a password to check its strength','Weak','Fair','Good','Strong'];
-            [1,2,3,4].forEach(i=>{document.getElementById(`cu-bar${i}`).style.backgroundColor=i<=s?colors[s]:'#c3c6d7';});
-            const lbl=document.getElementById('cu-strength-label');lbl.textContent=val?labels[s]:labels[0];lbl.style.color=s>0?colors[s]:'';
+        function cuTogglePwd(inputId, iconId) { const i = document.getElementById(inputId),
+            ic = document.getElementById(iconId);
+            const show = i.type === 'password';
+            i.type = show ? 'text' : 'password';
+            ic.textContent = show ? 'visibility_off' : 'visibility'; }
+
+        function cuEvalStrength(val) {
+            let s = 0;
+            if (val.length >= 8) s++;
+            if (/[A-Z]/.test(val)) s++;
+            if (/[0-9]/.test(val)) s++;
+            if (/[^A-Za-z0-9]/.test(val)) s++;
+            const colors = ['', '#ba1a1a', '#f59e0b', '#0284c7', '#006242'],
+                labels = ['Enter a password to check its strength', 'Weak', 'Fair', 'Good', 'Strong'];
+            [1, 2, 3, 4].forEach(i => { document.getElementById(`cu-bar${i}`).style.backgroundColor = i <= s ? colors[s] :
+                '#c3c6d7'; });
+            const lbl = document.getElementById('cu-strength-label');
+            lbl.textContent = val ? labels[s] : labels[0];
+            lbl.style.color = s > 0 ? colors[s] : '';
         }
-        function cuCheckMatch(){
-            const pwd=v('cu-password'),cpwd=v('cu-confirm'),msg=document.getElementById('cu-match-msg');
-            if(!cpwd){msg.classList.add('hidden');return;}msg.classList.remove('hidden');
-            if(pwd===cpwd){msg.textContent='✓ Passwords match';msg.className='text-[11px] pl-0.5 text-status-success font-semibold';}
-            else{msg.textContent='✗ Passwords do not match';msg.className='text-[11px] pl-0.5 text-error font-semibold';}
+
+        function cuCheckMatch() {
+            const pwd = v('cu-password'),
+                cpwd = v('cu-confirm'),
+                msg = document.getElementById('cu-match-msg');
+            if (!cpwd) { msg.classList.add('hidden'); return; }
+            msg.classList.remove('hidden');
+            if (pwd === cpwd) { msg.textContent = '✓ Passwords match';
+                msg.className = 'text-[11px] pl-0.5 text-status-success font-semibold'; } else { msg.textContent =
+                '✗ Passwords do not match';
+                msg.className = 'text-[11px] pl-0.5 text-error font-semibold'; }
         }
-        function cuAddAttr(){
-            const k=document.getElementById('cu-attrKey').value.trim(),vl=document.getElementById('cu-attrVal').value.trim();
-            if(!k||!vl)return;if(!cuAttrs[k])cuAttrs[k]=[];cuAttrs[k].push(vl);
-            document.getElementById('cu-attrKey').value='';document.getElementById('cu-attrVal').value='';document.getElementById('cu-attrKey').focus();cuRenderAttrs();
+
+        function cuAddAttr() {
+            const k = document.getElementById('cu-attrKey').value.trim(),
+                vl = document.getElementById('cu-attrVal').value.trim();
+            if (!k || !vl) return;
+            if (!cuAttrs[k]) cuAttrs[k] = [];
+            cuAttrs[k].push(vl);
+            document.getElementById('cu-attrKey').value = '';
+            document.getElementById('cu-attrVal').value = '';
+            document.getElementById('cu-attrKey').focus();
+            cuRenderAttrs();
         }
-        function cuRemoveAttr(k,idx){cuAttrs[k].splice(idx,1);if(!cuAttrs[k].length)delete cuAttrs[k];cuRenderAttrs();}
-        function cuRenderAttrs(){
-            const chips=document.getElementById('cu-attrChips'),hidden=document.getElementById('cu-attrHidden');
-            chips.innerHTML='';hidden.innerHTML='';
-            const entries=Object.entries(cuAttrs);
-            if(!entries.length){chips.innerHTML='<span class="text-xs text-secondary/40 self-center">No attributes added yet</span>';return;}
-            entries.forEach(([k,vals])=>vals.forEach((vl,idx)=>{
-                const chip=document.createElement('div');chip.className='attr-chip';
-                chip.innerHTML=`<span class="material-symbols-outlined text-[13px]">key</span>${esc(k)}<span class="opacity-40 mx-0.5">→</span>${esc(vl)}<button type="button" onclick="cuRemoveAttr('${esc(k)}',${idx})" class="ml-1 opacity-60 hover:opacity-100"><span class="material-symbols-outlined text-[12px]">close</span></button>`;
+
+        function cuRemoveAttr(k, idx) { cuAttrs[k].splice(idx, 1); if (!cuAttrs[k].length) delete cuAttrs[k];
+            cuRenderAttrs(); }
+
+        function cuRenderAttrs() {
+            const chips = document.getElementById('cu-attrChips'),
+                hidden = document.getElementById('cu-attrHidden');
+            chips.innerHTML = '';
+            hidden.innerHTML = '';
+            const entries = Object.entries(cuAttrs);
+            if (!entries.length) { chips.innerHTML =
+                '<span class="text-xs text-secondary/40 self-center">No attributes added yet</span>'; return; }
+            entries.forEach(([k, vals]) => vals.forEach((vl, idx) => {
+                const chip = document.createElement('div');
+                chip.className = 'attr-chip';
+                chip.innerHTML =
+                    `<span class="material-symbols-outlined text-[13px]">key</span>${esc(k)}<span class="opacity-40 mx-0.5">→</span>${esc(vl)}<button type="button" onclick="cuRemoveAttr('${esc(k)}',${idx})" class="ml-1 opacity-60 hover:opacity-100"><span class="material-symbols-outlined text-[12px]">close</span></button>`;
                 chips.appendChild(chip);
-                const inp=document.createElement('input');inp.type='hidden';inp.name=`attribute[${k}][${idx}]`;inp.value=vl;hidden.appendChild(inp);
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = `attribute[${k}][${idx}]`;
+                inp.value = vl;
+                hidden.appendChild(inp);
             }));
         }
 
         // ── GROUPS MODAL ──
-        function openGroupsModal(){toggle('groupsModal',true);}
-        function closeGroupsModal(){toggle('groupsModal',false);}
+        function openGroupsModal() { toggle('groupsModal', true); }
+
+        function closeGroupsModal() { toggle('groupsModal', false); }
 
         // ── MANAGE USER PANEL ──
-        let mgCurrentUserId=null,mgAccessLoaded=false;
+        let mgCurrentUserId = null,
+            mgAccessLoaded = false;
 
-        function openManageModal(btn){
-            const d=btn.dataset;mgCurrentUserId=d.userId;mgAccessLoaded=false;
-            const fn=d.firstname||'',ln=d.lastname||'',un=d.username||'';
-            const initials=(fn?fn[0].toUpperCase():un[0]?.toUpperCase()||'?')+(ln?ln[0].toUpperCase():'');
-            document.getElementById('mg-initials').textContent=initials;
-            document.getElementById('mg-title').textContent=(fn+' '+ln).trim()||un;
-            document.getElementById('mg-username').textContent='@'+un;
-            document.getElementById('mg-email').textContent=d.email||'—';
-            const active=d.enabled==='true';
-            document.getElementById('mg-status-active').classList.toggle('flex',active);document.getElementById('mg-status-active').classList.toggle('hidden',!active);
-            document.getElementById('mg-status-inactive').classList.toggle('flex',!active);document.getElementById('mg-status-inactive').classList.toggle('hidden',active);
-            ['enable','disable','reset','addGroup','delete'].forEach(s=>{const el=document.getElementById(`mg-userId-${s}`);if(el)el.value=d.userId;});
-            mgTab('overview',document.querySelector('.tab-btn'));
-            toggle('manageModal',true);
+        function openManageModal(btn) {
+            const d = btn.dataset;
+            mgCurrentUserId = d.userId;
+            mgAccessLoaded = false;
+            const fn = d.firstname || '',
+                ln = d.lastname || '',
+                un = d.username || '';
+            const initials = (fn ? fn[0].toUpperCase() : un[0]?.toUpperCase() || '?') + (ln ? ln[0].toUpperCase() : '');
+            document.getElementById('mg-initials').textContent = initials;
+            document.getElementById('mg-title').textContent = (fn + ' ' + ln).trim() || un;
+            document.getElementById('mg-username').textContent = '@' + un;
+            document.getElementById('mg-email').textContent = d.email || '—';
+            const active = d.enabled === 'true';
+            document.getElementById('mg-status-active').classList.toggle('flex', active);
+            document.getElementById('mg-status-active').classList.toggle('hidden', !active);
+            document.getElementById('mg-status-inactive').classList.toggle('flex', !active);
+            document.getElementById('mg-status-inactive').classList.toggle('hidden', active);
+            ['enable', 'disable', 'reset', 'addGroup', 'delete'].forEach(s => { const el = document.getElementById(
+                `mg-userId-${s}`);
+                if (el) el.value = d.userId; });
+            mgTab('overview', document.querySelector('.tab-btn'));
+            toggle('manageModal', true);
         }
-        function closeManageModal(){toggle('manageModal',false);mgCurrentUserId=null;}
 
-        function mgTab(name,btn){
-            ['overview','access','danger'].forEach(t=>document.getElementById(`mg-tab-${t}`)?.classList.toggle('active',t===name));
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            if(btn)btn.classList.add('active');
-            if(name==='access'&&mgCurrentUserId&&!mgAccessLoaded){mgLoadAccess(mgCurrentUserId);mgAccessLoaded=true;}
+        function closeManageModal() { toggle('manageModal', false);
+            mgCurrentUserId = null; }
+
+        function mgTab(name, btn) {
+            ['overview', 'access', 'danger'].forEach(t => document.getElementById(`mg-tab-${t}`)?.classList.toggle('active',
+                t === name));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            if (name === 'access' && mgCurrentUserId && !mgAccessLoaded) { mgLoadAccess(mgCurrentUserId);
+                mgAccessLoaded = true; }
         }
-        async function mgLoadAccess(userId){
+
+        async function mgLoadAccess(userId) {
             document.getElementById('mg-groups-loader').classList.remove('hidden');
-            try{const res=await fetch(`/admin/user/${userId}/groups`);const groups=await res.json();mgRenderGroupChips(groups,userId);}
-            catch{document.getElementById('mg-groups-list').innerHTML='<span class="text-xs text-error/70">Failed to load groups.</span>';}
-            finally{document.getElementById('mg-groups-loader').classList.add('hidden');}
+            try {
+                const res = await fetch(`/admin/user/${userId}/groups`);
+                const groups = await res.json();
+                mgRenderGroupChips(groups, userId);
+            } catch { document.getElementById('mg-groups-list').innerHTML =
+                '<span class="text-xs text-error/70">Failed to load groups.</span>'; } finally { document
+                .getElementById('mg-groups-loader').classList.add('hidden'); }
         }
-        function mgRenderGroupChips(items,userId){
-            const el=document.getElementById('mg-groups-list');
-            if(!items.length){el.innerHTML='<span class="text-xs text-secondary/50">No groups assigned.</span>';return;}
-            el.innerHTML='';
-            items.forEach(item=>{
-                const div=document.createElement('div');div.className='attr-chip';
-                div.innerHTML=`<span class="material-symbols-outlined text-[13px]">folder_shared</span>${esc(item)}<form action="/admin/remove/group" method="post" class="inline" onsubmit="return confirm('Remove from group &quot;${esc(item)}&quot;?')"><input type="hidden" name="userId" value="${esc(userId)}"><input type="hidden" name="groupName" value="${esc(item)}"><button type="submit" class="ml-1 opacity-60 hover:opacity-100 hover:text-error"><span class="material-symbols-outlined text-[12px]">close</span></button></form>`;
+
+        function mgRenderGroupChips(items, userId) {
+            const el = document.getElementById('mg-groups-list');
+            if (!items.length) { el.innerHTML = '<span class="text-xs text-secondary/50">No groups assigned.</span>'; return; }
+            el.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'attr-chip';
+                div.innerHTML =
+                    `<span class="material-symbols-outlined text-[13px]">folder_shared</span>${esc(item)}<form action="/admin/remove/group" method="post" class="inline" onsubmit="return confirm('Remove from group &quot;${esc(item)}&quot;?')"><input type="hidden" name="userId" value="${esc(userId)}"><input type="hidden" name="groupName" value="${esc(item)}"><button type="submit" class="ml-1 opacity-60 hover:opacity-100 hover:text-error"><span class="material-symbols-outlined text-[12px]">close</span></button></form>`;
                 el.appendChild(div);
             });
         }
-        function confirmDelete(e){const name=document.getElementById('mg-title').textContent;if(!confirm(`Permanently delete "${name}"?\n\nThis action cannot be undone.`)){e.preventDefault();return false;}return true;}
+
+        function confirmDelete(e) { const name = document.getElementById('mg-title').textContent; if (!confirm(
+            `Permanently delete "${name}"?\n\nThis action cannot be undone.`)) { e.preventDefault(); return false; }
+            return true; }
 
         // ── ESC key to close modals ──
-        document.addEventListener('keydown',e=>{
-            if(e.key!=='Escape')return;
-            if(!document.getElementById('createUserModal').classList.contains('hidden'))closeCreateModal();
-            else if(!document.getElementById('manageModal').classList.contains('hidden'))closeManageModal();
-            else if(!document.getElementById('groupsModal').classList.contains('hidden'))closeGroupsModal();
+        document.addEventListener('keydown', e => {
+            if (e.key !== 'Escape') return;
+            if (!document.getElementById('createUserModal').classList.contains('hidden')) closeCreateModal();
+            else if (!document.getElementById('manageModal').classList.contains('hidden')) closeManageModal();
+            else if (!document.getElementById('groupsModal').classList.contains('hidden')) closeGroupsModal();
         });
 
-        // ── LIVE TABLE SEARCH WITH ENHANCED STYLING ──
+        // ── LIVE TABLE SEARCH ──
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('tableSearch');
             const clearBtn = document.getElementById('clearSearchBtn');
@@ -728,12 +971,11 @@
 
                 rows.forEach(row => {
                     if (row.querySelector('td[colspan]')) return;
-
                     const fullName = row.querySelector('.user-fullname')?.textContent?.toLowerCase() || '';
                     const email = row.querySelector('.user-email')?.textContent?.toLowerCase() || '';
                     const username = row.querySelector('.user-username')?.textContent?.toLowerCase() || '';
-
-                    const match = !query || fullName.includes(query) || email.includes(query) || username.includes(query);
+                    const match = !query || fullName.includes(query) || email.includes(query) || username
+                        .includes(query);
                     row.style.display = match ? '' : 'none';
                     if (match) visibleCount++;
                 });
@@ -741,10 +983,10 @@
                 clearBtn.classList.toggle('visible', query.length > 0);
 
                 if (query && rows.length > 0) {
-                    resultBadge.style.display = 'inline';
+                    resultBadge.classList.add('visible');
                     resultBadge.textContent = visibleCount;
                 } else {
-                    resultBadge.style.display = 'none';
+                    resultBadge.classList.remove('visible');
                 }
 
                 const noRowsMsg = tableBody?.querySelector('tr td[colspan]')?.closest('tr');

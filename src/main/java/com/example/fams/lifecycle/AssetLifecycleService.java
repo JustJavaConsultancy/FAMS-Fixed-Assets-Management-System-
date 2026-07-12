@@ -159,10 +159,11 @@ public class AssetLifecycleService {
         }
 
         // Enforce role-based checks according to the task being completed.
-        // Department-level approvals must be performed by a department head for the asset's department.
+        // Department-level approvals on a TRANSFER workflow must be performed by a department head for the asset's current department.
+        // Disposals, returns, and assignments do not move assets between departments, so the department-head restriction does not apply.
         String taskName = task.getName() == null ? "" : task.getName();
-        if (taskName.toLowerCase().contains("department")) {
-            // Require that the current user has department head group and is the head for the asset's from department
+        if (taskName.toLowerCase().contains("department")
+                && workflow.getType() == LifecycleWorkflowType.TRANSFER) {
             if (!authenticationManager.isDepartmentHead() || !currentUserHeadsDepartment(workflow.getFromDepartment())) {
                 throw new IllegalArgumentException("Only the department head of the asset's current department can approve this transfer.");
             }
