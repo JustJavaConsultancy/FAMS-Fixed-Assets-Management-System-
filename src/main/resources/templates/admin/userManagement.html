@@ -305,7 +305,7 @@
                 <span class="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full" th:text="${totalUsers} + ' users'">0 users</span>
                 <span th:if="${search != null and !search.isBlank()}" class="bg-status-info/10 text-status-info text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                         <span class="material-symbols-outlined text-[13px]">search</span>
-                        <span th:text="'&quot;' + search + '&quot;'"></span>
+                        <span th:text="${'&quot;' + search + '&quot;'}"></span>
                         <a th:href="@{/admin/users}" class="hover:text-error ml-0.5"><span class="material-symbols-outlined text-[13px]">close</span></a>
                     </span>
             </div>
@@ -388,7 +388,7 @@
         </div>
         <!-- Pagination -->
         <div class="px-6 py-4 bg-surface-canvas/30 border-t border-border-default flex flex-wrap justify-between items-center gap-3">
-            <p class="text-label-small text-secondary font-medium" th:text="'Showing ' + fromIndex + '–' + toIndex + ' of ' + totalUsers + ' users'">Showing …</p>
+            <p class="text-label-small text-secondary font-medium" th:text="${'Showing ' + fromIndex + '–' + toIndex + ' of ' + totalUsers + ' users'}">Showing …</p>
             <div class="flex items-center gap-2">
                 <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=${currentPage - 1}, search=${search}, size=${pageSize})}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-card hover:bg-surface-canvas shadow-sm flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">chevron_left</span> Prev
@@ -396,7 +396,7 @@
                 <span th:unless="${currentPage > 0}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-canvas text-secondary/30 cursor-not-allowed flex items-center gap-1">
                     <span class="material-symbols-outlined text-sm">chevron_left</span> Prev
                 </span>
-                <span class="text-label-small font-semibold text-secondary px-2" th:text="(currentPage + 1) + ' / ' + totalPages">1 / 1</span>
+                <span class="text-label-small font-semibold text-secondary px-2" th:text="${(currentPage + 1) + ' / ' + totalPages}">1 / 1</span>
                 <a th:if="${currentPage + 1 < totalPages}" th:href="@{/admin/users(page=${currentPage + 1}, search=${search}, size=${pageSize})}" class="px-4 py-1.5 text-label-small font-semibold rounded-lg border border-border-default bg-surface-card hover:bg-surface-canvas shadow-sm flex items-center gap-1">
                     Next <span class="material-symbols-outlined text-sm">chevron_right</span>
                 </a>
