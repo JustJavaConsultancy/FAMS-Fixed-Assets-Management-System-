@@ -24,6 +24,11 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+  cache:
+    type: caffeine
+    cache-names: dashboardKpis,reports
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=${fams.kpi.cache-ttl-seconds:60}s
   security:
     oauth2:
       client:
@@ -52,6 +57,12 @@ error:
 server:
   tomcat:
     max-part-count: '100'
+
+fams:
+  kpi:
+    # SLA window (seconds): cached dashboard KPIs / reports are never older than this
+    # and are refreshed within it. Lower = fresher data, higher = less DB load.
+    cache-ttl-seconds: 60
 
 keycloak:
   base-url: ${KEYCLOAK_BASE_URI:https://ngcloak-production.up.railway.app}

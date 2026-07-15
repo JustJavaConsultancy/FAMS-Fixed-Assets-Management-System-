@@ -19,6 +19,13 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     @Query("select a from Asset a where lower(a.custodian) in :candidates order by a.createdAt desc")
     List<Asset> findByCustodianInIgnoreCaseOrderByCreatedAtDesc(@Param("candidates") Collection<String> candidates);
 
+    /**
+     * Case-insensitive department scoping used for role-based report visibility.
+     * Callers must pass lower-cased department names.
+     */
+    @Query("select a from Asset a where lower(a.department) in :departments order by a.createdAt desc")
+    List<Asset> findByDepartmentInIgnoreCaseOrderByCreatedAtDesc(@Param("departments") Collection<String> departments);
+
     List<Asset> findByDepartmentIgnoreCaseOrderByCreatedAtDesc(String department);
 
     List<Asset> findByDepartmentInOrderByCreatedAtDesc(Collection<String> departments);

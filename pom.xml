@@ -170,6 +170,30 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>9.10.0</version>
         </dependency>
+
+        <!-- Caching (Caffeine) for KPI SLA + high-concurrency dashboard/report reads -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Report export: Apache POI (Excel .xlsx) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <!-- Report export: iText 7 (PDF). NOTE: AGPL-licensed. -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>7.2.6</version>
+            <type>pom</type>
+        </dependency>
     </dependencies>
 
     <build>

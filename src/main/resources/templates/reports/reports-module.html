@@ -459,42 +459,43 @@
             loadReport(currentReport);
         }
 
-        // Export functions
-        function exportToExcel() {
+        // Export functions — delegate to the backend so the file reflects the
+        // same role-scoped, filtered data shown on screen.
+        function buildExportUrl(format) {
             const config = reportConfigs[currentReport];
-            const fileName = `${config.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            if (!config) {
+                console.error('Unknown report type:', currentReport);
+                return null;
+            }
+            const params = new URLSearchParams();
+            params.append('format', format);
 
-            // Get table data
-            const table = document.getElementById('reportTable');
-            if (!table) {
-                alert('No data to export');
-                return;
+            if (config.hasFilters) {
+                const category = document.getElementById('categoryFilter')?.value;
+                const department = document.getElementById('departmentFilter')?.value;
+                if (category && category !== 'All Categories') params.append('category', category);
+                if (department && department !== 'Global Operations') params.append('department', department);
             }
 
-            // Create CSV content (for simplicity, using CSV instead of XLSX)
-            let csv = '';
-            table.querySelectorAll('tr').forEach(row => {
-                const cells = Array.from(row.querySelectorAll('td, th')).map(cell => {
-                    return '"' + cell.textContent.trim().replace(/"/g, '""') + '"';
-                });
-                csv += cells.join(',') + '\n';
-            });
+            return `/api/reports/${currentReport}/export?${params.toString()}`;
+        }
 
-            // Download
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+        function triggerDownload(url) {
+            if (!url) return;
             const a = document.createElement('a');
             a.href = url;
-            a.download = fileName.replace('.xlsx', '.csv');
+            a.download = '';
+            document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            a.remove();
+        }
+
+        function exportToExcel() {
+            triggerDownload(buildExportUrl('xlsx'));
         }
 
         function exportToPDF() {
-            const config = reportConfigs[currentReport];
-            const fileName = `${config.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-
-            alert('PDF export feature coming soon. For now, use your browser\'s print functionality (Ctrl+P) and save as PDF.');
+            triggerDownload(buildExportUrl('pdf'));
         }
 
         // Initialize on load

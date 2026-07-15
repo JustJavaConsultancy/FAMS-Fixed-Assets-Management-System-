@@ -1,5 +1,6 @@
 package com.example.fams.reports;
 
+import com.example.fams.core.config.SecurityScopeService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,11 @@ import java.util.Map;
 public class ReportController {
 
     private final ReportService reportService;
+    private final SecurityScopeService scopeService;
 
-    public ReportController(ReportService reportService) {
+    public ReportController(ReportService reportService, SecurityScopeService scopeService) {
         this.reportService = reportService;
+        this.scopeService = scopeService;
     }
 
     /**
@@ -28,7 +31,7 @@ public class ReportController {
             @RequestParam(required = false) String status) {
 
         try {
-            ReportData report = reportService.generateAssetRegisterReport(category, department, status);
+            ReportData report = reportService.generateAssetRegisterReport(scopeService.getScope(), category, department, status);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -49,7 +52,7 @@ public class ReportController {
             @RequestParam(required = false) String department) {
 
         try {
-            ReportData report = reportService.generateInventorySummaryReport(department);
+            ReportData report = reportService.generateInventorySummaryReport(scopeService.getScope(), department);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -70,7 +73,7 @@ public class ReportController {
             @RequestParam(required = false) String department) {
 
         try {
-            ReportData report = reportService.generateLocationAuditReport(department);
+            ReportData report = reportService.generateLocationAuditReport(scopeService.getScope(), department);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -92,7 +95,7 @@ public class ReportController {
             @RequestParam(required = false) String department) {
 
         try {
-            ReportData report = reportService.generateValuationReport(category, department);
+            ReportData report = reportService.generateValuationReport(scopeService.getScope(), category, department);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -114,7 +117,7 @@ public class ReportController {
             @RequestParam(required = false) String department) {
 
         try {
-            ReportData report = reportService.generateDepreciationScheduleReport(category, department);
+            ReportData report = reportService.generateDepreciationScheduleReport(scopeService.getScope(), category, department);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -136,7 +139,7 @@ public class ReportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
         try {
-            ReportData report = reportService.generatePurchaseAnalysisReport(startDate, endDate);
+            ReportData report = reportService.generatePurchaseAnalysisReport(scopeService.getScope(), startDate, endDate);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -158,7 +161,7 @@ public class ReportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
         try {
-            ReportData report = reportService.generateMaintenanceHistoryReport(startDate, endDate);
+            ReportData report = reportService.generateMaintenanceHistoryReport(scopeService.getScope(), startDate, endDate);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -178,7 +181,7 @@ public class ReportController {
     public ResponseEntity<Map<String, Object>> warrantyExpiryReport() {
 
         try {
-            ReportData report = reportService.generateWarrantyExpiryReport();
+            ReportData report = reportService.generateWarrantyExpiryReport(scopeService.getScope());
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -198,7 +201,7 @@ public class ReportController {
     public ResponseEntity<Map<String, Object>> missingAssetsReport() {
 
         try {
-            ReportData report = reportService.generateMissingAssetsReport();
+            ReportData report = reportService.generateMissingAssetsReport(scopeService.getScope());
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
@@ -218,7 +221,7 @@ public class ReportController {
     public ResponseEntity<Map<String, Object>> disposalLogsReport() {
 
         try {
-            ReportData report = reportService.generateDisposalLogsReport();
+            ReportData report = reportService.generateDisposalLogsReport(scopeService.getScope());
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("data", report);
