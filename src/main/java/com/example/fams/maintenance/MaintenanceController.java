@@ -39,6 +39,7 @@ public class MaintenanceController {
         model.addAttribute("assets", assets);
         model.addAttribute("schedules", maintenanceService.schedules());
         model.addAttribute("recentTasks", maintenanceService.recentTasks());
+        model.addAttribute("resolvedTasks", maintenanceService.recentResolvedTasks());
         model.addAttribute("correctiveRecords", maintenanceService.recentCorrectiveRecords());
         model.addAttribute("reportRows", maintenanceService.report(reportStart, reportEnd));
         model.addAttribute("reportTotal", maintenanceService.reportTotal(reportStart, reportEnd));
@@ -93,6 +94,23 @@ public class MaintenanceController {
             redirectAttributes.addFlashAttribute("successMessage", generated + " due maintenance task(s) generated.");
         } catch (Exception ex) {
             log.warn("Failed to generate due tasks: {}", ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
+        }
+        return "redirect:/maintenance";
+    }
+
+    @PostMapping("/assets/maintenance/tasks/{taskId}/resolve")
+    public String resolveTask(@PathVariable Long taskId,
+                              @RequestParam(required = false) String serviceProvider,
+                              @RequestParam(required = false) BigDecimal maintenanceCost,
+                              @RequestParam(required = false) LocalDate resolutionDate,
+                              @RequestParam(required = false) String notes,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            maintenanceService.resolveTask(taskId, serviceProvider, maintenanceCost, resolutionDate, notes);
+            redirectAttributes.addFlashAttribute("successMessage", "Maintenance task resolved and logged to asset history.");
+        } catch (Exception ex) {
+            log.warn("Failed to resolve maintenance task {}: {}", taskId, ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
         }
         return "redirect:/maintenance";

@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -47,6 +48,12 @@ public class MaintenanceTask {
 
     @Column(nullable = false, length = 80)
     private String responsibleRole;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal resolutionCost;
+
+    @Column
+    private LocalDate resolutionDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
@@ -126,6 +133,22 @@ public class MaintenanceTask {
 
     public void setResponsibleRole(String responsibleRole) {
         this.responsibleRole = responsibleRole;
+    }
+
+    public BigDecimal getResolutionCost() {
+        return resolutionCost;
+    }
+
+    public void setResolutionCost(BigDecimal resolutionCost) {
+        this.resolutionCost = resolutionCost;
+    }
+
+    public LocalDate getResolutionDate() {
+        return resolutionDate;
+    }
+
+    public void setResolutionDate(LocalDate resolutionDate) {
+        this.resolutionDate = resolutionDate;
     }
 
     public MaintenanceStatus getStatus() {

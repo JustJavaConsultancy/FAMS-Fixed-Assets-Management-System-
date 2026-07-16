@@ -63,7 +63,12 @@ public class MaintenanceService {
 
     @Transactional(readOnly = true)
     public List<MaintenanceTask> recentTasks() {
-        return taskRepository.findTop8ByOrderByDueDateDescCreatedAtDesc();
+        return taskRepository.findTop8ByStatusOrderByDueDateDescCreatedAtDesc(MaintenanceStatus.DUE);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MaintenanceTask> recentResolvedTasks() {
+        return taskRepository.findTop8ByStatusOrderByDueDateDescCreatedAtDesc(MaintenanceStatus.COMPLETED);
     }
 
     @Transactional(readOnly = true)
@@ -247,6 +252,51 @@ public class MaintenanceService {
         if (generated > 0) {
             log.info("Generated {} maintenance due task(s)", generated);
         }
+    }
+
+    /**
+     * Resolves a DUE preventive maintenance task: records the completed work as a PREVENTIVE
+     * MaintenanceRecord (linked to the schedule and asset for full traceability) and marks the
+     * task COMPLETED. Idempotent-safe: a task that is already resolved cannot be resolved again.
+     *
+     * @throws IllegalStateException if the task does not exist or is not in DUE status
+     */
+    @Transactional
+    public void resolveTask(Long taskId,
+                            String serviceProvider,
+                            BigDecimal maintenanceCost,
+                            LocalDate resolutionDate,
+                            String notes) {
+        MaintenanceTask task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalStateException("Maintenance task not found: " + taskId));
+        if (task.getStatus() != MaintenanceStatus.DUE) {
+            throw new IllegalStateException(
+                    "Only DUE tasks can be resolved (task " + taskId + " is " + task.getStatus() + ").");
+        }
+
+        MaintenanceSchedule schedule = task.getSchedule();
+        LocalDate resolvedOn = resolutionDate == null ? LocalDate.now() : resolutionDate;
+
+        MaintenanceRecord record = new MaintenanceRecord();
+        record.setAsset(task.getAsset());
+        record.setSchedule(schedule);
+        record.setType(MaintenanceType.PREVENTIVE);
+        record.setIssueDescription(clean(notes) == null ? "Preventive maintenance completed" : clean(notes));
+        record.setServiceProvider(clean(serviceProvider));
+        record.setRequestedBy(schedule == null ? "System" : schedule.getResponsibleParty());
+        record.setMaintenanceCost(maintenanceCost);
+        record.setMaintenanceDate(resolvedOn);
+        record.setResolutionDate(resolutionDate);
+        record.setStatus(MaintenanceStatus.COMPLETED);
+        recordRepository.save(record);
+
+        task.setStatus(MaintenanceStatus.COMPLETED);
+        task.setResolutionCost(maintenanceCost);
+        task.setResolutionDate(resolutionDate);
+        taskRepository.save(task);
+
+        log.info("Resolved maintenance task {} as PREVENTIVE record (schedule {})",
+                taskId, schedule == null ? "n/a" : schedule.getId());
     }
 
     private MaintenanceTask createTask(MaintenanceSchedule schedule, LocalDate dueDate) {
