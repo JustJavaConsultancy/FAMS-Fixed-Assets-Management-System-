@@ -2,6 +2,8 @@ package com.example.fams.maintenance;
 
 import com.example.fams.assets.Asset;
 import com.example.fams.assets.AssetService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Controller
 public class MaintenanceController {
+
+    private static final Logger log = LoggerFactory.getLogger(MaintenanceController.class);
 
     private final AssetService assetService;
     private final MaintenanceService maintenanceService;
@@ -55,8 +59,13 @@ public class MaintenanceController {
                                  @RequestParam String responsibleParty,
                                  @RequestParam String responsibleRole,
                                  RedirectAttributes redirectAttributes) {
-        maintenanceService.createSchedule(assetId, assetCategory, serviceType, frequency, startDate, responsibleParty, responsibleRole);
-        redirectAttributes.addFlashAttribute("successMessage", "Preventive maintenance schedule stored successfully.");
+        try {
+            maintenanceService.createSchedule(assetId, assetCategory, serviceType, frequency, startDate, responsibleParty, responsibleRole);
+            redirectAttributes.addFlashAttribute("successMessage", "Preventive maintenance schedule stored successfully.");
+        } catch (Exception ex) {
+            log.warn("Failed to create maintenance schedule: {}", ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
+        }
         return "redirect:/maintenance";
     }
 
@@ -67,16 +76,33 @@ public class MaintenanceController {
                                    @RequestParam(required = false) BigDecimal maintenanceCost,
                                    @RequestParam(required = false) LocalDate resolutionDate,
                                    RedirectAttributes redirectAttributes) {
-        maintenanceService.recordCorrective(assetId, issueDescription, serviceProvider, maintenanceCost, resolutionDate);
-        redirectAttributes.addFlashAttribute("successMessage", "Corrective maintenance event saved to asset history.");
+        try {
+            maintenanceService.recordCorrective(assetId, issueDescription, serviceProvider, maintenanceCost, resolutionDate);
+            redirectAttributes.addFlashAttribute("successMessage", "Corrective maintenance event saved to asset history.");
+        } catch (Exception ex) {
+            log.warn("Failed to record corrective maintenance: {}", ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
+        }
         return "redirect:/maintenance";
     }
 
     @PostMapping("/assets/maintenance/due-check")
     public String generateDueTasks(RedirectAttributes redirectAttributes) {
-        int generated = maintenanceService.generateDueTasks();
-        redirectAttributes.addFlashAttribute("successMessage", generated + " due maintenance task(s) generated.");
+        try {
+            int generated = maintenanceService.generateDueTasks();
+            redirectAttributes.addFlashAttribute("successMessage", generated + " due maintenance task(s) generated.");
+        } catch (Exception ex) {
+            log.warn("Failed to generate due tasks: {}", ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
+        }
         return "redirect:/maintenance";
+    }
+
+    private String sanitize(String msg) {
+        if (msg == null) {
+            return "An unexpected error occurred. Please try again.";
+        }
+        return msg.length() > 240 ? msg.substring(0, 240) : msg;
     }
 
     @GetMapping("/maintenance/{assetId}")

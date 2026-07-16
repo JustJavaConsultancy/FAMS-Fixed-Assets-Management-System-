@@ -20,6 +20,18 @@ public class MaintenanceService {
 
     private static final Logger log = LoggerFactory.getLogger(MaintenanceService.class);
 
+    /**
+     * Upper bound on how many missed intervals a single schedule will generate in one pass.
+     * Guarantees the backlog catch-up loop always terminates even for schedules whose
+     * nextDueDate is far in the past. 24 covers roughly WEEKLY maintenance for ~6 months.
+     */
+    private static final int MAX_BACKLOG = 24;
+
+    /**
+     * Reject start dates older than this to avoid spawning an enormous backlog of tasks.
+     */
+    private static final LocalDate MIN_START_DATE = LocalDate.now().minusYears(5);
+
     private final AssetService assetService;
     private final MaintenanceScheduleRepository scheduleRepository;
     private final MaintenanceRecordRepository recordRepository;
@@ -104,17 +116,40 @@ public class MaintenanceService {
                                               LocalDate startDate,
                                               String responsibleParty,
                                               String responsibleRole) {
+        if (frequency == null) {
+            throw new IllegalArgumentException("Maintenance frequency is required.");
+        }
+        if (startDate == null) {
+            throw new IllegalArgumentException("Maintenance start date is required.");
+        }
+        if (startDate.isBefore(MIN_START_DATE)) {
+            throw new IllegalArgumentException(
+                    "Start date is too far in the past (must be after " + MIN_START_DATE + ").");
+        }
+        if (assetId == null && (assetCategory == null || assetCategory.isBlank())) {
+            throw new IllegalArgumentException("Either an asset or an asset category is required.");
+        }
+        if (serviceType == null || serviceType.isBlank()) {
+            throw new IllegalArgumentException("Service type is required.");
+        }
+        if (responsibleParty == null || responsibleParty.isBlank()) {
+            throw new IllegalArgumentException("Responsible party is required.");
+        }
+        if (responsibleRole == null || responsibleRole.isBlank()) {
+            throw new IllegalArgumentException("Responsible role is required.");
+        }
+
         MaintenanceSchedule schedule = new MaintenanceSchedule();
         if (assetId != null) {
             schedule.setAsset(assetService.findById(assetId));
         }
         schedule.setAssetCategory(clean(assetCategory));
-        schedule.setServiceType(serviceType);
+        schedule.setServiceType(serviceType.trim());
         schedule.setFrequency(frequency);
         schedule.setStartDate(startDate);
         schedule.setNextDueDate(startDate);
-        schedule.setResponsibleParty(responsibleParty);
-        schedule.setResponsibleRole(responsibleRole);
+        schedule.setResponsibleParty(responsibleParty.trim());
+        schedule.setResponsibleRole(responsibleRole.trim());
         return scheduleRepository.save(schedule);
     }
 
@@ -147,25 +182,66 @@ public class MaintenanceService {
         return recordRepository.save(record);
     }
 
+    /**
+     * Generates due tasks for every schedule whose nextDueDate is at or before today.
+     * Catches up the full backlog of missed intervals (capped per schedule) so a schedule
+     * that is weeks behind produces every missed task rather than just one.
+     *
+     * Each schedule is processed in its own try/catch so a single bad row cannot abort the
+     * whole batch or roll back tasks already created for other schedules. Event publishing
+     * to RabbitMQ is best-effort and fully decoupled from task persistence.
+     *
+     * @return total number of due tasks generated across all schedules
+     */
     @Transactional
     public int generateDueTasks() {
         LocalDate today = LocalDate.now();
         int generated = 0;
         for (MaintenanceSchedule schedule : scheduleRepository.findByNextDueDateLessThanEqualOrderByNextDueDateAsc(today)) {
-            LocalDate dueDate = schedule.getNextDueDate();
-            if (!taskRepository.existsByScheduleAndDueDate(schedule, dueDate)) {
-                MaintenanceTask task = createTask(schedule, dueDate);
-                publishDueEvent(task);
-                generated++;
+            try {
+                generated += generateDueTasksForSchedule(schedule, today);
+            } catch (Exception ex) {
+                log.error("Failed to generate due tasks for schedule {}: {}", schedule.getId(), ex.getMessage(), ex);
             }
-            schedule.setStatus(MaintenanceStatus.SCHEDULED);
-            schedule.setNextDueDate(schedule.getFrequency().nextAfter(dueDate));
         }
         return generated;
     }
 
+    private int generateDueTasksForSchedule(MaintenanceSchedule schedule, LocalDate today) {
+        MaintenanceFrequency frequency = schedule.getFrequency();
+        if (frequency == null) {
+            log.warn("Schedule {} has no frequency; skipping due-task generation", schedule.getId());
+            return 0;
+        }
+        LocalDate nextDue = schedule.getNextDueDate();
+        if (nextDue == null) {
+            log.warn("Schedule {} has null nextDueDate; skipping due-task generation", schedule.getId());
+            return 0;
+        }
+
+        int generated = 0;
+        int intervals = 0;
+        while (!nextDue.isAfter(today)) {
+            if (!taskRepository.existsByScheduleAndDueDate(schedule, nextDue)) {
+                MaintenanceTask task = createTask(schedule, nextDue);
+                generated++;
+                publishDueEvent(task); // best-effort, never blocks persistence
+            }
+            nextDue = frequency.nextAfter(nextDue);
+            if (++intervals >= MAX_BACKLOG) {
+                log.warn("Schedule {} hit the backlog cap ({}); advancing nextDueDate to {} and stopping catch-up.",
+                        schedule.getId(), MAX_BACKLOG, nextDue);
+                break;
+            }
+        }
+
+        schedule.setNextDueDate(nextDue);
+        schedule.setStatus(generated > 0 ? MaintenanceStatus.DUE : MaintenanceStatus.SCHEDULED);
+        scheduleRepository.save(schedule);
+        return generated;
+    }
+
     @Scheduled(cron = "0 0 7 * * *")
-    @Transactional
     public void generateDueTasksOnSchedule() {
         int generated = generateDueTasks();
         if (generated > 0) {
@@ -182,9 +258,16 @@ public class MaintenanceService {
         task.setDueDate(dueDate);
         task.setResponsibleParty(schedule.getResponsibleParty());
         task.setResponsibleRole(schedule.getResponsibleRole());
+        task.setStatus(MaintenanceStatus.DUE);
+        task.setEventPublished(false);
         return taskRepository.save(task);
     }
 
+    /**
+     * Best-effort publish of a due-task notification. Must never throw: a missing or
+     * unavailable RabbitMQ broker must not prevent the task from being created or persisted.
+     * The eventPublished flag is updated separately and best-effort only.
+     */
     private void publishDueEvent(MaintenanceTask task) {
         try {
             Asset asset = task.getAsset();
@@ -203,11 +286,21 @@ public class MaintenanceService {
                     MaintenanceMessagingConfig.EXCHANGE,
                     MaintenanceMessagingConfig.DUE_ROUTING_KEY,
                     event);
+            markEventPublished(task.getId());
+        } catch (Exception ex) {
+            // Messaging is optional; the due task already exists and is what the user sees.
+            log.warn("Maintenance due event for task {} was not published (broker unavailable?): {}",
+                    task.getId(), ex.getMessage());
+        }
+    }
+
+    @Transactional
+    public void markEventPublished(Long taskId) {
+        taskRepository.findById(taskId).ifPresent(task -> {
             task.setEventPublished(true);
             task.setEventPublishedAt(LocalDateTime.now());
-        } catch (AmqpException ex) {
-            log.warn("Maintenance task {} was saved but RabbitMQ publish failed: {}", task.getId(), ex.getMessage());
-        }
+            taskRepository.save(task);
+        });
     }
 
     private String clean(String value) {
