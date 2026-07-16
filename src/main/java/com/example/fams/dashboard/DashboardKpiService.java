@@ -174,7 +174,7 @@ public class DashboardKpiService {
         model.put("categoryBreakdown", categoryBreakdown);
         model.put("statusBreakdown", statusBreakdown);
         model.put("statusSegments", buildStatusSegments(statusBreakdown));
-        model.put("maintenanceItems", maintenanceTaskRepository.findTop5ByOrderByDueDateAscCreatedAtDesc().stream()
+        model.put("maintenanceItems", maintenanceTaskRepository.findTop5ByStatusNotOrderByDueDateAscCreatedAtDesc(MaintenanceStatus.COMPLETED).stream()
                 .map(this::toMaintenanceItem)
                 .toList());
         model.put("activityItems", lifecycleHistoryRepository.findTop8ByOrderByEventAtDesc().stream()

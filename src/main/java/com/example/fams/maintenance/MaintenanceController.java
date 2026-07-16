@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -141,11 +143,11 @@ public class MaintenanceController {
         return msg.length() > 240 ? msg.substring(0, 240) : msg;
     }
 
-    @GetMapping("/maintenance/{assetId}")
-    public String assetMaintenanceHistory(@PathVariable Long assetId, Model model) {
-        Asset asset = assetService.findById(assetId);
+    @RequestMapping(value = {"/maintenance/{id}", "/assets/{id}/maintenance"}, method = RequestMethod.GET)
+    public String assetMaintenanceHistory(@PathVariable Long id, Model model) {
+        Asset asset = assetService.findById(id);
         model.addAttribute("asset", asset);
-        model.addAttribute("records", maintenanceService.historyForAsset(assetId));
+        model.addAttribute("records", maintenanceService.historyForAsset(id));
         return "assets/maintenance-history";
     }
 }
