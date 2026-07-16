@@ -70,20 +70,14 @@
         <aside class="lg:col-span-4 flex flex-col gap-2">
             <!-- Primary CTA: full width -->
             <a th:if="${asset.status != 'Disposed'}"
-               th:href="@{/assets/{id}/assignment(id=${asset.id})}"
+               th:href="@{/assets/{id}/transfer(id=${asset.id})}"
                class="w-full h-[42px] sm:h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">person_add</span>
-                Assign
+                <span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                Transfer
             </a>
 
             <!-- Secondary actions: 2-col grid, each button gets proper min-width -->
             <div class="grid grid-cols-2 gap-2">
-                <a th:if="${asset.status != 'Disposed'}"
-                   th:href="@{/assets/{id}/transfer(id=${asset.id})}"
-                   class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">
-                    <span class="material-symbols-outlined text-[16px] sm:text-[18px] flex-shrink-0">sync_alt</span>
-                    <span class="truncate">Transfer</span>
-                </a>
                 <a th:if="${asset.status != 'Disposed'}"
                    th:href="@{/assets/{id}/return(id=${asset.id})}"
                    class="h-[42px] sm:h-[38px] bg-surface-card border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center justify-center gap-1.5 px-2 text-sm">

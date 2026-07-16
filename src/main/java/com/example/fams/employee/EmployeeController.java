@@ -120,7 +120,7 @@ public class EmployeeController {
             Asset asset = requireAssignedAsset(assetId);
             LifecycleWorkflowForm form = new LifecycleWorkflowForm();
             form.setAssetId(asset.getId());
-            form.setType(LifecycleWorkflowType.RETURN);
+            form.setType(LifecycleWorkflowType.TRANSFER);
             form.setRequestedEffectiveDate(requestedEffectiveDate);
             form.setToEmployee("Asset Store");
             form.setToDepartment(asset.getDepartment());

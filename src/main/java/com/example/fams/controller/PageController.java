@@ -35,11 +35,6 @@ public class PageController {
         return "redirect:/assets";
     }
 
-    @GetMapping("/assets/assignment")
-    public String assetAssignment() {
-        return "redirect:/assets";
-    }
-
     @GetMapping("/assets/transfer")
     public String assetTransfer() {
         return "redirect:/assets";

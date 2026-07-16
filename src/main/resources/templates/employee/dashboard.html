@@ -99,7 +99,7 @@
                         <span class="mt-2 inline-flex px-2 py-0.5 rounded-full bg-status-warning/10 text-status-warning text-badge-label" th:text="${req.status}">OPEN</span>
                     </div>
                     <div th:each="rreq, iter : ${returnRequests}" th:if="${iter.index < 3}" class="p-5">
-                        <p class="font-body-medium text-on-surface" th:text="${rreq.type}">RETURN</p>
+                        <p class="font-body-medium text-on-surface">Return</p>
                         <p class="text-body-default text-secondary mt-1" th:text="${rreq.asset.name}">Asset</p>
                         <span class="mt-2 inline-flex px-2 py-0.5 rounded-full bg-status-info/10 text-status-info text-badge-label" th:text="${rreq.status}">PENDING</span>
                     </div>

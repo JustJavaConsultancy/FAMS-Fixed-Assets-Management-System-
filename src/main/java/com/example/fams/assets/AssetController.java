@@ -221,11 +221,6 @@ public class AssetController {
         return "assets/assets-details";
     }
 
-    @GetMapping("/assets/{id}/assignment")
-    public String assignmentForm(@PathVariable Long id, Model model) {
-        return lifecycleForm(id, LifecycleWorkflowType.ASSIGNMENT, "assets/assets-assignment", model);
-    }
-
     @GetMapping("/assets/{id}/transfer")
     public String transferForm(@PathVariable Long id, Model model) {
         return lifecycleForm(id, LifecycleWorkflowType.TRANSFER, "assets/assets-transfer", model);
@@ -233,7 +228,8 @@ public class AssetController {
 
     @GetMapping("/assets/{id}/return")
     public String returnForm(@PathVariable Long id, Model model) {
-        return lifecycleForm(id, LifecycleWorkflowType.RETURN, "assets/assets-transfer", model);
+        // Return is a transfer back to the Asset Store with no destination custodian.
+        return lifecycleForm(id, LifecycleWorkflowType.TRANSFER, "assets/assets-transfer", model, true);
     }
 
     @GetMapping("/assets/{id}/disposal")
@@ -346,15 +342,21 @@ public class AssetController {
     }
 
     private String lifecycleForm(Long assetId, LifecycleWorkflowType type, String template, Model model) {
+        return lifecycleForm(assetId, type, template, model, false);
+    }
+
+    private String lifecycleForm(Long assetId, LifecycleWorkflowType type, String template, Model model, boolean returnToStore) {
         Asset asset = assetService.findById(assetId);
         if (!model.containsAttribute("form")) {
             LifecycleWorkflowForm form = new LifecycleWorkflowForm();
             form.setAssetId(asset.getId());
             form.setType(type);
             form.setRequestedEffectiveDate(LocalDate.now().plusDays(1));
-            form.setToEmployee(type == LifecycleWorkflowType.RETURN ? "Asset Store" : null);
-            form.setToDepartment(type == LifecycleWorkflowType.RETURN ? asset.getDepartment() : null);
-            form.setToBranch(type == LifecycleWorkflowType.RETURN ? asset.getBranch() : null);
+            if (returnToStore) {
+                form.setToEmployee("Asset Store");
+                form.setToDepartment(asset.getDepartment());
+                form.setToBranch(asset.getBranch());
+            }
             model.addAttribute("form", form);
         }
         model.addAttribute("asset", asset);

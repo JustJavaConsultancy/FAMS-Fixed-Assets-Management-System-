@@ -269,7 +269,7 @@ public class AssetService {
         }
         // Audit
         if (!processed.isEmpty()) {
-            assetLifecycleService.recordBulkAssignment(processed, "System", defaultText(request.getNotes(), "Bulk assignment"));
+            assetLifecycleService.recordBulkTransfer(processed, "System", defaultText(request.getNotes(), "Bulk assignment"));
         }
         return result;
     }

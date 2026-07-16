@@ -10,12 +10,12 @@
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
         <a class="hover:text-primary transition-colors" th:href="@{/assets/{id}(id=${asset.id})}" th:text="${asset.assetCode}">AST</a>
         <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-        <span class="text-on-surface font-medium" th:text="${workflowType.name() == 'RETURN' ? 'Return' : 'Transfer'}">Transfer</span>
+        <span class="text-on-surface font-medium">Transfer</span>
     </nav>
 
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-            <h2 class="font-page-title text-page-title text-on-background" th:text="${workflowType.name() == 'RETURN' ? 'Return Asset' : 'Transfer Asset'}">Transfer Asset</h2>
+            <h2 class="font-page-title text-page-title text-on-background">Transfer Asset</h2>
             <p class="text-body-default text-secondary mt-1">Move custody, department, branch or location through a controlled approval workflow.</p>
         </div>
         <div class="flex items-center gap-3">
@@ -111,7 +111,7 @@
             <button type="submit" class="h-[38px] px-6 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all inline-flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px] submit-icon">send</span>
                 <span class="hidden submit-spinner w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                <span th:text="${workflowType.name() == 'RETURN' ? 'Submit Return' : 'Submit Transfer'}">Submit Transfer</span>
+                <span>Submit Transfer</span>
             </button>
         </div>
     </form>

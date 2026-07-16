@@ -8,7 +8,7 @@
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
             <h2 class="font-page-title text-page-title text-on-background">Lifecycle Workflows</h2>
-            <p class="text-body-default text-secondary mt-1">Review assignment, transfer, return and disposal approvals routed by Flowable.</p>
+            <p class="text-body-default text-secondary mt-1">Review transfer and disposal approvals routed by Flowable.</p>
         </div>
         <a th:href="@{/assets}" class="h-[38px] px-5 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all inline-flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">inventory_2</span>
@@ -31,7 +31,7 @@
                 <span class="material-symbols-outlined text-[42px]">account_tree</span>
             </div>
             <h3 class="font-card-header text-card-header text-on-surface">No lifecycle workflows yet</h3>
-            <p class="text-body-default text-secondary mt-2 max-w-sm mx-auto">Submitted asset assignments, transfers, returns and disposals will appear here for approval tracking.</p>
+            <p class="text-body-default text-secondary mt-2 max-w-sm mx-auto">Submitted asset transfers and disposals will appear here for approval tracking.</p>
         </div>
 
         <div th:unless="${#lists.isEmpty(workflows)}" class="overflow-x-auto">

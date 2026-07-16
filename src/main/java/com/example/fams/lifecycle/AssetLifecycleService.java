@@ -223,17 +223,6 @@ public class AssetLifecycleService {
     }
 
     /**
-     * Record a bulk assignment action in the lifecycle history for each affected asset.
-     */
-    @Transactional
-    public void recordBulkAssignment(java.util.List<com.example.fams.assets.Asset> assets, String actor, String details) {
-        for (com.example.fams.assets.Asset asset : assets) {
-            addHistory(asset, LifecycleEventType.ASSIGNMENT, actor,
-                    "Bulk assignment", details, null, asset.getDepartment());
-        }
-    }
-
-    /**
      * Record a bulk transfer action in the lifecycle history for each affected asset.
      */
     @Transactional
@@ -276,16 +265,6 @@ public class AssetLifecycleService {
     private void completeWorkflow(AssetLifecycleWorkflow workflow, String actor) {
         Asset asset = workflow.getAsset();
         switch (workflow.getType()) {
-            case ASSIGNMENT -> {
-                asset.setCustodian(workflow.getToEmployee());
-                if (hasText(workflow.getToDepartment())) {
-                    asset.setDepartment(workflow.getToDepartment());
-                }
-                if (hasText(workflow.getToBranch())) {
-                    asset.setBranch(workflow.getToBranch());
-                }
-                asset.setStatus("Assigned");
-            }
             case TRANSFER -> {
                 if (hasText(workflow.getToEmployee())) {
                     asset.setCustodian(workflow.getToEmployee());
@@ -298,7 +277,6 @@ public class AssetLifecycleService {
                 }
                 asset.setStatus("Assigned");
             }
-            case RETURN -> asset.setStatus("In Stock");
             case DISPOSAL -> asset.setStatus("Disposed");
         }
         assetRepository.save(asset);
@@ -370,9 +348,7 @@ public class AssetLifecycleService {
 
     private LifecycleEventType eventFor(LifecycleWorkflowType type) {
         return switch (type) {
-            case ASSIGNMENT -> LifecycleEventType.ASSIGNMENT;
             case TRANSFER -> LifecycleEventType.TRANSFER;
-            case RETURN -> LifecycleEventType.RETURN;
             case DISPOSAL -> LifecycleEventType.DISPOSAL;
         };
     }

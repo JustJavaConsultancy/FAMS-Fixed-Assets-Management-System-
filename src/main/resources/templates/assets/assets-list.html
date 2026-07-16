@@ -695,7 +695,6 @@
             </div>
             <div class="bulk-actions">
                 <button id="bulk-register" class="btn btn-primary hidden">Register</button>
-                <button id="bulk-assign" class="btn btn-primary">Assign</button>
                 <button id="bulk-transfer" class="btn btn-primary">Transfer</button>
                 <button id="bulk-retire" class="btn btn-danger">Retire</button>
             </div>
@@ -703,43 +702,6 @@
     </div>
 
     <!-- ─── RIGHT‑SLIDE MODALS ─── -->
-
-    <!-- ASSIGN MODAL -->
-    <div id="bulk-assign-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="assign-title">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3 id="assign-title">Bulk Assign Assets</h3>
-                <button class="modal-close" data-close="bulk-assign-modal" aria-label="Close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Selected Assets</label>
-                    <div id="assign-selected-list" class="selected-list"><div class="empty">No assets selected</div></div>
-                    <div class="hint"><span id="assign-count">0</span> asset(s) will be assigned</div>
-                </div>
-                <div class="form-group">
-                    <label for="assign-to">Assign To (Person / Employee)</label>
-                    <input id="assign-to" type="text" data-input-type="letters" placeholder="e.g. John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="assign-department">Department</label>
-                    <input id="assign-department" type="text" data-input-type="letters" placeholder="e.g. Engineering">
-                </div>
-                <div class="form-group">
-                    <label for="assign-date">Assignment Date</label>
-                    <input id="assign-date" type="date" required>
-                </div>
-                <div class="form-group">
-                    <label for="assign-notes">Notes</label>
-                    <textarea id="assign-notes" data-input-type="text" placeholder="Additional details…" rows="2"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-close="bulk-assign-modal">Cancel</button>
-                <button id="assign-submit" class="btn btn-primary">Assign <span id="assign-submit-count">0</span> assets</button>
-            </div>
-        </div>
-    </div>
 
     <!-- TRANSFER MODAL -->
     <div id="bulk-transfer-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
@@ -852,10 +814,6 @@
                     <span class="material-symbols-outlined text-4xl">visibility</span>
                     <span class="text-sm font-medium">View</span>
                 </button>
-                <button onclick="performAction('assign')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">person_add</span>
-                    <span class="text-sm font-medium">Assign</span>
-                </button>
                 <button onclick="performAction('transfer')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
                     <span class="material-symbols-outlined text-4xl">sync_alt</span>
                     <span class="text-sm font-medium">Transfer</span>
@@ -926,8 +884,6 @@
                 const count = selected.size;
                 bulkCount.textContent = `${count} asset${count === 1 ? '' : 's'} selected`;
 
-                document.getElementById('assign-count').textContent = count;
-                document.getElementById('assign-submit-count').textContent = count;
                 document.getElementById('transfer-count').textContent = count;
                 document.getElementById('transfer-submit-count').textContent = count;
                 document.getElementById('retire-count').textContent = count;
@@ -987,7 +943,6 @@
             window.performAction = function(action) {
                 if (!currentAssetId) return;
                 if (action === 'view') window.location.href = `/assets/${currentAssetId}`;
-                else if (action === 'assign') window.location.href = `/assets/${currentAssetId}/assignment`;
                 else if (action === 'transfer') window.location.href = `/assets/${currentAssetId}/transfer`;
                 else if (action === 'dispose') window.location.href = `/assets/${currentAssetId}/disposal`;
             };
@@ -1167,13 +1122,6 @@
             }
 
             // ---- open modals from bulk buttons ----
-            document.getElementById('bulk-assign').addEventListener('click', function() {
-                populateSelectedList('assign-selected-list');
-                document.getElementById('assign-date').value = new Date().toISOString().slice(0, 10);
-                document.getElementById('assign-submit-count').textContent = loadSelection().length;
-                openModal('bulk-assign-modal');
-            });
-
             document.getElementById('bulk-transfer').addEventListener('click', function() {
                 populateSelectedList('transfer-selected-list');
                 document.getElementById('transfer-date').value = new Date().toISOString().slice(0, 10);
@@ -1186,42 +1134,6 @@
                 document.getElementById('retire-date').value = new Date().toISOString().slice(0, 10);
                 document.getElementById('retire-submit-count').textContent = loadSelection().length;
                 openModal('bulk-retire-modal');
-            });
-
-            // ---- assign submit ----
-            document.getElementById('assign-submit').addEventListener('click', async function() {
-                const ids = loadSelection();
-                if (!ids || ids.length === 0) return alert('No assets selected');
-                const payload = {
-                    assetIds: ids,
-                    assignedTo: document.getElementById('assign-to').value.trim(),
-                    department: document.getElementById('assign-department').value.trim(),
-                    assignmentDate: document.getElementById('assign-date').value,
-                    notes: document.getElementById('assign-notes').value.trim()
-                };
-                if (sessionStorage.getItem(selectAllKey) === 'true') payload.selectAllMatching = true;
-                this.disabled = true;
-                const spinner = document.createElement('span');
-                spinner.className = 'ml-2 loader';
-                this.appendChild(spinner);
-                try {
-                    const res = await fetch('/api/assets/bulk-assign', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const data = await res.json();
-                    alert((data.succeeded || 0) + ' assets successfully assigned');
-                    closeModal('bulk-assign-modal');
-                    saveSelection([]);
-                    sessionStorage.removeItem(selectAllKey);
-                    updateUiFromSelection();
-                } catch (_) {
-                    alert('Failed to assign assets. Please try again.');
-                } finally {
-                    this.disabled = false;
-                    if (spinner.parentNode) spinner.remove();
-                }
             });
 
             // ---- transfer submit ----

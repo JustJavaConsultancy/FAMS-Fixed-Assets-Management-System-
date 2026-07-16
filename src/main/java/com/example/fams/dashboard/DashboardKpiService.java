@@ -392,7 +392,7 @@ public class DashboardKpiService {
     private String activityColor(String eventType) {
         return switch (eventType) {
             case "REGISTRATION" -> "border-primary";
-            case "ASSIGNMENT", "TRANSFER" -> "border-status-info";
+            case "TRANSFER" -> "border-status-info";
             case "MAINTENANCE" -> "border-status-warning";
             case "DISPOSAL", "REJECTION" -> "border-error";
             default -> "border-secondary";
