@@ -113,6 +113,59 @@ public class AssetLifecycleService {
         return workflowRepository.save(workflow);
     }
 
+    /**
+     * Submit the same lifecycle request for many assets at once. Each asset gets its own
+     * approval workflow (identical to submitting the single-asset form repeatedly), so the
+     * bulk flow behaves exactly like the single-asset flow, just applied in a loop.
+     *
+     * @return per-asset outcomes; {@code succeeded} counts workflows created, {@code failed}
+     *         carries assets that could not be submitted (not found, disposed, or validation error).
+     */
+    @Transactional
+    public BulkLifecycleResult bulkSubmit(BulkLifecycleRequestDto request) {
+        List<Long> ids = request.getAssetIds() == null ? List.of() : request.getAssetIds();
+        List<BulkLifecycleItemResult> items = new ArrayList<>();
+        int succeeded = 0;
+        List<Asset> assets;
+        if (request.isSelectAllMatching()) {
+            assets = assetRepository.findAll();
+        } else {
+            assets = assetRepository.findAllById(ids);
+        }
+        for (Long id : ids) {
+            Asset asset = assets.stream().filter(a -> a.getId().equals(id)).findFirst().orElse(null);
+            if (asset == null) {
+                items.add(new BulkLifecycleItemResult(id, null, false, "Asset not found"));
+                continue;
+            }
+            LifecycleWorkflowForm form = new LifecycleWorkflowForm();
+            form.setAssetId(asset.getId());
+            form.setType(request.getType());
+            form.setRequestedEffectiveDate(request.getRequestedEffectiveDate());
+            form.setToEmployee(blankToNull(request.getToEmployee()));
+            form.setToDepartment(blankToNull(request.getToDepartment()));
+            form.setToBranch(blankToNull(request.getToBranch()));
+            form.setToLocation(blankToNull(request.getToLocation()));
+            form.setDisposalMethod(blankToNull(request.getDisposalMethod()));
+            form.setDisposalProceeds(request.getDisposalProceeds());
+            form.setAccumulatedDepreciation(request.getAccumulatedDepreciation());
+            form.setNetBookValue(request.getNetBookValue());
+            form.setReason(blankToNull(request.getReason()));
+            try {
+                submit(form);
+                succeeded++;
+                items.add(new BulkLifecycleItemResult(id, asset.getAssetCode(), true, "Submitted for approval"));
+            } catch (IllegalArgumentException | NoSuchElementException ex) {
+                items.add(new BulkLifecycleItemResult(id, asset.getAssetCode(), false, ex.getMessage()));
+            }
+        }
+        return new BulkLifecycleResult(ids.size(), succeeded, items);
+    }
+
+    private String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value.trim();
+    }
+
     @Transactional(readOnly = true)
     public List<AssetLifecycleWorkflow> findAllWorkflows() {
         return workflowRepository.findAllByOrderByRequestedAtDesc();

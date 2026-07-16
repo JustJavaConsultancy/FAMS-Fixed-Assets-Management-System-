@@ -696,7 +696,7 @@
             <div class="bulk-actions">
                 <button id="bulk-register" class="btn btn-primary hidden">Register</button>
                 <button id="bulk-transfer" class="btn btn-primary">Transfer</button>
-                <button id="bulk-retire" class="btn btn-danger">Retire</button>
+                <button id="bulk-retire" class="btn btn-danger">Dispose</button>
             </div>
         </div>
     </div>
@@ -717,24 +717,31 @@
                     <div class="hint"><span id="transfer-count">0</span> asset(s) will be transferred</div>
                 </div>
                 <div class="form-group">
-                    <label for="transfer-to-location">Transfer To Location</label>
-                    <input id="transfer-to-location" type="text" data-input-type="text" placeholder="e.g. Warehouse B" required>
+                    <label for="transfer-to-employee">To Employee</label>
+                    <input id="transfer-to-employee" type="text" data-input-type="text" list="transfer-custodian-options" placeholder="New custodian or Asset Store" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    <datalist id="transfer-custodian-options">
+                        <option th:each="custodian : ${custodians}" th:value="${custodian.name}">Employee</option>
+                    </datalist>
                 </div>
                 <div class="form-group">
-                    <label for="transfer-to-department">Transfer To Department</label>
-                    <input id="transfer-to-department" type="text" data-input-type="letters" placeholder="e.g. Logistics">
+                    <label for="transfer-to-department">To Department</label>
+                    <input id="transfer-to-department" type="text" data-input-type="letters" placeholder="Keep current if blank">
                 </div>
                 <div class="form-group">
-                    <label for="transfer-date">Transfer Date</label>
+                    <label for="transfer-to-branch">To Branch</label>
+                    <input id="transfer-to-branch" type="text" data-input-type="letters" placeholder="Keep current if blank">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-to-location">Location</label>
+                    <input id="transfer-to-location" type="text" data-input-type="text" placeholder="Destination room, floor or site">
+                </div>
+                <div class="form-group">
+                    <label for="transfer-date">Effective Date</label>
                     <input id="transfer-date" type="date" required>
                 </div>
                 <div class="form-group">
                     <label for="transfer-reason">Reason</label>
-                    <input id="transfer-reason" type="text" data-input-type="text" placeholder="e.g. Reallocation">
-                </div>
-                <div class="form-group">
-                    <label for="transfer-notes">Notes</label>
-                    <textarea id="transfer-notes" data-input-type="text" placeholder="Additional details…" rows="2"></textarea>
+                    <textarea id="transfer-reason" data-input-type="text" rows="3" placeholder="Relocation, project movement, return condition or handover notes"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -744,55 +751,56 @@
         </div>
     </div>
 
-    <!-- RETIRE MODAL -->
+    <!-- RETIRE / DISPOSAL MODAL -->
     <div id="bulk-retire-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="retire-title">
         <div class="modal-sheet">
             <div class="modal-header">
-                <h3 id="retire-title">Bulk Retire Assets</h3>
+                <h3 id="retire-title">Bulk Dispose Assets</h3>
                 <button class="modal-close" data-close="bulk-retire-modal" aria-label="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label>Selected Assets</label>
                     <div id="retire-selected-list" class="selected-list"><div class="empty">No assets selected</div></div>
-                    <div class="hint"><span id="retire-count">0</span> asset(s) will be retired</div>
-                </div>
-                <div class="form-group">
-                    <label for="retire-reason">Retirement Reason</label>
-                    <select id="retire-reason">
-                        <option value="End of Life">End of Life</option>
-                        <option value="Damaged">Damaged</option>
-                        <option value="Obsolete">Obsolete</option>
-                        <option value="Lost">Lost</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <div class="hint"><span id="retire-count">0</span> asset(s) will be disposed</div>
                 </div>
                 <div class="form-group">
                     <label for="retire-disposal-method">Disposal Method</label>
                     <select id="retire-disposal-method">
-                        <option value="Recycle">Recycle</option>
-                        <option value="Donate">Donate</option>
-                        <option value="Sell">Sell</option>
+                        <option value="Sale">Sale</option>
                         <option value="Scrap">Scrap</option>
-                        <option value="Return to Vendor">Return to Vendor</option>
+                        <option value="Donation">Donation</option>
+                        <option value="Write-off">Write-off</option>
+                        <option value="Loss">Loss</option>
+                        <option value="Theft">Theft</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="retire-date">Retirement Date</label>
+                    <label for="retire-date">Effective Date</label>
                     <input id="retire-date" type="date" required>
                 </div>
-                <div class="form-group">
-                    <label for="retire-notes">Notes</label>
-                    <textarea id="retire-notes" data-input-type="text" placeholder="Please provide details (min 20 characters)…" rows="2"></textarea>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-group">
+                        <label for="retire-proceeds">Disposal Proceeds</label>
+                        <input id="retire-proceeds" type="number" data-input-type="decimal" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="retire-accumulated">Accumulated Depreciation</label>
+                        <input id="retire-accumulated" type="number" data-input-type="decimal" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="retire-nbv">Net Book Value</label>
+                        <input id="retire-nbv" type="number" data-input-type="decimal" step="0.01" min="0" value="0">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="retire-confirm">Type <strong>RETIRE</strong> to confirm</label>
-                    <input id="retire-confirm" type="text" data-input-type="text" placeholder="RETIRE" autocomplete="off">
+                    <label for="retire-notes">Reason / Justification</label>
+                    <textarea id="retire-notes" data-input-type="text" rows="3" placeholder="Provide disposal reason, condition, board approval reference, or incident reference"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-close="bulk-retire-modal">Cancel</button>
-                <button id="retire-submit" class="btn btn-danger" disabled>Retire <span id="retire-submit-count">0</span> assets</button>
+                <button id="retire-submit" class="btn btn-danger" disabled>Dispose <span id="retire-submit-count">0</span> assets</button>
             </div>
         </div>
     </div>
@@ -1133,81 +1141,88 @@
                 populateSelectedList('retire-selected-list');
                 document.getElementById('retire-date').value = new Date().toISOString().slice(0, 10);
                 document.getElementById('retire-submit-count').textContent = loadSelection().length;
+                checkRetireEnable();
                 openModal('bulk-retire-modal');
             });
 
-            // ---- transfer submit ----
+            // ---- transfer submit (mirrors the single-asset Transfer form) ----
             document.getElementById('transfer-submit').addEventListener('click', async function() {
                 const ids = loadSelection();
                 if (!ids || ids.length === 0) return alert('No assets selected');
                 const payload = {
                     assetIds: ids,
-                    transferToLocation: document.getElementById('transfer-to-location').value.trim(),
-                    transferToDepartment: document.getElementById('transfer-to-department').value.trim(),
-                    transferDate: document.getElementById('transfer-date').value,
-                    transferReason: document.getElementById('transfer-reason').value.trim(),
-                    notes: document.getElementById('transfer-notes').value.trim()
+                    type: 'TRANSFER',
+                    requestedEffectiveDate: document.getElementById('transfer-date').value,
+                    toEmployee: document.getElementById('transfer-to-employee').value.trim(),
+                    toDepartment: document.getElementById('transfer-to-department').value.trim(),
+                    toBranch: document.getElementById('transfer-to-branch').value.trim(),
+                    toLocation: document.getElementById('transfer-to-location').value.trim(),
+                    reason: document.getElementById('transfer-reason').value.trim()
                 };
                 if (sessionStorage.getItem(selectAllKey) === 'true') payload.selectAllMatching = true;
                 this.disabled = true;
                 try {
-                    const res = await fetch('/api/assets/bulk-transfer', {
+                    const res = await fetch('/api/assets/bulk-lifecycle', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const data = await res.json();
-                    alert((data.succeeded || 0) + ' assets transferred');
+                    const failed = (data.items || []).filter(i => !i.success).length;
+                    alert((data.succeeded || 0) + ' of ' + (data.totalRequested || 0) + ' assets submitted for transfer'
+                        + (failed ? '; ' + failed + ' failed (see lifecycle workflows).' : '.'));
                     closeModal('bulk-transfer-modal');
                     saveSelection([]);
                     sessionStorage.removeItem(selectAllKey);
                     updateUiFromSelection();
                 } catch (_) {
-                    alert('Failed to transfer assets.');
+                    alert('Failed to submit transfer requests.');
                 } finally {
                     this.disabled = false;
                 }
             });
 
-            // ---- retire modal confirmation ----
-            const retireConfirm = document.getElementById('retire-confirm');
-            const retireNotes = document.getElementById('retire-notes');
+            // ---- retire/disposal modal enable: require an effective date (matches single form) ----
+            const retireDate = document.getElementById('retire-date');
             const retireSubmit = document.getElementById('retire-submit');
 
             function checkRetireEnable() {
-                const ok = retireConfirm.value.trim() === 'RETIRE' && retireNotes.value.trim().length >= 20;
-                retireSubmit.disabled = !ok;
+                retireSubmit.disabled = !(retireDate.value && retireDate.value.trim().length > 0);
             }
-            retireConfirm.addEventListener('input', checkRetireEnable);
-            retireNotes.addEventListener('input', checkRetireEnable);
+            retireDate.addEventListener('input', checkRetireEnable);
 
-            // ---- retire submit ----
+            // ---- retire submit (mirrors the single-asset Disposal form) ----
             document.getElementById('retire-submit').addEventListener('click', async function() {
                 const ids = loadSelection();
                 if (!ids || ids.length === 0) return alert('No assets selected');
                 const payload = {
                     assetIds: ids,
-                    retirementReason: document.getElementById('retire-reason').value,
+                    type: 'DISPOSAL',
+                    requestedEffectiveDate: document.getElementById('retire-date').value,
                     disposalMethod: document.getElementById('retire-disposal-method').value,
-                    retirementDate: document.getElementById('retire-date').value,
-                    notes: document.getElementById('retire-notes').value.trim()
+                    disposalProceeds: Number(document.getElementById('retire-proceeds').value || 0),
+                    accumulatedDepreciation: Number(document.getElementById('retire-accumulated').value || 0),
+                    netBookValue: Number(document.getElementById('retire-nbv').value || 0),
+                    reason: document.getElementById('retire-notes').value.trim()
                 };
                 if (sessionStorage.getItem(selectAllKey) === 'true') payload.selectAllMatching = true;
                 this.disabled = true;
                 try {
-                    const res = await fetch('/api/assets/bulk-retire', {
+                    const res = await fetch('/api/assets/bulk-lifecycle', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const data = await res.json();
-                    alert((data.succeeded || 0) + ' assets retired');
+                    const failed = (data.items || []).filter(i => !i.success).length;
+                    alert((data.succeeded || 0) + ' of ' + (data.totalRequested || 0) + ' assets submitted for disposal'
+                        + (failed ? '; ' + failed + ' failed (see lifecycle workflows).' : '.'));
                     closeModal('bulk-retire-modal');
                     saveSelection([]);
                     sessionStorage.removeItem(selectAllKey);
                     updateUiFromSelection();
                 } catch (_) {
-                    alert('Failed to retire assets.');
+                    alert('Failed to submit disposal requests.');
                 } finally {
                     this.disabled = false;
                 }

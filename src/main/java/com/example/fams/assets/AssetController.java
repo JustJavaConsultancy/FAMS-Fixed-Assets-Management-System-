@@ -12,6 +12,8 @@ import com.example.fams.settings.AssetCategory;
 import com.example.fams.lifecycle.ApprovalDecision;
 import com.example.fams.lifecycle.AssetLifecycleService;
 import com.example.fams.lifecycle.AssetLifecycleWorkflow;
+import com.example.fams.lifecycle.BulkLifecycleRequestDto;
+import com.example.fams.lifecycle.BulkLifecycleResult;
 import com.example.fams.lifecycle.LifecycleWorkflowType;
 import com.example.fams.lifecycle.LifecycleWorkflowForm;
 import jakarta.validation.Valid;
@@ -301,6 +303,21 @@ public class AssetController {
             return ResponseEntity.ok(res);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new BulkOperationResultDto());
+        }
+    }
+
+    /**
+     * Bulk lifecycle submission. Same fields as the single-asset lifecycle form, applied to
+     * every selected asset; each asset gets its own approval workflow (Flowable).
+     */
+    @PostMapping("/api/assets/bulk-lifecycle")
+    @ResponseBody
+    public ResponseEntity<BulkLifecycleResult> bulkLifecycleApi(@RequestBody BulkLifecycleRequestDto request) {
+        try {
+            return ResponseEntity.ok(assetLifecycleService.bulkSubmit(request));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new BulkLifecycleResult(0, 0, List.of()));
         }
     }
 
