@@ -67,8 +67,15 @@ public class DepreciationCalculationService {
             BigDecimal accumulatedDepreciation,
             Integer yearNumber) {
 
-        // Calculate the rate: typically 1/usefulLifeYears for standard reducing balance
-        BigDecimal rate = new BigDecimal(1).divide(new BigDecimal(usefulLifeYears), SCALE + 2, ROUNDING_MODE);
+        // Declining-balance rate: 1 - (residual / cost) ^ (1 / usefulLife)
+        // (with residualValue already defaulted to ZERO by the caller)
+        BigDecimal base = residualValue.divide(assetCost, SCALE + 4, ROUNDING_MODE);
+        double exponent = 1.0 / usefulLifeYears;
+        BigDecimal basePow = BigDecimal.valueOf(Math.pow(base.doubleValue(), exponent));
+        BigDecimal rate = BigDecimal.ONE.subtract(basePow).setScale(SCALE + 2, ROUNDING_MODE);
+        if (rate.signum() < 0) {
+            rate = BigDecimal.ZERO;
+        }
 
         // Current book value
         BigDecimal bookValue = assetCost.subtract(accumulatedDepreciation);
@@ -77,9 +84,9 @@ public class DepreciationCalculationService {
         BigDecimal depreciation = bookValue.multiply(rate).setScale(SCALE, ROUNDING_MODE);
 
         // Ensure we don't depreciate below residual value
-        BigDecimal projectedAccumulated = accumulatedDepreciation.add(depreciation);
-        if (projectedAccumulated.add(depreciation).compareTo(assetCost.subtract(residualValue)) > 0) {
-            depreciation = assetCost.subtract(residualValue).subtract(accumulatedDepreciation);
+        BigDecimal depreciableLimit = assetCost.subtract(residualValue);
+        if (accumulatedDepreciation.add(depreciation).compareTo(depreciableLimit) > 0) {
+            depreciation = depreciableLimit.subtract(accumulatedDepreciation);
         }
 
         return depreciation.max(BigDecimal.ZERO);
@@ -107,9 +114,9 @@ public class DepreciationCalculationService {
         BigDecimal depreciation = bookValue.multiply(rate).setScale(SCALE, ROUNDING_MODE);
 
         // Ensure we don't depreciate below residual value
-        BigDecimal projectedAccumulated = accumulatedDepreciation.add(depreciation);
-        if (projectedAccumulated.compareTo(assetCost.subtract(residualValue)) > 0) {
-            depreciation = assetCost.subtract(residualValue).subtract(accumulatedDepreciation);
+        BigDecimal depreciableLimit = assetCost.subtract(residualValue);
+        if (accumulatedDepreciation.add(depreciation).compareTo(depreciableLimit) > 0) {
+            depreciation = depreciableLimit.subtract(accumulatedDepreciation);
         }
 
         return depreciation.max(BigDecimal.ZERO);
@@ -119,6 +126,9 @@ public class DepreciationCalculationService {
      * Check if an asset is fully depreciated
      */
     public boolean isFullyDepreciated(BigDecimal assetCost, BigDecimal residualValue, BigDecimal accumulatedDepreciation) {
+        if (assetCost == null || accumulatedDepreciation == null) {
+            return false;
+        }
         if (residualValue == null) {
             residualValue = BigDecimal.ZERO;
         }
@@ -158,6 +168,30 @@ public class DepreciationCalculationService {
             accumulatedDepreciation = BigDecimal.ZERO;
         }
         return assetCost.subtract(accumulatedDepreciation).max(BigDecimal.ZERO);
+    }
+
+    /**
+     * Prorate an annual depreciation charge down to the fraction of the year the period covers.
+     * <ul>
+     *   <li>monthly  → 1/12 of the annual charge</li>
+     *   <li>quarterly → 1/4 of the annual charge</li>
+     *   <li>annual   → the full annual charge</li>
+     * </ul>
+     * Period type is derived from the depreciation period code by {@code DepreciationService};
+     * the values accepted here are "monthly", "quarterly", and "annual" (anything else → annual).
+     */
+    public BigDecimal prorateCharge(BigDecimal annualCharge, String periodType) {
+        if (annualCharge == null) {
+            return BigDecimal.ZERO;
+        }
+        if (periodType == null) {
+            return annualCharge.setScale(SCALE, ROUNDING_MODE);
+        }
+        return switch (periodType.toLowerCase()) {
+            case "monthly" -> annualCharge.divide(new BigDecimal(12), SCALE + 2, ROUNDING_MODE).setScale(SCALE, ROUNDING_MODE);
+            case "quarterly" -> annualCharge.divide(new BigDecimal(4), SCALE + 2, ROUNDING_MODE).setScale(SCALE, ROUNDING_MODE);
+            default -> annualCharge.setScale(SCALE, ROUNDING_MODE);
+        };
     }
 }
 

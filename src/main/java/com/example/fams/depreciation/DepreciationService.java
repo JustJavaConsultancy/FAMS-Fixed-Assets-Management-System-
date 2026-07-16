@@ -2,6 +2,7 @@ package com.example.fams.depreciation;
 
 import com.example.fams.assets.Asset;
 import com.example.fams.assets.AssetRepository;
+import com.example.fams.common.AppClock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,7 @@ public class DepreciationService {
     @Transactional
     public DepreciationParameters saveParameters(DepreciationParameters parameters) {
         if (parameters.getEffectiveFromDate() == null) {
-            parameters.setEffectiveFromDate(LocalDate.now());
+            parameters.setEffectiveFromDate(AppClock.today());
         }
         return parametersRepository.save(parameters);
     }
@@ -58,7 +59,7 @@ public class DepreciationService {
         existing.ifPresent(current -> {
             // End the current parameters
             current.setEffectiveToDate(newParameters.getEffectiveFromDate().minusDays(1));
-            current.setIsActive(newParameters.getEffectiveFromDate().isAfter(LocalDate.now()));
+            current.setIsActive(newParameters.getEffectiveFromDate().isAfter(AppClock.today()));
             parametersRepository.save(current);
         });
 
@@ -75,32 +76,43 @@ public class DepreciationService {
     }
 
     /**
-     * Run depreciation for a specific period (e.g., "2024-12" for December 2024)
+     * Run depreciation for a specific period (e.g., "2024-12" for December 2024,
+     * "2024-06" for June, "2024-Q1" for Q1). The period code also encodes whether the
+     * charge should be prorated (monthly = 1/12, quarterly = 1/4, annual = full).
      */
     @Transactional
     public DepreciationRunResult runDepreciation(String depreciationPeriod, LocalDate periodEndDate) {
         DepreciationRunResult result = new DepreciationRunResult();
         result.setPeriod(depreciationPeriod);
-        result.setRunDate(LocalDate.now());
+        result.setRunDate(AppClock.today());
 
         try {
             // Get all assets
             List<Asset> assets = assetRepository.findAll();
             Integer fiscalYear = periodEndDate.getYear();
+            String periodType = resolvePeriodType(depreciationPeriod);
 
             for (Asset asset : assets) {
                 try {
-                    DepreciationPosting posting = calculateDepreciationForAsset(asset, depreciationPeriod, periodEndDate, fiscalYear);
+                    DepreciationPosting posting = calculateDepreciationForAsset(asset, depreciationPeriod, periodEndDate, fiscalYear, periodType);
                     if (posting != null) {
+                        // Replace any existing posting for this asset + period (idempotent re-run).
+                        deleteExistingPosting(asset.getId(), depreciationPeriod);
                         postingRepository.save(posting);
                         result.addSuccessfulAsset(asset.getAssetCode());
+                    } else {
+                        result.addFailedAsset(asset.getAssetCode(), "No depreciation parameters configured for this asset");
                     }
                 } catch (Exception e) {
                     result.addFailedAsset(asset.getAssetCode(), e.getMessage());
                 }
             }
 
-            result.setStatus("COMPLETED");
+            if (result.getFailureCount() > 0) {
+                result.setStatus("COMPLETED_WITH_ERRORS");
+            } else {
+                result.setStatus("COMPLETED");
+            }
         } catch (Exception e) {
             result.setStatus("FAILED");
             result.setErrorMessage(e.getMessage());
@@ -110,12 +122,33 @@ public class DepreciationService {
     }
 
     /**
+     * Derive the period type (and therefore the proration fraction) from a depreciation
+     * period code. Codes produced by the UI:
+     *   "YYYY-MM"  → monthly  (1/12)
+     *   "YYYY-Q1".."YYYY-Q4" → quarterly (1/4)
+     *   "YYYY-12"  → annual (full)
+     */
+    public static String resolvePeriodType(String depreciationPeriod) {
+        if (depreciationPeriod == null) {
+            return "annual";
+        }
+        if (depreciationPeriod.matches(".*-Q[1-4]$")) {
+            return "quarterly";
+        }
+        if (depreciationPeriod.matches(".*-\\d{2}$")) {
+            String month = depreciationPeriod.substring(depreciationPeriod.length() - 2);
+            return "12".equals(month) ? "annual" : "monthly";
+        }
+        return "annual";
+    }
+
+    /**
      * Calculate depreciation for a single asset
      */
     @Transactional(readOnly = true)
-    public DepreciationPosting calculateDepreciationForAsset(Asset asset, String depreciationPeriod, LocalDate periodEndDate, Integer fiscalYear) {
-        // Get depreciation parameters for this asset as of the period end date
-        Optional<DepreciationParameters> parameters = getParametersForAsset(asset.getId(), periodEndDate);
+    public DepreciationPosting calculateDepreciationForAsset(Asset asset, String depreciationPeriod, LocalDate periodEndDate, Integer fiscalYear, String periodType) {
+        // Resolve depreciation parameters: asset-specific first, then category-wide fallback
+        Optional<DepreciationParameters> parameters = resolveParameters(asset);
 
         if (parameters.isEmpty()) {
             // No depreciation parameters configured
@@ -129,6 +162,9 @@ public class DepreciationService {
             return null;
         }
 
+        BigDecimal assetCost = asset.getPurchaseCost();
+        BigDecimal residualValue = params.getResidualValue();
+
         DepreciationPosting posting = new DepreciationPosting();
         posting.setAssetId(asset.getId());
         posting.setAssetCode(asset.getAssetCode());
@@ -138,40 +174,73 @@ public class DepreciationService {
         posting.setDepreciationMethod(params.getMethod());
         posting.setDepreciationPeriod(depreciationPeriod);
         posting.setFiscalYear(fiscalYear);
-        posting.setAssetCost(asset.getPurchaseCost());
+        posting.setAssetCost(assetCost);
         posting.setUsefulLifeYears(params.getUsefulLifeYears());
-        posting.setResidualValue(params.getResidualValue());
+        posting.setResidualValue(residualValue);
 
         // Get previous posting to get opening accumulated depreciation
         DepreciationPosting previousPosting = postingRepository.findFirstByAssetIdOrderByDepreciationPeriodDesc(asset.getId());
         BigDecimal openingAccumulated = previousPosting != null ? previousPosting.getClosingAccumulatedDepreciation() : BigDecimal.ZERO;
         posting.setOpeningAccumulatedDepreciation(openingAccumulated);
 
-        // Calculate depreciation charge
-        BigDecimal depreciationCharge = calculationService.calculateAnnualDepreciation(
-                asset.getPurchaseCost(),
-                params.getResidualValue(),
+        // Calculate the annual depreciation charge for this asset
+        BigDecimal annualCharge = calculationService.calculateAnnualDepreciation(
+                assetCost,
+                residualValue,
                 params.getUsefulLifeYears(),
                 params.getMethod(),
                 1,
                 openingAccumulated
         );
 
+        // Prorate to the period being closed (monthly → 1/12, quarterly → 1/4, annual → full)
+        BigDecimal depreciationCharge = calculationService.prorateCharge(annualCharge, periodType);
         posting.setDepreciationCharge(depreciationCharge);
 
-        // Calculate closing accumulated depreciation
+        // Calculate closing accumulated depreciation (clamped so it never exceeds cost - residual)
+        BigDecimal depreciableLimit = assetCost.subtract(residualValue == null ? BigDecimal.ZERO : residualValue);
         BigDecimal closingAccumulated = openingAccumulated.add(depreciationCharge);
+        if (closingAccumulated.compareTo(depreciableLimit) > 0) {
+            closingAccumulated = depreciableLimit;
+        }
         posting.setClosingAccumulatedDepreciation(closingAccumulated);
 
         // Calculate book value
-        BigDecimal bookValue = calculationService.calculateBookValue(asset.getPurchaseCost(), closingAccumulated);
+        BigDecimal bookValue = calculationService.calculateBookValue(assetCost, closingAccumulated);
         posting.setBookValue(bookValue);
 
         // Check if fully depreciated
-        boolean fullyDep = calculationService.isFullyDepreciated(asset.getPurchaseCost(), params.getResidualValue(), closingAccumulated);
+        boolean fullyDep = calculationService.isFullyDepreciated(assetCost, residualValue, closingAccumulated);
         posting.setFullyDepreciated(fullyDep);
 
         return posting;
+    }
+
+    /**
+     * Resolve the depreciation parameters that apply to an asset: prefer an asset-specific
+     * (still-active) configuration; if none exists, fall back to the active category-wide
+     * configuration for the asset's category.
+     */
+    @Transactional(readOnly = true)
+    public Optional<DepreciationParameters> resolveParameters(Asset asset) {
+        Optional<DepreciationParameters> assetParams = getParametersForAsset(asset.getId(), AppClock.today());
+        if (assetParams.isPresent()) {
+            return assetParams;
+        }
+        List<DepreciationParameters> categoryParams = getCategoryParameters(asset.getCategory());
+        return categoryParams.stream().findFirst();
+    }
+
+    /**
+     * Delete any existing posting for the given asset + period so a re-run replaces rather
+     * than duplicates it (keeps accumulated depreciation from being double-counted).
+     */
+    @Transactional
+    public void deleteExistingPosting(Long assetId, String depreciationPeriod) {
+        List<DepreciationPosting> existing = postingRepository.findByAssetIdAndDepreciationPeriod(assetId, depreciationPeriod);
+        if (!existing.isEmpty()) {
+            postingRepository.deleteAll(existing);
+        }
     }
 
     /**
@@ -337,6 +406,9 @@ public class DepreciationService {
         BigDecimal totalBookValue = BigDecimal.ZERO;
         int fullyDepreciatedCount = 0;
 
+        // Configured assets = those with asset-specific OR category-wide active parameters.
+        int configuredAssetCount = countConfiguredAssets(assets);
+
         for (Asset asset : assets) {
             if (!isAssetDepreciable(asset)) {
                 continue;
@@ -358,9 +430,46 @@ public class DepreciationService {
         summary.setTotalAccumulatedDepreciation(totalAccumulated);
         summary.setTotalBookValue(totalBookValue);
         summary.setAssetCount(assets.size());
+        summary.setConfiguredAssetCount(configuredAssetCount);
         summary.setFullyDepreciatedCount(fullyDepreciatedCount);
 
         return summary;
+    }
+
+    /**
+     * Count assets that have depreciation configured, either via an asset-specific
+     * parameter or via an active category-wide parameter for the asset's category.
+     */
+    private int countConfiguredAssets(List<Asset> assets) {
+        List<DepreciationParameters> allParams = parametersRepository.findAll();
+        java.util.Set<Long> assetParamIds = allParams.stream()
+                .filter(p -> p.getAssetId() != null)
+                .map(DepreciationParameters::getAssetId)
+                .collect(java.util.stream.Collectors.toSet());
+        java.util.Set<String> categoryParams = allParams.stream()
+                .filter(p -> p.getAssetId() == null && p.getCategory() != null)
+                .map(DepreciationParameters::getCategory)
+                .collect(java.util.stream.Collectors.toSet());
+
+        int count = 0;
+        for (Asset asset : assets) {
+            if (assetParamIds.contains(asset.getId())
+                    || (asset.getCategory() != null && categoryParams.contains(asset.getCategory()))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Get every depreciation posting (used by the dashboard filters/export, which need the
+     * full dataset rather than only the most-recent slice).
+     */
+    @Transactional(readOnly = true)
+    public List<DepreciationPosting> getAllPostings() {
+        return postingRepository.findAll().stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .collect(Collectors.toList());
     }
 
     /**

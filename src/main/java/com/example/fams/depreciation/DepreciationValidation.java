@@ -1,5 +1,6 @@
 package com.example.fams.depreciation;
 
+import com.example.fams.common.AppClock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -85,7 +86,7 @@ public class DepreciationValidation {
             return ValidationResult.error("Period end date is required");
         }
 
-        if (periodEndDate.isAfter(LocalDate.now().plusDays(1))) {
+        if (periodEndDate.isAfter(AppClock.today().plusDays(1))) {
             return ValidationResult.error("Period end date cannot be in the future");
         }
 

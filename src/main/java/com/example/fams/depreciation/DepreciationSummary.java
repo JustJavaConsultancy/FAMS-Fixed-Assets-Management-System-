@@ -7,6 +7,7 @@ public class DepreciationSummary {
     private BigDecimal totalAccumulatedDepreciation;
     private BigDecimal totalBookValue;
     private int assetCount;
+    private int configuredAssetCount;
     private int fullyDepreciatedCount;
 
     public BigDecimal getTotalOriginalCost() {
@@ -39,6 +40,14 @@ public class DepreciationSummary {
 
     public void setAssetCount(int assetCount) {
         this.assetCount = assetCount;
+    }
+
+    public int getConfiguredAssetCount() {
+        return configuredAssetCount;
+    }
+
+    public void setConfiguredAssetCount(int configuredAssetCount) {
+        this.configuredAssetCount = configuredAssetCount;
     }
 
     public int getFullyDepreciatedCount() {

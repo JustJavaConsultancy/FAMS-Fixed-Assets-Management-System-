@@ -176,12 +176,15 @@
                 <span class="material-symbols-outlined text-[18px]">history</span>
                 History
             </a>
-            <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+            <button id="exportBtn" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">download</span>
                 Export
             </button>
         </div>
     </div>
+
+    <!-- Alert container for filter/export feedback -->
+    <div id="alertContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <!-- ── Hero Info Card ── -->
     <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex">
@@ -273,7 +276,7 @@
         <div class="filters-bar">
             <div class="filter-group">
                 <label class="text-label-small text-secondary">Category</label>
-                <select class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <select id="categoryFilter" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     <option>All Categories</option>
                     <option>IT Equipment</option>
                     <option>Vehicles</option>
@@ -282,7 +285,7 @@
             </div>
             <div class="filter-group">
                 <label class="text-label-small text-secondary">Department</label>
-                <select class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <select id="departmentFilter" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     <option>All Departments</option>
                     <option>Engineering</option>
                     <option>Sales &amp; Marketing</option>
@@ -291,26 +294,25 @@
             </div>
             <div class="filter-group">
                 <label class="text-label-small text-secondary">Method</label>
-                <select class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                <select id="methodFilter" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                     <option>All Methods</option>
                     <option>Straight-Line (SL)</option>
                     <option>Reducing Balance (RB)</option>
+                    <option>Double Declining (DDB)</option>
                 </select>
             </div>
             <div class="filter-group">
                 <label class="text-label-small text-secondary">Year Range</label>
-                <select class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    <option>Current Year (2024)</option>
-                    <option>2023</option>
-                    <option>2022</option>
+                <select id="yearFilter" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    <option value="">All Years</option>
                 </select>
             </div>
             <div class="filter-actions flex gap-2 flex-shrink-0">
-                <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <button id="moreFiltersBtn" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">filter_alt</span>
                     <span class="hidden sm:inline">More Filters</span>
                 </button>
-                <button class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
+                <button id="exportBtn2" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">download</span>
                     <span class="hidden sm:inline">Export</span>
                 </button>
@@ -457,7 +459,7 @@
                 const data = await response.json();
 
                 if (data.lastCalculatedAt) {
-                    const timeAgo = getTimeAgoString(new Date(data.lastCalculatedAt));
+                    const timeAgo = getTimeAgoString(parseLocalDateTime(data.lastCalculatedAt));
                     document.getElementById('lastCalcDisplay').innerHTML = `
                         <span class="material-symbols-outlined text-[16px]">update</span>
                         <span>Last calculated: ${timeAgo}</span>
@@ -466,9 +468,24 @@
 
                 await loadKPIs(data.summary);
                 loadChartData(data);
+                window.__dashboardData = data;
 
-                if (data.latestPostings && data.latestPostings.length > 0) {
-                    loadTableData(data.latestPostings);
+                // Load the FULL postings set so the filters/export operate on complete data
+                // (the dashboard's latestPostings is only the most-recent slice).
+                let allPostings = [];
+                try {
+                    const postingsResp = await fetch('/api/depreciation/postings');
+                    allPostings = await postingsResp.json();
+                } catch (e) {
+                    allPostings = (data.latestPostings || []);
+                }
+                window.__allPostings = allPostings;
+
+                populateYearFilter(allPostings);
+                wireFiltersAndExport();
+
+                if (allPostings && allPostings.length > 0) {
+                    applyFilters();
                 } else {
                     showTableEmptyState();
                 }
@@ -512,7 +529,8 @@
             document.getElementById('kpiRecoveryPotential').textContent = recoveryPercent + '% recovery potential';
             document.getElementById('kpiDepPercentage').innerHTML =
                 '<span class="material-symbols-outlined text-[16px]">history</span><span>' + depPercent + '% of total asset cost</span>';
-            document.getElementById('kpiAssetCount').textContent = 'of ' + summary.assetCount + ' assets';
+            const configuredCount = summary.configuredAssetCount || summary.assetCount;
+            document.getElementById('kpiAssetCount').textContent = 'of ' + configuredCount + ' assets configured';
         }
 
         function loadChartData(data) {
@@ -650,6 +668,147 @@
             return `<span class="px-2 py-0.5 rounded-full ${config.color} text-badge-label font-badge-label whitespace-nowrap">${config.label}</span>`;
         }
 
+        // Map a depreciation method enum to its display label (used for filter matching
+        // and export, so we compare on the enum value, not the human label).
+        const METHOD_LABELS = {
+            'STRAIGHT_LINE': 'Straight-Line (SL)',
+            'REDUCING_BALANCE': 'Reducing Balance (RB)',
+            'DOUBLE_DECLINING_BALANCE': 'Double Declining (DDB)'
+        };
+        function methodLabel(method) {
+            return METHOD_LABELS[method] || method;
+        }
+
+        // Populate the Year Range dropdown from the dataset + the real current year.
+        function populateYearFilter(postings) {
+            const yearSelect = document.getElementById('yearFilter');
+            if (!yearSelect) return;
+
+            const currentYear = new Date().getFullYear();
+            const years = new Set();
+            years.add(currentYear);
+            (postings || []).forEach(p => {
+                if (p.fiscalYear) years.add(p.fiscalYear);
+                else if (p.depreciationPeriod && /^\d{4}/.test(p.depreciationPeriod)) {
+                    years.add(parseInt(p.depreciationPeriod.substring(0, 4), 10));
+                }
+            });
+
+            // Keep "All Years" (value="") as the first, selected option.
+            yearSelect.innerHTML = '<option value="">All Years</option>';
+            Array.from(years).sort((a, b) => b - a).forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = (y === currentYear) ? `Current Year (${y})` : String(y);
+                yearSelect.appendChild(opt);
+            });
+            yearSelect.value = '';
+        }
+
+        function wireFiltersAndExport() {
+            ['categoryFilter', 'departmentFilter', 'methodFilter', 'yearFilter'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', applyFilters);
+            });
+
+            const exportHandlers = ['exportBtn', 'exportBtn2'].map(id => document.getElementById(id));
+            exportHandlers.forEach(btn => {
+                if (btn) btn.addEventListener('click', () => exportCsv(getFilteredPostings()));
+            });
+
+            const moreBtn = document.getElementById('moreFiltersBtn');
+            if (moreBtn) {
+                moreBtn.addEventListener('click', () => {
+                    showAlert('All available filters are shown above (Category, Department, Method, Year Range).', 'info');
+                });
+            }
+        }
+
+        // Apply the four filters and re-render the table + sidebar from the result.
+        function applyFilters() {
+            const filtered = getFilteredPostings();
+            if (filtered.length === 0) {
+                showTableEmptyState();
+            } else {
+                loadTableData(filtered);
+            }
+            // Keep the sidebar method distribution in sync with the filtered set
+            // (KPI figures stay portfolio-wide via the stored summary).
+            const dash = window.__dashboardData;
+            if (dash) loadChartData({ summary: dash.summary, latestPostings: filtered });
+        }
+
+        function getFilteredPostings() {
+            const all = window.__allPostings || [];
+            const cat = document.getElementById('categoryFilter')?.value || 'All Categories';
+            const dept = document.getElementById('departmentFilter')?.value || 'All Departments';
+            const method = document.getElementById('methodFilter')?.value || 'All Methods';
+            const year = document.getElementById('yearFilter')?.value || '';
+
+            return all.filter(p => {
+                if (cat !== 'All Categories' && (p.category || '') !== cat) return false;
+                if (dept !== 'All Departments' && (p.department || '') !== dept) return false;
+                if (method !== 'All Methods' && methodLabel(p.depreciationMethod) !== method) return false;
+                if (year) {
+                    const matchesYear = (p.fiscalYear && String(p.fiscalYear) === year)
+                        || (p.depreciationPeriod && p.depreciationPeriod.startsWith(year + '-'));
+                    if (!matchesYear) return false;
+                }
+                return true;
+            });
+        }
+
+        // Build and download a CSV of the given (already filtered) postings.
+        function exportCsv(rows) {
+            if (!rows || rows.length === 0) {
+                showAlert('No postings to export for the current filter.', 'error');
+                return;
+            }
+            const headers = [
+                'Asset Code', 'Name', 'Category', 'Department', 'Method',
+                'Period', 'Fiscal Year', 'Cost', 'Opening Accum. Dep.',
+                'Depreciation Charge', 'Closing Accum. Dep.', 'Book Value', 'Status'
+            ];
+
+            const escapeCsv = (val) => {
+                const s = (val === null || val === undefined) ? '' : String(val);
+                return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+            };
+
+            const lines = [headers.join(',')];
+            rows.forEach(p => {
+                const row = [
+                    p.assetCode,
+                    p.assetName,
+                    p.category,
+                    p.department,
+                    methodLabel(p.depreciationMethod),
+                    p.depreciationPeriod,
+                    p.fiscalYear,
+                    p.assetCost,
+                    p.openingAccumulatedDepreciation,
+                    p.depreciationCharge,
+                    p.closingAccumulatedDepreciation,
+                    p.bookValue,
+                    p.fullyDepreciated ? 'Fully Depreciated' : 'Active'
+                ].map(escapeCsv);
+                lines.push(row.join(','));
+            });
+
+            // Filename uses the app's current local date (mirrors the timezone-aware clock).
+            const d = new Date();
+            const fileDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `depreciation_export_${fileDate}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
         function showTableEmptyState() {
             document.getElementById('tableLoadingState').classList.add('hidden');
             document.getElementById('tableEmptyState').classList.remove('hidden');
@@ -669,14 +828,37 @@
             return '₦' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            if (!container) {
+                console.warn(message);
+                return;
+            }
+            const alertEl = document.createElement('div');
+            alertEl.className = `alert alert-${type} flex items-center gap-2`;
+            alertEl.innerHTML = `<span>${message}</span>`;
+            container.appendChild(alertEl);
+            setTimeout(() => alertEl.remove(), 4000);
+        }
+
         function formatNumberOnly(value) {
             if (!value) return '0.00';
             const num = parseFloat(value);
             return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
+        // Parse a LocalDateTime ISO string (no zone offset) as the user's local time.
+        // The server stores wall-clock time (Africa/Lagos); we display it as-is.
+        function parseLocalDateTime(value) {
+            if (!value) return null;
+            const parts = value.split(/[-:T]/).map(Number);
+            return new Date(parts[0], parts[1] - 1, parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+        }
+
         function getTimeAgoString(date) {
+            if (!date) return 'never';
             const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 0) return 'just now';
             if (seconds < 60) return 'just now';
             const minutes = Math.floor(seconds / 60);
             if (minutes < 60) return minutes + ' minute' + (minutes !== 1 ? 's' : '') + ' ago';

@@ -351,7 +351,7 @@
                     </div>
                     <div>
                         <p class="text-label-small text-secondary">Posted</p>
-                        <p class="font-technical-data text-secondary">${new Date(posting.createdAt).toLocaleString()}</p>
+                        <p class="font-technical-data text-secondary">${formatLocalDateTime(posting.createdAt)}</p>
                     </div>
                 `;
                 detailModal.classList.remove('hidden');
@@ -390,6 +390,16 @@
 
             function formatCurrency(value) {
                 return parseFloat(value || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+
+            // Render a LocalDateTime ISO string (e.g. "2026-07-16T14:32:05") in the user's
+            // local timezone. The value carries no zone offset, so it represents the
+            // server's wall-clock time (Africa/Lagos) and is shown as-is.
+            function formatLocalDateTime(value) {
+                if (!value) return '--';
+                const parts = value.split(/[-:T]/).map(Number);
+                const dt = new Date(parts[0], parts[1] - 1, parts[2], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+                return dt.toLocaleString();
             }
 
             function getMethodAbbr(method) {

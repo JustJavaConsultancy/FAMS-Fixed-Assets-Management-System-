@@ -322,7 +322,9 @@
                     method: method,
                     usefulLifeYears: parseInt(usefulLife),
                     residualValue: residualValue ? parseFloat(residualValue) : 0,
-                    effectiveFromDate: effectiveFrom || new Date().toISOString().split('T')[0]
+                    // Only send effectiveFromDate when the user explicitly enters one.
+                    // The backend assigns the correct (timezone-aware) "today" when this is omitted.
+                    ...(effectiveFrom ? { effectiveFromDate: effectiveFrom } : {})
                 };
 
                 let url, body;

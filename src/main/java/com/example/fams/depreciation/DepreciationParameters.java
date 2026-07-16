@@ -1,6 +1,7 @@
 package com.example.fams.depreciation;
 
 import jakarta.persistence.*;
+import com.example.fams.common.AppClock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,14 +53,14 @@ public class DepreciationParameters {
 
     @PrePersist
     void beforeCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppClock.now();
         createdAt = now;
         updatedAt = now;
     }
 
     @PreUpdate
     void beforeUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = AppClock.now();
     }
 
     // Getters and Setters

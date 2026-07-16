@@ -25,6 +25,9 @@ public interface DepreciationPostingRepository extends JpaRepository<Depreciatio
     // Find latest posting for an asset
     DepreciationPosting findFirstByAssetIdOrderByDepreciationPeriodDesc(Long assetId);
 
+    // Find postings for a specific asset + period (used to replace on re-run)
+    List<DepreciationPosting> findByAssetIdAndDepreciationPeriod(Long assetId, String depreciationPeriod);
+
     // Find postings by fiscal year
     List<DepreciationPosting> findByFiscalYearOrderByDepreciationPeriodDescAssetCode(Integer fiscalYear);
 }

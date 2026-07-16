@@ -253,13 +253,27 @@
             const resultsModal = document.getElementById('resultsModal');
 
             // Initialize year dropdown (current year and 2 previous years)
-            const currentYear = new Date().getFullYear();
+            const now = new Date();
+            const currentYear = now.getFullYear();
             for (let i = currentYear; i >= currentYear - 2; i--) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = i;
                 if (i === currentYear) option.selected = true;
                 yearSelect.appendChild(option);
+            }
+
+            // Default the month picker to the current month so the run reflects "today".
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const monthSelectEl = document.getElementById('monthSelect');
+            if (monthSelectEl) {
+                monthSelectEl.value = currentMonth;
+            }
+            // Default the quarter picker to the current quarter.
+            const currentQuarter = 'Q' + (Math.floor(now.getMonth() / 3) + 1);
+            const quarterSelectEl = document.getElementById('quarterSelect');
+            if (quarterSelectEl) {
+                quarterSelectEl.value = currentQuarter;
             }
 
             // Period type toggle
@@ -329,7 +343,10 @@
 
                 document.getElementById('periodEndDateInput').value = dateStr;
                 document.getElementById('previewPeriod').textContent = periodCode;
-                document.getElementById('previewDate').textContent = new Date(dateStr).toLocaleDateString();
+                // Parse as a local date (not UTC midnight) so the preview shows the correct day
+                // regardless of the browser's timezone offset.
+                const [y, m, d] = dateStr.split('-').map(Number);
+                document.getElementById('previewDate').textContent = new Date(y, m - 1, d).toLocaleDateString();
                 document.getElementById('previewCard').classList.remove('hidden');
             }
 

@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.fams.assets.Asset;
+import com.example.fams.common.AppClock;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +20,14 @@ public class DepreciationController {
 
     private final DepreciationService depreciationService;
     private final DepreciationParametersRepository parametersRepository;
+    private final com.example.fams.assets.AssetRepository assetRepository;
 
     public DepreciationController(DepreciationService depreciationService,
-                                 DepreciationParametersRepository parametersRepository) {
+                                 DepreciationParametersRepository parametersRepository,
+                                 com.example.fams.assets.AssetRepository assetRepository) {
         this.depreciationService = depreciationService;
         this.parametersRepository = parametersRepository;
+        this.assetRepository = assetRepository;
     }
 
     /**
@@ -61,6 +67,28 @@ public class DepreciationController {
         try {
             parameters.setAssetId(assetId);
             parameters.setCategory(null); // Asset-specific, not category-wide
+            if (parameters.getEffectiveFromDate() == null) {
+                parameters.setEffectiveFromDate(AppClock.today());
+            }
+
+            // Validate the parameters themselves
+            DepreciationValidation.ValidationResult paramCheck = DepreciationValidation.validateParameters(parameters);
+            if (!paramCheck.isValid()) {
+                return badRequest(paramCheck.getErrorMessage());
+            }
+
+            // Validate residual value does not exceed the asset's cost
+            Optional<Asset> asset = assetRepository.findById(assetId);
+            if (asset.isEmpty()) {
+                return badRequest("Asset not found: " + assetId);
+            }
+            BigDecimal cost = asset.get().getPurchaseCost();
+            DepreciationValidation.ValidationResult residualCheck =
+                    DepreciationValidation.validateResidualValue(cost, parameters.getResidualValue());
+            if (!residualCheck.isValid()) {
+                return badRequest(residualCheck.getErrorMessage());
+            }
+
             DepreciationParameters saved = depreciationService.saveParameters(parameters);
 
             Map<String, Object> response = new HashMap<>();
@@ -77,6 +105,14 @@ public class DepreciationController {
         }
     }
 
+    private ResponseEntity<Map<String, Object>> badRequest(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("message", message);
+        response.put("error", message);
+        return ResponseEntity.badRequest().body(response);
+    }
+
     /**
      * Configure depreciation parameters for a category
      */
@@ -85,6 +121,15 @@ public class DepreciationController {
             @RequestBody DepreciationParameters parameters) {
         try {
             parameters.setAssetId(null); // Category-wide, not asset-specific
+            if (parameters.getEffectiveFromDate() == null) {
+                parameters.setEffectiveFromDate(AppClock.today());
+            }
+
+            DepreciationValidation.ValidationResult paramCheck = DepreciationValidation.validateParameters(parameters);
+            if (!paramCheck.isValid()) {
+                return badRequest(paramCheck.getErrorMessage());
+            }
+
             DepreciationParameters saved = depreciationService.saveParameters(parameters);
 
             Map<String, Object> response = new HashMap<>();
@@ -96,6 +141,7 @@ public class DepreciationController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Error saving category parameters: " + e.getMessage());
+            response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -109,7 +155,7 @@ public class DepreciationController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate asOfDate) {
         try {
             if (asOfDate == null) {
-                asOfDate = LocalDate.now();
+                asOfDate = AppClock.today();
             }
             Optional<DepreciationParameters> parameters = depreciationService.getParametersForAsset(assetId, asOfDate);
             return parameters.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -160,10 +206,25 @@ public class DepreciationController {
             @RequestParam String depreciationPeriod,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEndDate) {
         try {
+            // Validate the depreciation period format
+            DepreciationValidation.ValidationResult periodCheck =
+                    DepreciationValidation.validateDepreciationPeriod(depreciationPeriod);
+            if (!periodCheck.isValid()) {
+                return badRequest(periodCheck.getErrorMessage());
+            }
+
+            // Validate the period end date is not in the future
+            DepreciationValidation.ValidationResult dateCheck =
+                    DepreciationValidation.validatePeriodEndDate(periodEndDate);
+            if (!dateCheck.isValid()) {
+                return badRequest(dateCheck.getErrorMessage());
+            }
+
             DepreciationRunResult result = depreciationService.runDepreciation(depreciationPeriod, periodEndDate);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("success", result.getStatus().equals("COMPLETED"));
+            boolean fullySucceeded = "COMPLETED".equals(result.getStatus());
+            response.put("success", fullySucceeded);
             response.put("period", result.getPeriod());
             response.put("runDate", result.getRunDate());
             response.put("status", result.getStatus());
@@ -171,8 +232,11 @@ public class DepreciationController {
             response.put("successCount", result.getSuccessCount());
             response.put("failureCount", result.getFailureCount());
 
-            if (result.getStatus().equals("FAILED")) {
+            if (!fullySucceeded) {
                 response.put("error", result.getErrorMessage());
+                if (result.getFailureCount() > 0) {
+                    response.put("failedAssets", result.getFailedAssets());
+                }
             }
 
             return ResponseEntity.ok(response);
@@ -219,6 +283,18 @@ public class DepreciationController {
         try {
             List<DepreciationDepartmentReport> report = depreciationService.getDepartmentReport(period);
             return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Get every depreciation posting (full dataset for the dashboard filters and export)
+     */
+    @GetMapping("/postings")
+    public ResponseEntity<List<DepreciationPosting>> getAllPostings() {
+        try {
+            return ResponseEntity.ok(depreciationService.getAllPostings());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
