@@ -22,7 +22,12 @@ public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRe
     @EntityGraph(attributePaths = "asset")
     List<MaintenanceRecord> findTop8ByTypeOrderByMaintenanceDateDescCreatedAtDesc(MaintenanceType type);
 
+    @EntityGraph(attributePaths = "asset")
+    List<MaintenanceRecord> findTop8ByStatusOrderByMaintenanceDateDescCreatedAtDesc(MaintenanceStatus status);
+
     long countByType(MaintenanceType type);
+
+    long countByStatus(MaintenanceStatus status);
 
     long countByAssetInAndStatus(Collection<Asset> assets, MaintenanceStatus status);
 }

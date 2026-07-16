@@ -77,6 +77,11 @@ public class MaintenanceService {
     }
 
     @Transactional(readOnly = true)
+    public List<MaintenanceRecord> recentRequests() {
+        return recordRepository.findTop8ByStatusOrderByMaintenanceDateDescCreatedAtDesc(MaintenanceStatus.OPEN);
+    }
+
+    @Transactional(readOnly = true)
     public List<MaintenanceReportRow> report(LocalDate start, LocalDate end) {
         return recordRepository.findByMaintenanceDateBetweenOrderByMaintenanceDateDesc(start, end)
                 .stream()
@@ -297,6 +302,41 @@ public class MaintenanceService {
 
         log.info("Resolved maintenance task {} as PREVENTIVE record (schedule {})",
                 taskId, schedule == null ? "n/a" : schedule.getId());
+    }
+
+    /**
+     * Resolves an inbound employee maintenance request (an OPEN CORRECTIVE MaintenanceRecord).
+     * Captures the resolution details and marks the record COMPLETED so it leaves the pending
+     * request queue and the dashboard notification count.
+     *
+     * @throws IllegalStateException if the record does not exist or is not in OPEN status
+     */
+    @Transactional
+    public void resolveRequest(Long recordId,
+                               String serviceProvider,
+                               BigDecimal maintenanceCost,
+                               LocalDate resolutionDate,
+                               String notes) {
+        MaintenanceRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new IllegalStateException("Maintenance request not found: " + recordId));
+        if (record.getStatus() != MaintenanceStatus.OPEN) {
+            throw new IllegalStateException(
+                    "Only OPEN requests can be resolved (request " + recordId + " is " + record.getStatus() + ").");
+        }
+
+        LocalDate resolvedOn = resolutionDate == null ? LocalDate.now() : resolutionDate;
+        record.setServiceProvider(clean(serviceProvider));
+        record.setMaintenanceCost(maintenanceCost);
+        record.setResolutionDate(resolutionDate);
+        record.setMaintenanceDate(resolvedOn);
+        if (clean(notes) != null) {
+            record.setIssueDescription(record.getIssueDescription() + " | Resolution: " + clean(notes));
+        }
+        record.setStatus(MaintenanceStatus.COMPLETED);
+        recordRepository.save(record);
+
+        log.info("Resolved employee maintenance request {} (asset {})",
+                recordId, record.getAsset() == null ? "n/a" : record.getAsset().getId());
     }
 
     private MaintenanceTask createTask(MaintenanceSchedule schedule, LocalDate dueDate) {

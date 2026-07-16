@@ -15,9 +15,12 @@ import com.example.fams.lifecycle.AssetLifecycleWorkflow;
 import com.example.fams.lifecycle.AssetLifecycleWorkflowRepository;
 import com.example.fams.lifecycle.LifecycleWorkflowStatus;
 import com.example.fams.lifecycle.LifecycleWorkflowType;
+import com.example.fams.maintenance.MaintenanceRecord;
 import com.example.fams.maintenance.MaintenanceStatus;
+import com.example.fams.maintenance.MaintenanceType;
 import com.example.fams.maintenance.MaintenanceTask;
 import com.example.fams.maintenance.MaintenanceTaskRepository;
+import com.example.fams.maintenance.MaintenanceRecordRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +65,7 @@ public class DashboardKpiService {
 
     private final AssetRepository assetRepository;
     private final MaintenanceTaskRepository maintenanceTaskRepository;
+    private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final AuditSessionRepository auditSessionRepository;
     private final AssetLifecycleHistoryRepository lifecycleHistoryRepository;
     private final AssetLifecycleWorkflowRepository lifecycleWorkflowRepository;
@@ -70,6 +74,7 @@ public class DashboardKpiService {
 
     public DashboardKpiService(AssetRepository assetRepository,
                                MaintenanceTaskRepository maintenanceTaskRepository,
+                               MaintenanceRecordRepository maintenanceRecordRepository, MaintenanceRecordRepository maintenanceRecordRepository1,
                                AuditSessionRepository auditSessionRepository,
                                AssetLifecycleHistoryRepository lifecycleHistoryRepository,
                                AssetLifecycleWorkflowRepository lifecycleWorkflowRepository,
@@ -77,6 +82,7 @@ public class DashboardKpiService {
                                DepreciationPostingRepository depreciationPostingRepository) {
         this.assetRepository = assetRepository;
         this.maintenanceTaskRepository = maintenanceTaskRepository;
+        this.maintenanceRecordRepository = maintenanceRecordRepository1;
         this.auditSessionRepository = auditSessionRepository;
         this.lifecycleHistoryRepository = lifecycleHistoryRepository;
         this.lifecycleWorkflowRepository = lifecycleWorkflowRepository;
@@ -177,6 +183,11 @@ public class DashboardKpiService {
         model.put("depreciationBars", buildDepreciationBars());
         model.put("assetValueBars", buildAssetValueBars(assets));
         model.put("disposalItems", buildDisposalItems());
+        model.put("pendingMaintenanceRequests", formatInteger(maintenanceRecordRepository.countByStatus(MaintenanceStatus.OPEN)));
+        model.put("maintenanceRequestItems", maintenanceRecordRepository
+                .findTop8ByStatusOrderByMaintenanceDateDescCreatedAtDesc(MaintenanceStatus.OPEN).stream()
+                .map(this::toMaintenanceRequestItem)
+                .toList());
 
         return model;
     }
@@ -319,6 +330,17 @@ public class DashboardKpiService {
         return new DisposalItem(assetCode, reason, workflow.getRequestedAt() == null ? "" : workflow.getRequestedAt().format(DATE_TIME_LABEL));
     }
 
+    private MaintenanceRequestItem toMaintenanceRequestItem(MaintenanceRecord record) {
+        Asset asset = record.getAsset();
+        String assetCode = asset == null ? "Asset" : cleanLabel(asset.getAssetCode(), cleanLabel(asset.getName(), "Asset"));
+        String issue = cleanLabel(record.getIssueDescription(), "Maintenance request");
+        return new MaintenanceRequestItem(
+                assetCode,
+                issue,
+                cleanLabel(record.getRequestedBy(), "Employee"),
+                record.getMaintenanceDate() == null ? "" : record.getMaintenanceDate().format(DATE_LABEL));
+    }
+
     private long countMaintenance(MaintenanceStatus status) {
         try {
             return maintenanceTaskRepository.countByStatus(status);
@@ -396,5 +418,8 @@ public class DashboardKpiService {
     }
 
     public record DisposalItem(String assetCode, String reason, String requestedAt) {
+    }
+
+    public record MaintenanceRequestItem(String assetCode, String issue, String requestedBy, String requestedAt) {
     }
 }

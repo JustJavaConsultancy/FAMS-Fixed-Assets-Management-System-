@@ -126,6 +126,7 @@
         <button type="button" data-tab-button="tasks" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Due Tasks</button>
         <button type="button" data-tab-button="reports" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Reports</button>
         <button type="button" data-tab-button="resolved" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Resolved</button>
+        <button type="button" data-tab-button="requests" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Requests</button>
     </div>
 
     <section data-tab-panel="schedules" class="space-y-4">
@@ -365,6 +366,45 @@
         </div>
     </section>
 
+    <section data-tab-panel="requests" class="hidden space-y-4">
+        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
+            <div class="p-5 border-b border-border-default">
+                <h3 class="font-card-header text-card-header text-on-surface">Pending Maintenance Requests</h3>
+                <p class="text-label-small text-secondary mt-1">Submitted by employees and awaiting action. Resolve to close the request.</p>
+            </div>
+
+            <div th:if="${#lists.isEmpty(recentRequests)}" class="p-12 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-status-success/10 text-status-success mx-auto flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[34px]">check_circle</span>
+                </div>
+                <h3 class="font-card-header text-card-header text-on-surface">No pending requests</h3>
+                <p class="text-body-default text-secondary mt-2">Employee maintenance requests will appear here when submitted.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(recentRequests)}" class="divide-y divide-border-default">
+                <div th:each="record : ${recentRequests}" class="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-surface-canvas/60 transition-colors">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="font-card-header text-card-header text-on-surface hover:text-primary" th:text="${record.asset.name}">Asset</a>
+                            <span class="px-2 py-0.5 rounded text-technical-data bg-surface-variant text-primary" th:text="${record.asset.assetCode}">AST-2026-00001</span>
+                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-warning/10 text-status-warning" th:text="${record.status}">OPEN</span>
+                        </div>
+                        <p class="text-body-default text-secondary mt-2 max-w-3xl" th:text="${record.issueDescription}">Issue description</p>
+                        <p class="text-label-small text-secondary mt-1" th:if="${record.requestedBy != null}" th:text="'Requested by ' + ${record.requestedBy}">Requester</p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <button type="button" class="h-10 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark flex items-center gap-2"
+                                th:attr="data-resolve-request=${record.id}, data-resolve-request-label=${record.asset.name}"
+                                onclick="openResolveRequestModal(this)">
+                            <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                            Resolve
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section data-tab-panel="reports" class="hidden space-y-4">
         <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
             <div class="p-5 border-b border-border-default flex flex-col lg:flex-row lg:items-end justify-between gap-4">
@@ -597,6 +637,51 @@
         </div>
     </div>
 
+    <div id="resolve-request-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
+        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
+            <div class="p-5 border-b border-border-default flex items-center justify-between">
+                <div>
+                    <h3 class="font-section-header text-section-header text-on-surface">Resolve Maintenance Request</h3>
+                    <p class="text-label-small text-secondary mt-1" id="resolve-request-label">Capture resolution details and close the employee request.</p>
+                </div>
+                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form action="#" method="post" class="p-5 space-y-5" id="resolve-request-form">
+                <input type="hidden" name="recordId" id="resolve-request-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label for="resolve-request-service-provider" class="text-label-small text-secondary">Service Provider</label>
+                        <input id="resolve-request-service-provider" name="serviceProvider" data-input-type="letters" placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="resolve-request-maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
+                            <input id="resolve-request-maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="resolve-request-resolution-date" class="text-label-small text-secondary">Resolution Date</label>
+                        <input id="resolve-request-resolution-date" name="resolutionDate" type="date" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label for="resolve-request-notes" class="text-label-small text-secondary">Resolution Notes</label>
+                    <textarea id="resolve-request-notes" name="notes" rows="4" placeholder="Work performed, parts replaced, observations..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
+                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                        Mark Resolved
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const tabButtons = Array.from(document.querySelectorAll('[data-tab-button]'));
         const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
@@ -640,6 +725,18 @@
             form.action = '/assets/maintenance/tasks/' + taskId + '/resolve';
             form.reset();
             openModal('resolve-modal');
+        }
+
+        function openResolveRequestModal(button) {
+            const recordId = button.dataset.resolveRequest;
+            const label = button.dataset.resolveRequestLabel || 'this request';
+            const modal = document.getElementById('resolve-request-modal');
+            const form = document.getElementById('resolve-request-form');
+            document.getElementById('resolve-request-id').value = recordId;
+            document.getElementById('resolve-request-label').textContent = 'Resolve: ' + label;
+            form.action = '/assets/maintenance/requests/' + recordId + '/resolve';
+            form.reset();
+            openModal('resolve-request-modal');
         }
 
         document.querySelectorAll('[data-modal-target]').forEach((button) => {

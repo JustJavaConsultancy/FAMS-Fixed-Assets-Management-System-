@@ -41,6 +41,7 @@ public class MaintenanceController {
         model.addAttribute("recentTasks", maintenanceService.recentTasks());
         model.addAttribute("resolvedTasks", maintenanceService.recentResolvedTasks());
         model.addAttribute("correctiveRecords", maintenanceService.recentCorrectiveRecords());
+        model.addAttribute("recentRequests", maintenanceService.recentRequests());
         model.addAttribute("reportRows", maintenanceService.report(reportStart, reportEnd));
         model.addAttribute("reportTotal", maintenanceService.reportTotal(reportStart, reportEnd));
         model.addAttribute("reportStart", reportStart);
@@ -111,6 +112,23 @@ public class MaintenanceController {
             redirectAttributes.addFlashAttribute("successMessage", "Maintenance task resolved and logged to asset history.");
         } catch (Exception ex) {
             log.warn("Failed to resolve maintenance task {}: {}", taskId, ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
+        }
+        return "redirect:/maintenance";
+    }
+
+    @PostMapping("/assets/maintenance/requests/{recordId}/resolve")
+    public String resolveRequest(@PathVariable Long recordId,
+                                 @RequestParam(required = false) String serviceProvider,
+                                 @RequestParam(required = false) BigDecimal maintenanceCost,
+                                 @RequestParam(required = false) LocalDate resolutionDate,
+                                 @RequestParam(required = false) String notes,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            maintenanceService.resolveRequest(recordId, serviceProvider, maintenanceCost, resolutionDate, notes);
+            redirectAttributes.addFlashAttribute("successMessage", "Maintenance request resolved.");
+        } catch (Exception ex) {
+            log.warn("Failed to resolve maintenance request {}: {}", recordId, ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", sanitize(ex.getMessage()));
         }
         return "redirect:/maintenance";
