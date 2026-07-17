@@ -4,8 +4,9 @@ import com.example.fams.core.ApiResponse;
 import com.example.fams.organization.*;
 import com.example.fams.organization.dto.*;
 import com.example.fams.aau.keycloak.KeycloakAdminService;
+import com.example.fams.aau.keycloak.SyncedUser;
+import com.example.fams.aau.keycloak.SyncedUserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ public class SuperAdminCompanyController {
 
     @Autowired
     private KeycloakAdminService keycloakAdminService;
+
+    @Autowired
+    private SyncedUserRepository syncedUserRepository;
 
     @Value("fams")
     private String realmName;
@@ -313,12 +317,12 @@ public class SuperAdminCompanyController {
             // Load all department heads (for listing)
             List<DepartmentHeadDTO> allHeads = companyStructureService.getAllDepartmentHeads();
 
-            // Load users from Keycloak (for head assignment dropdown)
-            List<UserRepresentation> users = new ArrayList<>();
+            // Load users from the locally-synced snapshot (for head assignment dropdown)
+            List<SyncedUser> users = new ArrayList<>();
             try {
-                users = keycloakAdminService.listAllUsers(realmName);
+                users = syncedUserRepository.findAllByOrderByUsernameAsc();
             } catch (Exception e) {
-                log.warn("Could not fetch users from Keycloak: " + e.getMessage());
+                log.warn("Could not fetch synced users: " + e.getMessage());
             }
 
             model.addAttribute("companies", companies);

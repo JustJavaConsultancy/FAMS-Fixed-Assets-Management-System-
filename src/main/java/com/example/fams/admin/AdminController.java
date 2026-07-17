@@ -1,6 +1,8 @@
 package com.example.fams.admin;
 
 import com.example.fams.aau.keycloak.KeycloakAdminService;
+import com.example.fams.aau.keycloak.SyncedUser;
+import com.example.fams.aau.keycloak.SyncedUserRepository;
 import com.example.fams.core.config.AuthenticationManager;
 import com.example.fams.dashboard.DashboardModelService;
 import com.example.fams.settings.AdminSettingsService;
@@ -36,6 +38,9 @@ public class AdminController {
 
     @Autowired
     DashboardModelService dashboardModelService;
+
+    @Autowired
+    SyncedUserRepository syncedUserRepository;
 
     /** Primary realm this admin panel operates on. */
     @Value("fams")
@@ -135,15 +140,24 @@ public class AdminController {
             @AuthenticationPrincipal OidcUser principal,
             Model model
     ) {
-        // ── Fetch users ────────────────────────────────────────
-        List<UserRepresentation> allUsers = (search == null || search.isBlank())
-                ? keycloakAdminService.listAllUsers(realmName)
-                : keycloakAdminService.searchUsers(realmName, search, 0, 500);
+        // ── Fetch users from the locally-synced snapshot (fast, no live Keycloak call) ──
+        List<SyncedUser> allUsers = syncedUserRepository.findAllByOrderByUsernameAsc();
+
+        // In-memory search over the local snapshot (username / name / email).
+        if (search != null && !search.isBlank()) {
+            String q = search.toLowerCase().trim();
+            allUsers = allUsers.stream()
+                    .filter(u -> containsIgnoreCase(u.getUsername(), q)
+                            || containsIgnoreCase(u.getFirstName(), q)
+                            || containsIgnoreCase(u.getLastName(), q)
+                            || containsIgnoreCase(u.getEmail(), q))
+                    .collect(java.util.stream.Collectors.toList());
+        }
 
         // ── Aggregate stats ────────────────────────────────────
         int  totalUsers  = allUsers.size();
         long totalActive = allUsers.stream()
-                .filter(u -> Boolean.TRUE.equals(u.isEnabled()))
+                .filter(SyncedUser::isEnabled)
                 .count();
 
         // ── Paginate ───────────────────────────────────────────
@@ -152,7 +166,7 @@ public class AdminController {
         int from       = safePage * size;
         int to         = Math.min(from + size, totalUsers);
 
-        List<UserRepresentation> pageUsers =
+        List<SyncedUser> pageUsers =
                 from < totalUsers ? allUsers.subList(from, to) : Collections.emptyList();
 
         // ── All realm groups (used for Access-tab dropdown) ────
@@ -382,5 +396,10 @@ public class AdminController {
 
     private boolean isAdmin() {
         return authenticationManager.isAdmin();
+    }
+
+    /** Null-safe case-insensitive substring check. */
+    private boolean containsIgnoreCase(String value, String needle) {
+        return value != null && value.toLowerCase().contains(needle);
     }
 }

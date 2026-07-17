@@ -1,6 +1,8 @@
 package com.example.fams.assets;
 
 import com.example.fams.aau.keycloak.KeycloakAdminService;
+import com.example.fams.aau.keycloak.SyncedUser;
+import com.example.fams.aau.keycloak.SyncedUserRepository;
 import com.example.fams.organization.Branch;
 import com.example.fams.organization.BranchRepository;
 import com.example.fams.organization.Company;
@@ -18,7 +20,6 @@ import com.example.fams.lifecycle.LifecycleWorkflowType;
 import com.example.fams.lifecycle.LifecycleWorkflowForm;
 import jakarta.validation.Valid;
 import org.flowable.task.api.Task;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,6 +53,7 @@ public class AssetController {
     private final AdminSettingsService adminSettingsService;
     private final AssetLifecycleService assetLifecycleService;
     private final AssetCheckoutService assetCheckoutService;
+    private final SyncedUserRepository syncedUserRepository;
 
     @Value("${keycloak.realm:fams}")
     private String realmName;
@@ -63,7 +65,8 @@ public class AssetController {
                            KeycloakAdminService keycloakAdminService,
                            AdminSettingsService adminSettingsService,
                            AssetLifecycleService assetLifecycleService,
-                           AssetCheckoutService assetCheckoutService) {
+                           AssetCheckoutService assetCheckoutService,
+                           SyncedUserRepository syncedUserRepository) {
         this.assetService = assetService;
         this.departmentRepository = departmentRepository;
         this.branchRepository = branchRepository;
@@ -72,6 +75,7 @@ public class AssetController {
         this.adminSettingsService = adminSettingsService;
         this.assetLifecycleService = assetLifecycleService;
         this.assetCheckoutService = assetCheckoutService;
+        this.syncedUserRepository = syncedUserRepository;
     }
 
     /**
@@ -108,28 +112,21 @@ public class AssetController {
     @ModelAttribute("custodians")
     public List<CustodianDTO> custodians() {
         try {
-            // Get all users and find those in the 'employees' group
-            List<UserRepresentation> allUsers = keycloakAdminService.listAllUsers(realmName);
+            // Read users from the locally-synced snapshot (no live Keycloak call).
+            // findByGroupName matches the delimited token ",employees," and filters
+            // enabled users — replaces the previous listAllUsers + per-user N+1 loop.
+            List<SyncedUser> employees = syncedUserRepository.findByGroupName(",employees,");
 
-            return allUsers.stream()
-                    .filter(user -> {
-                        try {
-                            List<String> userGroups = keycloakAdminService.getUserGroups(realmName, user.getId());
-                            return userGroups.stream()
-                                    .anyMatch(group -> group.equalsIgnoreCase("employees"));
-                        } catch (Exception e) {
-                            return false;
-                        }
-                    })
+            return employees.stream()
                     .map(user -> new CustodianDTO(
                             user.getId(),
-                            (user.getFirstName() != null ? user.getFirstName() : "") +
-                            (user.getLastName() != null ? " " + user.getLastName() : ""),
+                            ((user.getFirstName() != null ? user.getFirstName() : "") +
+                             (user.getLastName() != null ? " " + user.getLastName() : "")).trim(),
                             user.getUsername()
                     ))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            // If Keycloak is unavailable, return empty list
+            // If the snapshot is unavailable, return empty list
             return new ArrayList<>();
         }
     }
