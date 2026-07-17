@@ -13,67 +13,18 @@ canvas {
   max-width: 100%;
 }
 
-/* NOTE: The app.html (FAMS shell) layout no longer uses #sidebar / #topbar /
-   #toggle-btn / #main-content from the old fixed-sidebar architecture.
-   Those OLD-architecture media queries were removed to avoid clobbering the
-   new flex + hamburger-drawer shell. App-shell responsive behavior now lives
-   in layouts/app.html's inline <style>. */
+/* NOTE: The app shell (all 5 layouts) now uses a flex + hamburger-drawer
+   architecture. The scroll/padding container is `.main-content-area`; the page's
+   own <main id="main-content"> nests inside it. Shell responsive behavior
+   (sidebar off-canvas, hamburger, header tweaks) lives in each layout's
+   inline <style>. This file handles cross-cutting page-content polish only:
+   table horizontal scroll, header/icon sizing, and search wrap. We target
+   `.main-content-area` (NOT #main-content) so we don't clobber the
+   page's own Tailwind padding/responsive-grid classes. */
 
 @media (max-width: 768px) {
-  :root {
-    --sidebar-margin: 10px;
-    --topbar-h: 58px;
-  }
-
-  #main-content {
-    padding: 14px !important;
-  }
-
-  #main-content > .space-y-6,
-  #main-content.space-y-6 {
-    row-gap: 1rem;
-  }
-
-  #main-content :where(.p-8, .p-10) {
-    padding: 1.25rem !important;
-  }
-
-  #main-content :where(.p-6) {
-    padding: 1rem !important;
-  }
-
-  #main-content :where(.gap-6, .gap-8) {
-    gap: 1rem !important;
-  }
-
-  #main-content :where(.text-page-title) {
-    font-size: 1.35rem !important;
-    line-height: 1.8rem !important;
-    letter-spacing: 0 !important;
-  }
-
-  #main-content :where(.text-3xl, .text-4xl) {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-
-  #main-content :where(.text-2xl) {
-    font-size: 1.25rem !important;
-    line-height: 1.75rem !important;
-  }
-
-  #main-content :where(table) {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  #main-content :where(.grid) {
-    grid-template-columns: 1fr !important;
-  }
-
+  /* Let page-level <main> keep its own Tailwind padding; only the
+     scroll container tightness is adjusted. */
   .topbar-actions {
     gap: 4px !important;
   }
@@ -90,58 +41,21 @@ canvas {
   .search-wrap {
     max-width: none !important;
   }
-}
 
-@media (max-width: 520px) {
-  :root {
-    --sidebar-margin: 8px;
-    --topbar-h: 104px;
-  }
-
-  #topbar {
-    align-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    height: var(--topbar-h) !important;
-    row-gap: 8px !important;
-  }
-
-  #toggle-btn {
-    order: 1;
-  }
-
-  .topbar-actions {
-    order: 2;
-    margin-left: auto !important;
-  }
-
-  .search-wrap {
-    order: 3;
-    flex: 1 0 100%;
-  }
-
-  .search-wrap input {
-    height: 36px !important;
-  }
-
-  #main-content {
-    padding: 10px !important;
-  }
-
-  #main-content :where(.rounded-2xl, .rounded-xl) {
-    border-radius: 0.75rem !important;
+  /* Tables: enable native horizontal scroll instead of overflowing the page. */
+  .main-content-area :where(table) {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
 @media (max-width: 380px) {
-  #topbar {
-    padding: 0 10px !important;
-  }
-
   .topbar-actions .icon-btn,
   .topbar-register,
-  .topbar-new-audit,
-  #toggle-btn {
+  .topbar-new-audit {
     width: 32px !important;
     height: 32px !important;
   }
