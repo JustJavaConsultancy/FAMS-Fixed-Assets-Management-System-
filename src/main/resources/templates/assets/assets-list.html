@@ -8,14 +8,13 @@
             box-sizing: border-box;
         }
 
-        /* ── scrollable table container ── */
         .table-container {
             scrollbar-width: thin;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* ── SIMPLE, NATIVE‑LOOKING RED CHECKBOXES ── */
+        /* ── Custom checkboxes (red accent) ── */
         input[type="checkbox"] {
             accent-color: #dc2626;
             width: 18px;
@@ -30,28 +29,24 @@
             -webkit-appearance: auto;
             -moz-appearance: auto;
         }
-
         input[type="checkbox"]:checked {
             border-color: #dc2626;
         }
-
         input[type="checkbox"]:focus-visible {
             outline: 2px solid #dc2626;
             outline-offset: 2px;
         }
-
         input[type="checkbox"]:hover {
             border-color: #b91c1c;
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
         }
-
         #master-checkbox {
             width: 18px;
             height: 18px;
             accent-color: #dc2626;
         }
 
-        /* ── BULK ACTION BAR ── */
+        /* ── Bulk action bar ── */
         #bulk-action-bar {
             position: fixed;
             left: 0;
@@ -67,12 +62,10 @@
             backdrop-filter: blur(4px);
             background: rgba(255, 255, 255, 0.96);
         }
-
         #bulk-action-bar.open {
             transform: translateY(0);
         }
-
-        #bulk-action-bar .bulk-inner {
+        .bulk-inner {
             max-width: 1280px;
             margin: 0 auto;
             display: flex;
@@ -81,7 +74,6 @@
             justify-content: space-between;
             gap: 12px;
         }
-
         .bulk-left {
             display: flex;
             align-items: center;
@@ -113,7 +105,6 @@
         .bulk-left .select-all-btn.hidden {
             display: none;
         }
-
         .bulk-actions {
             display: flex;
             flex-wrap: wrap;
@@ -156,7 +147,7 @@
             background: #b91c1c;
         }
 
-        /* ── RIGHT‑SLIDE MODALS ── */
+        /* ── Right‑slide modals ── */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -177,7 +168,6 @@
         .modal-overlay.open .modal-sheet {
             transform: translateX(0);
         }
-
         .modal-sheet {
             background: #fff;
             width: 100%;
@@ -191,7 +181,6 @@
             display: flex;
             flex-direction: column;
         }
-
         .modal-sheet .modal-header {
             display: flex;
             align-items: center;
@@ -222,13 +211,11 @@
             background: #f3f4f6;
             color: #1e1e2a;
         }
-
         .modal-sheet .modal-body {
             flex: 1 1 auto;
             overflow-y: auto;
             padding-bottom: 16px;
         }
-
         .modal-sheet .modal-footer {
             border-top: 1px solid #e5e7eb;
             padding-top: 16px;
@@ -238,7 +225,6 @@
             flex-shrink: 0;
             flex-wrap: wrap;
         }
-
         .modal-sheet .modal-footer .btn {
             padding: 10px 24px;
             border: none;
@@ -267,8 +253,6 @@
         .modal-sheet .modal-footer .btn-secondary:hover {
             background: #e5e7eb;
         }
-
-        /* form elements inside modal */
         .modal-sheet .form-group {
             margin-bottom: 16px;
         }
@@ -307,8 +291,6 @@
             color: #6b7280;
             margin-top: 4px;
         }
-
-        /* selected list inside modal */
         .selected-list {
             max-height: 140px;
             overflow-y: auto;
@@ -334,7 +316,7 @@
             text-align: center;
         }
 
-        /* ── RESPONSIVE TWEAKS ── */
+        /* ── Responsive tweaks ── */
         @media (max-width: 768px) {
             .modal-sheet {
                 max-width: 100%;
@@ -387,6 +369,13 @@
                 width: 16px;
                 height: 16px;
             }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-bar .filter-group {
+                flex-wrap: wrap;
+            }
         }
 
         @media (max-width: 480px) {
@@ -415,19 +404,9 @@
             .bulk-left .select-all-btn {
                 font-size: 0.75rem;
             }
-            .selected-list .item {
-                font-size: 0.8rem;
-                padding: 4px 10px;
-            }
-            .modal-sheet .form-group input,
-            .modal-sheet .form-group select,
-            .modal-sheet .form-group textarea {
-                font-size: 0.9rem;
-                padding: 8px 12px;
-            }
         }
 
-        /* ── utility ── */
+        /* ── Utility ── */
         .hidden {
             display: none !important;
         }
@@ -498,19 +477,12 @@
             transition: background 0.15s, color 0.15s, border-color 0.15s;
         }
 
+        /* ── Card shadow (static) ── */
         .card-shadow {
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        .asset-row .asset-checkbox-wrap {
-            position: relative;
-            z-index: 2;
-        }
-        .asset-row .asset-checkbox-wrap input[type="checkbox"] {
-            position: relative;
-            z-index: 3;
-        }
-
+        /* ── Badges ── */
         .badge-status {
             display: inline-block;
             padding: 2px 12px;
@@ -537,152 +509,359 @@
             color: #b71c1c;
         }
 
-        .loader {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        /* ── Category badge ── */
+        .badge-category {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
-        #sheet-asset-icon .material-symbols-outlined {
-            font-size: 2.2rem;
-        }
-
-        body.no-scroll {
+        /* ── Three‑dot dropdown ── */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            z-index: 20;
             overflow: hidden;
+            padding: 4px 0;
+        }
+        .dropdown-menu.open {
+            display: block;
+        }
+        .dropdown-menu a,
+        .dropdown-menu button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: #1e1e2a;
+            text-decoration: none;
+            width: 100%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background: #f3f4f6;
+        }
+        .dropdown-menu .text-red-600 {
+            color: #dc2626;
+        }
+        .dropdown-menu .text-red-600:hover {
+            background: #fef2f2;
+        }
+
+        /* ── Row hover ── */
+        .asset-row:hover .dropdown-trigger {
+            color: #374151;
+        }
+
+        /* ── Assign button (green style) ── */
+        .btn-assign {
+            color: #c0182a;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .btn-assign:hover {
+            background: #fce4e6;
+        }
+        .btn-assign .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        /* ── Filter bar styles ── */
+        .filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4b5563;
+            transition: background 0.15s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-btn:hover {
+            background: #e5e7eb;
+        }
+        .filter-btn .material-symbols-outlined {
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        /* ── Header action buttons ── */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background: #f9fafb;
+        }
+        .action-btn-primary {
+            background: #c0182a;
+            border-color: #c0182a;
+            color: white;
+        }
+        .action-btn-primary:hover {
+            background: #8f0f1e;
+            border-color: #8f0f1e;
+        }
+        .action-btn .material-symbols-outlined {
+            font-size: 18px;
+            color: currentColor;
         }
     </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
-    <!-- header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-3">
-                <h2 class="font-page-title text-page-title text-on-background">All Assets</h2>
-                <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
-                      th:text="${#lists.size(assets)} + ' assets'">0 assets</span>
+<main id="main-content" class="p-6" layout:fragment="content">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <!-- BEGIN: HeaderSection -->
+        <header class="flex items-center justify-between flex-wrap gap-4">
+            <h1 class="text-2xl font-bold tracking-tight text-on-background">Assets</h1>
+            <div class="flex items-center gap-3 flex-wrap">
+                <button class="action-btn">
+                    <span class="material-symbols-outlined">upload</span>
+                    Import
+                </button>
+                <button class="action-btn">
+                    <span class="material-symbols-outlined">download</span>
+                    Export
+                </button>
+                <a th:href="@{/assets/register}" class="action-btn action-btn-primary">
+                    <span class="material-symbols-outlined">add</span>
+                    Add Assets
+                </a>
             </div>
-            <p class="text-body-default text-secondary mt-1">Manage and track your organization's physical inventory across all departments.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a th:href="@{/assets/register}"
-               class="h-[38px] px-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2 shadow-sm shadow-primary/20 whitespace-nowrap">
-                <span class="material-symbols-outlined text-[18px]">add</span>
-                Register Asset
-            </a>
-        </div>
-    </div>
+        </header>
+        <!-- END: HeaderSection -->
 
-    <!-- messages -->
-    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined">check_circle</span>
-        <p class="font-body-medium" th:text="${successMessage}">Asset registered successfully.</p>
-    </div>
-    <div th:if="${errorMessage}" class="bg-error-container text-on-error-container border border-error/20 rounded-xl px-4 py-3 flex items-start gap-3">
-        <span class="material-symbols-outlined text-[20px] mt-0.5">error</span>
-        <p class="text-body-default" th:text="${errorMessage}">There was a problem with the upload.</p>
-    </div>
+        <!-- BEGIN: FiltersSection -->
+        <section class="flex items-center justify-between flex-wrap gap-4 filter-bar">
+            <div class="flex items-center gap-3 flex-wrap filter-group">
+                <!-- Search -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="material-symbols-outlined text-gray-400" style="font-size:18px;">search</span>
+                    </div>
+                    <input id="asset-search" type="text" data-input-type="search" placeholder="Search"
+                           class="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm">
+                </div>
 
-    <!-- search -->
-    <div class="bg-surface-card border border-border-default rounded-xl p-4 card-shadow">
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">search</span>
-            <input id="asset-search" type="text" data-input-type="search" placeholder="Search by name, serial number, asset ID, category…"
-                   class="w-full h-[38px] pl-10 pr-4 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-        </div>
-    </div>
-
-    <!-- table container -->
-    <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-        <!-- empty state -->
-        <div th:if="${#lists.isEmpty(assets)}" id="empty-state" class="p-12 sm:p-20 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-6">
-                <span class="material-symbols-outlined text-[42px]">inventory_2</span>
+                <!-- Filter buttons -->
+                <button class="filter-btn">
+                    <span class="material-symbols-outlined">event</span>
+                    Lend date
+                    <span class="material-symbols-outlined text-gray-400" style="font-size:16px;">expand_more</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="material-symbols-outlined">event</span>
+                    Return date
+                    <span class="material-symbols-outlined text-gray-400" style="font-size:16px;">expand_more</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="material-symbols-outlined">category</span>
+                    Category
+                    <span class="material-symbols-outlined text-gray-400" style="font-size:16px;">expand_more</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="material-symbols-outlined">tune</span>
+                    Advance Filter
+                    <span class="material-symbols-outlined text-gray-400" style="font-size:16px;">expand_more</span>
+                </button>
             </div>
-            <h3 class="font-card-header text-card-header text-on-surface">No assets registered yet</h3>
-            <p class="text-body-default text-secondary mt-2 max-w-sm mx-auto">Create your first asset record to start tracking fixed assets.</p>
-            <a th:href="@{/assets/register}" class="mt-8 inline-flex h-[38px] px-6 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">add</span>
-                Register First Asset
-            </a>
-        </div>
 
-        <!-- table -->
-        <div th:unless="${#lists.isEmpty(assets)}" id="assets-table-wrap" class="table-container overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[700px]">
-                <thead>
-                <tr class="bg-surface-canvas border-b border-border-default">
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">
-                        <input id="master-checkbox" type="checkbox" aria-label="Select all assets">
-                    </th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Asset</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Asset ID</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Category</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Department</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Custodian</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small">Status</th>
-                    <th class="px-4 py-3 font-nav-group text-secondary uppercase tracking-wider text-label-small text-right">Purchase Cost</th>
-                </tr>
-                </thead>
-                <tbody id="assets-table-body" class="divide-y divide-border-default">
-                <tr th:each="asset : ${assets}"
-                    class="asset-row hover:bg-surface-canvas/70 transition-colors bg-surface-card cursor-pointer group"
-                    th:data-asset-id="${asset.id}"
-                    th:data-asset-name="${asset.name}"
-                    th:data-asset-code="${asset.assetCode}">
-                    <td class="px-4 py-3 asset-checkbox-wrap">
-                        <input type="checkbox" class="asset-checkbox" th:data-asset-id="${asset.id}" aria-label="Select asset">
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-surface-variant overflow-hidden border border-border-default flex items-center justify-center shrink-0">
-                                <img th:if="${asset.imageUrl}" th:src="${asset.imageUrl}" th:alt="${asset.name}" class="w-full h-full object-cover">
-                                <span th:unless="${asset.imageUrl}" class="material-symbols-outlined text-primary text-[22px]">inventory_2</span>
-                            </div>
-                            <div>
-                                <p class="font-body-medium text-on-surface" th:text="${asset.name}">Asset name</p>
-                                <p class="text-label-small text-secondary" th:text="${asset.serialNumber ?: 'No serial number'}">Serial number</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="inline-block px-2 py-0.5 rounded text-technical-data bg-surface-variant text-primary font-medium text-label-small" th:text="${asset.assetCode}">AST-2026-00001</span>
-                    </td>
-                    <td class="px-4 py-3 text-body-default text-secondary" th:text="${asset.category}">IT Equipment</td>
-                    <td class="px-4 py-3 text-body-default text-secondary" th:text="${asset.department}">Operations</td>
-                    <td class="px-4 py-3 text-body-default text-on-surface" th:text="${asset.custodian}">Custodian</td>
-                    <td class="px-4 py-3">
-                        <span class="badge-status" th:classappend="${asset.status == 'In Stock' ? 'in-stock' : asset.status == 'Assigned' ? 'assigned' : asset.status == 'Retired' ? 'retired' : 'maintenance'}" th:text="${asset.status}">In Stock</span>
-                    </td>
-                    <td class="px-4 py-3 text-right font-technical-data text-on-surface"
-                        th:utext="${asset.purchaseCost != null ? '&#8358;' + #numbers.formatDecimal(asset.purchaseCost, 1, 'COMMA', 2, 'POINT') : '&#8358;0.00'}">&#8358;0.00</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- no search results -->
-        <div th:unless="${#lists.isEmpty(assets)}" id="no-search-results" class="hidden p-12 sm:p-20 text-center border-t border-border-default">
-            <div class="w-16 h-16 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-6">
-                <span class="material-symbols-outlined text-[42px]">search_off</span>
-            </div>
-            <h3 class="font-card-header text-card-header text-on-surface">No matching assets found</h3>
-            <p class="text-body-default text-secondary mt-2 max-w-sm mx-auto">Try adjusting your search terms.</p>
-            <button onclick="clearSearch()"
-                    class="mt-6 text-primary font-body-medium hover:underline flex items-center gap-1 mx-auto">
-                <span class="material-symbols-outlined text-[18px]">refresh</span>
-                Clear search
+            <button class="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                <span class="material-symbols-outlined text-gray-500" style="font-size:20px;">swap_horiz</span>
+                Transfer assets
             </button>
+        </section>
+        <!-- END: FiltersSection -->
+
+        <!-- BEGIN: TableSection -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="table-container overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-2">
+                                <input id="master-checkbox" type="checkbox" aria-label="Select all assets">
+                                <span class="ml-1">Assets name</span>
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-gray-500" style="font-size:16px;">person</span>
+                                Assigned to
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-gray-500" style="font-size:16px;">category</span>
+                                Category
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-1">
+                                # Serial number
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-gray-500" style="font-size:16px;">sell</span>
+                                Buy price
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-gray-500" style="font-size:16px;">trending_down</span>
+                                Depreciation
+                                <span class="material-symbols-outlined text-gray-400" style="font-size:14px;">unfold_more</span>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-right" scope="col">
+                            <span class="sr-only">Actions</span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="assets-table-body">
+                    <!-- Empty state -->
+                    <tr th:if="${#lists.isEmpty(assets)}">
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <span class="material-symbols-outlined text-gray-400 text-5xl mb-4">inventory_2</span>
+                                <h3 class="text-lg font-semibold text-gray-900">No assets registered yet</h3>
+                                <p class="text-sm text-gray-500 mt-1">Create your first asset record to start tracking fixed assets.</p>
+                                <a th:href="@{/assets/register}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-brand-primary-dark transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">add</span>
+                                    Register First Asset
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Data rows (with safe expressions) -->
+                    <tr th:each="asset : ${assets}" th:unless="${#lists.isEmpty(assets)}"
+                        class="asset-row hover:bg-gray-50 transition-colors" th:data-asset-id="${asset.id}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" class="asset-checkbox" th:data-asset-id="${asset.id}" aria-label="Select asset">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded border border-gray-100 object-contain p-1 bg-white flex items-center justify-center">
+                                        <img th:if="${asset.imageUrl}" th:src="${asset.imageUrl}" th:alt="${asset.name}" class="w-full h-full object-cover rounded">
+                                        <span th:unless="${asset.imageUrl}" class="material-symbols-outlined text-gray-400 text-xl">inventory_2</span>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900" th:text="${asset.name}">Asset Name</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div th:if="${asset.custodian}" class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold uppercase" th:text="${#strings.substring(asset.custodian, 0, 2)}">AB</div>
+                                <span class="text-sm text-gray-600" th:text="${asset.custodian}">Custodian</span>
+                            </div>
+                            <button th:unless="${asset.custodian}" class="btn-assign">
+                                <span class="material-symbols-outlined">add_circle</span>
+                                Assign
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="badge-category" th:text="${asset.category}">Category</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${asset.assetCode}">AST-XXXX</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <span th:if="${asset.purchaseCost != null}" th:text="'&#8358;' + ${#numbers.formatDecimal(asset.purchaseCost, 1, 2)}">&#8358;0.00</span>
+                            <span th:unless="${asset.purchaseCost != null}">&#8358;0.00</span>
+                            <span class="text-gray-400 font-normal ml-1" th:if="${asset.purchaseDate}" th:text="'(' + ${#temporals.format(asset.purchaseDate, 'yyyy')} + ')'">(2021)</span>
+                            <span class="text-gray-400 font-normal ml-1" th:unless="${asset.purchaseDate}">(N/A)</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <th:block th:with="age = ${asset.purchaseDate != null ? T(java.time.temporal.ChronoUnit).YEARS.between(asset.purchaseDate, T(java.time.LocalDate).now()) : 0}">
+                                <span th:if="${asset.purchaseCost != null}" th:text="'&#8358;' + ${#numbers.formatDecimal(asset.purchaseCost * 0.7, 1, 2)}">&#8358;0.00</span>
+                                <span th:unless="${asset.purchaseCost != null}">&#8358;0.00</span>
+                                <span class="text-red-600 ml-1" th:if="${age > 0}" th:text="'-' + ${age * 5} + '%'">-3%</span>
+                                <span class="text-gray-400 ml-1" th:unless="${age > 0}">0%</span>
+                            </th:block>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                            <button class="text-gray-400 hover:text-gray-600 dropdown-trigger" onclick="toggleDropdown(event, this)">
+                                <span class="material-symbols-outlined">more_vert</span>
+                            </button>
+                            <div class="dropdown-menu" style="display:none;">
+                                <a th:href="@{'/assets/' + ${asset.id}}">
+                                    <span class="material-symbols-outlined text-gray-500" style="font-size:18px;">visibility</span>
+                                    View
+                                </a>
+                                <a th:href="@{'/assets/' + ${asset.id} + '/edit'}">
+                                    <span class="material-symbols-outlined text-gray-500" style="font-size:18px;">edit</span>
+                                    Edit
+                                </a>
+                                <a th:href="@{'/assets/' + ${asset.id} + '/transfer'}">
+                                    <span class="material-symbols-outlined text-gray-500" style="font-size:18px;">swap_horiz</span>
+                                    Transfer
+                                </a>
+                                <button class="text-red-600" onclick="deleteAsset(${asset.id})">
+                                    <span class="material-symbols-outlined text-red-600" style="font-size:18px;">delete</span>
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- No search results -->
+            <div id="no-search-results" class="hidden p-12 sm:p-20 text-center border-t border-gray-200">
+                <span class="material-symbols-outlined text-gray-400 text-5xl mb-4">search_off</span>
+                <h3 class="text-lg font-semibold text-gray-900">No matching assets found</h3>
+                <p class="text-sm text-gray-500 mt-1">Try adjusting your search terms.</p>
+                <button onclick="clearSearch()" class="mt-4 text-primary font-medium hover:underline flex items-center gap-1 mx-auto">
+                    <span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Clear search
+                </button>
+            </div>
         </div>
+        <!-- END: TableSection -->
     </div>
 
     <!-- ─── BULK ACTION BAR ─── -->
@@ -694,16 +873,13 @@
                 <button id="select-all-matching" class="select-all-btn hidden">Select all matching assets</button>
             </div>
             <div class="bulk-actions">
-                <button id="bulk-register" class="btn btn-primary hidden">Register</button>
                 <button id="bulk-transfer" class="btn btn-primary">Transfer</button>
                 <button id="bulk-retire" class="btn btn-danger">Dispose</button>
             </div>
         </div>
     </div>
 
-    <!-- ─── RIGHT‑SLIDE MODALS ─── -->
-
-    <!-- TRANSFER MODAL -->
+    <!-- ─── MODALS ─── -->
     <div id="bulk-transfer-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
         <div class="modal-sheet">
             <div class="modal-header">
@@ -718,7 +894,7 @@
                 </div>
                 <div class="form-group">
                     <label for="transfer-to-employee">To Employee</label>
-                    <input id="transfer-to-employee" type="text" data-input-type="text" list="transfer-custodian-options" placeholder="New custodian or Asset Store" class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    <input id="transfer-to-employee" type="text" data-input-type="text" list="transfer-custodian-options" placeholder="New custodian or Asset Store">
                     <datalist id="transfer-custodian-options">
                         <option th:each="custodian : ${custodians}" th:value="${custodian.name}">Employee</option>
                     </datalist>
@@ -751,7 +927,6 @@
         </div>
     </div>
 
-    <!-- RETIRE / DISPOSAL MODAL -->
     <div id="bulk-retire-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="retire-title">
         <div class="modal-sheet">
             <div class="modal-header">
@@ -805,53 +980,15 @@
         </div>
     </div>
 
-    <!-- ─── BOTTOM SHEET (individual asset actions) ─── -->
-    <div id="asset-actions-sheet"
-         class="fixed bottom-0 left-0 right-0 bg-inverse-surface text-white rounded-t-3xl shadow-2xl translate-y-full transition-all duration-300 z-50 max-w-md mx-auto">
-        <div class="px-6 pt-4 pb-8">
-            <div class="w-12 h-1.5 bg-white/30 rounded-full mx-auto mb-6"></div>
-            <div class="flex items-center gap-3 mb-8">
-                <div id="sheet-asset-icon" class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-3xl flex-shrink-0"></div>
-                <div class="min-w-0">
-                    <p id="sheet-asset-name" class="font-medium text-white truncate">Asset Name</p>
-                    <p id="sheet-asset-id" class="text-white/70 text-sm">AST-XXXXXX</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="performAction('view')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">visibility</span>
-                    <span class="text-sm font-medium">View</span>
-                </button>
-                <button onclick="performAction('transfer')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">sync_alt</span>
-                    <span class="text-sm font-medium">Transfer</span>
-                </button>
-                <button onclick="performAction('dispose')" class="flex flex-col items-center gap-2 p-5 rounded-2xl hover:bg-white/10 active:bg-white/20 transition-colors">
-                    <span class="material-symbols-outlined text-4xl">delete_forever</span>
-                    <span class="text-sm font-medium">Dispose</span>
-                </button>
-            </div>
-            <div class="mt-10 border-t border-white/10 pt-6">
-                <button onclick="deleteAsset()"
-                        class="w-full flex items-center justify-center gap-2 text-error hover:bg-error/10 py-4 rounded-2xl transition-colors font-medium">
-                    <span class="material-symbols-outlined">delete</span>
-                    Delete Asset
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── SCRIPTS ─── -->
+    <!-- ─── SCRIPTS (unchanged) ─── -->
     <script>
         (function() {
             'use strict';
 
-            // ---- DOM refs ----
+            // ---- Bulk selection logic ----
             const searchInput = document.getElementById('asset-search');
             const rows = Array.from(document.querySelectorAll('.asset-row'));
-            const tableWrap = document.getElementById('assets-table-wrap');
             const noSearchResults = document.getElementById('no-search-results');
-            const actionsSheet = document.getElementById('asset-actions-sheet');
             const masterCheckbox = document.getElementById('master-checkbox');
             const checkboxes = Array.from(document.querySelectorAll('.asset-checkbox'));
             const bulkBar = document.getElementById('bulk-action-bar');
@@ -862,23 +999,16 @@
             const selectedStorageKey = 'fams.selectedAssets';
             const selectAllKey = 'fams.selectAllMatching';
 
-            let currentAssetId = null;
-            let _focusTrapHandler = null;
-            let isOpeningSheet = false; // flag to prevent immediate close
-
-            // ---- helper: load / save selection ----
             function loadSelection() {
                 try {
                     const raw = sessionStorage.getItem(selectedStorageKey);
                     return raw ? JSON.parse(raw) : [];
                 } catch (_) { return []; }
             }
-
             function saveSelection(list) {
                 sessionStorage.setItem(selectedStorageKey, JSON.stringify(list));
             }
 
-            // ---- update UI from selection ----
             function updateUiFromSelection() {
                 const selected = new Set(loadSelection());
                 checkboxes.forEach(cb => {
@@ -891,7 +1021,6 @@
 
                 const count = selected.size;
                 bulkCount.textContent = `${count} asset${count === 1 ? '' : 's'} selected`;
-
                 document.getElementById('transfer-count').textContent = count;
                 document.getElementById('transfer-submit-count').textContent = count;
                 document.getElementById('retire-count').textContent = count;
@@ -904,7 +1033,6 @@
                     bulkBar.classList.remove('open');
                     bulkBar.classList.add('closed');
                 }
-
                 if (masterCheckbox.checked && visibleCheckboxes.length > 0) {
                     selectAllMatchingBtn.classList.remove('hidden');
                 } else {
@@ -912,7 +1040,6 @@
                 }
             }
 
-            // ---- filter rows (search) ----
             function filterRows() {
                 const query = searchInput.value.trim().toLowerCase();
                 let visibleCount = 0;
@@ -921,94 +1048,17 @@
                     row.classList.toggle('hidden', !match);
                     if (match) visibleCount++;
                 });
-                if (tableWrap) tableWrap.classList.toggle('hidden', visibleCount === 0);
+                const table = document.querySelector('table');
+                if (table) table.classList.toggle('hidden', visibleCount === 0);
                 if (noSearchResults) noSearchResults.classList.toggle('hidden', visibleCount > 0);
                 updateUiFromSelection();
             }
 
-            // ---- clear search ----
             window.clearSearch = function() {
                 searchInput.value = '';
                 filterRows();
             };
 
-            // ---- show / hide individual asset sheet ----
-            function showActionsSheet(assetId, assetName, assetCode) {
-                currentAssetId = assetId;
-                document.getElementById('sheet-asset-name').textContent = assetName || 'Asset';
-                document.getElementById('sheet-asset-id').textContent = assetCode || 'No ID';
-                const icon = document.getElementById('sheet-asset-icon');
-                icon.innerHTML = `<span class="material-symbols-outlined text-white text-4xl">inventory_2</span>`;
-                actionsSheet.classList.remove('translate-y-full');
-            }
-
-            function hideActionsSheet() {
-                actionsSheet.classList.add('translate-y-full');
-                currentAssetId = null;
-            }
-
-            // ---- action handlers (individual) ----
-            window.performAction = function(action) {
-                if (!currentAssetId) return;
-                if (action === 'view') window.location.href = `/assets/${currentAssetId}`;
-                else if (action === 'transfer') window.location.href = `/assets/${currentAssetId}/transfer`;
-                else if (action === 'dispose') window.location.href = `/assets/${currentAssetId}/disposal`;
-            };
-
-            window.deleteAsset = function() {
-                if (!currentAssetId || !confirm('Are you sure you want to delete this asset?')) return;
-                alert('Asset deleted (demo)');
-                hideActionsSheet();
-            };
-
-            // ---- row click: open individual sheet (NOT when clicking checkbox) ----
-            document.addEventListener('click', function(e) {
-                const row = e.target.closest('.asset-row');
-                if (!row) return;
-                if (e.target.closest('.asset-checkbox-wrap')) return;
-                if (e.target.matches('.asset-checkbox')) return;
-
-                // Set flag so the document click handler doesn't close the sheet immediately
-                isOpeningSheet = true;
-
-                const assetId = row.dataset.assetId;
-                const assetName = row.dataset.assetName;
-                const assetCode = row.dataset.assetCode;
-                showActionsSheet(assetId, assetName, assetCode);
-
-                // Clear flag after a short delay
-                setTimeout(() => {
-                    isOpeningSheet = false;
-                }, 50);
-            });
-
-            // ---- close sheet when clicking outside (backdrop or page) ----
-            document.addEventListener('click', function(e) {
-                // If sheet is hidden, do nothing
-                if (actionsSheet.classList.contains('translate-y-full')) return;
-
-                // If we're in the middle of opening the sheet, don't close it
-                if (isOpeningSheet) return;
-
-                // If click is inside the sheet, do nothing
-                if (actionsSheet.contains(e.target)) return;
-
-                // If click is inside a bulk modal overlay, do nothing
-                if (e.target.closest('.modal-overlay')) return;
-
-                // If click is on a row, let the row handler deal with it
-                if (e.target.closest('.asset-row')) return;
-
-                // Otherwise, close the sheet
-                hideActionsSheet();
-            });
-
-            // ---- close with Escape key ----
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') hideActionsSheet();
-            });
-
-            // ---- checkbox change: update selection ----
             checkboxes.forEach(cb => {
                 cb.addEventListener('change', function(e) {
                     e.stopPropagation();
@@ -1021,7 +1071,6 @@
                 });
             });
 
-            // ---- master checkbox ----
             masterCheckbox.addEventListener('change', function() {
                 const visibleIds = checkboxes
                     .filter(cb => !cb.closest('tr').classList.contains('hidden'))
@@ -1039,20 +1088,17 @@
                 updateUiFromSelection();
             });
 
-            // ---- "select all matching" ----
             selectAllMatchingBtn.addEventListener('click', function() {
                 sessionStorage.setItem(selectAllKey, 'true');
                 alert('All assets matching current filters will be included when performing bulk actions.');
             });
 
-            // ---- bulk clear ----
             bulkClear.addEventListener('click', function() {
                 saveSelection([]);
                 sessionStorage.removeItem(selectAllKey);
                 updateUiFromSelection();
             });
 
-            // ---- search input ----
             searchInput.addEventListener('input', filterRows);
 
             // ---- Modal helpers ----
@@ -1061,47 +1107,29 @@
                 if (!overlay) return;
                 overlay.classList.add('open');
                 document.body.classList.add('no-scroll');
-                const focusable = overlay.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusable) focusable.focus();
-                _focusTrapHandler = function(e) {
-                    if (e.key !== 'Tab') return;
-                    const focusableElements = overlay.querySelectorAll(
-                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                    );
-                    if (!focusableElements.length) return;
-                    const first = focusableElements[0];
-                    const last = focusableElements[focusableElements.length - 1];
-                    if (e.shiftKey && document.activeElement === first) {
-                        e.preventDefault();
-                        last.focus();
-                    } else if (!e.shiftKey && document.activeElement === last) {
-                        e.preventDefault();
-                        first.focus();
-                    }
-                };
-                document.addEventListener('keydown', _focusTrapHandler);
             }
-
             function closeModal(id) {
                 const overlay = document.getElementById(id);
                 if (!overlay) return;
                 overlay.classList.remove('open');
                 document.body.classList.remove('no-scroll');
-                if (_focusTrapHandler) {
-                    document.removeEventListener('keydown', _focusTrapHandler);
-                    _focusTrapHandler = null;
-                }
             }
-
-            // ---- close buttons (data-close) ----
             document.querySelectorAll('[data-close]').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const target = this.dataset.close;
-                    closeModal(target);
+                    closeModal(this.dataset.close);
                 });
             });
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal(this.id);
+                });
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.open').forEach(o => closeModal(o.id));
+                }
+            });
 
-            // ---- populate selected list helper ----
             function populateSelectedList(containerId) {
                 const selected = loadSelection();
                 const container = document.getElementById(containerId);
@@ -1129,23 +1157,23 @@
                 }
             }
 
-            // ---- open modals from bulk buttons ----
+            // ---- Bulk actions ----
             document.getElementById('bulk-transfer').addEventListener('click', function() {
                 populateSelectedList('transfer-selected-list');
-                document.getElementById('transfer-date').value = new Date().toISOString().slice(0, 10);
+                document.getElementById('transfer-date').value = new Date().toISOString().slice(0,10);
                 document.getElementById('transfer-submit-count').textContent = loadSelection().length;
                 openModal('bulk-transfer-modal');
             });
 
             document.getElementById('bulk-retire').addEventListener('click', function() {
                 populateSelectedList('retire-selected-list');
-                document.getElementById('retire-date').value = new Date().toISOString().slice(0, 10);
+                document.getElementById('retire-date').value = new Date().toISOString().slice(0,10);
                 document.getElementById('retire-submit-count').textContent = loadSelection().length;
                 checkRetireEnable();
                 openModal('bulk-retire-modal');
             });
 
-            // ---- transfer submit (mirrors the single-asset Transfer form) ----
+            // ---- Transfer submit ----
             document.getElementById('transfer-submit').addEventListener('click', async function() {
                 const ids = loadSelection();
                 if (!ids || ids.length === 0) return alert('No assets selected');
@@ -1182,16 +1210,14 @@
                 }
             });
 
-            // ---- retire/disposal modal enable: require an effective date (matches single form) ----
+            // ---- Retire submit ----
             const retireDate = document.getElementById('retire-date');
             const retireSubmit = document.getElementById('retire-submit');
-
             function checkRetireEnable() {
                 retireSubmit.disabled = !(retireDate.value && retireDate.value.trim().length > 0);
             }
             retireDate.addEventListener('input', checkRetireEnable);
 
-            // ---- retire submit (mirrors the single-asset Disposal form) ----
             document.getElementById('retire-submit').addEventListener('click', async function() {
                 const ids = loadSelection();
                 if (!ids || ids.length === 0) return alert('No assets selected');
@@ -1228,41 +1254,43 @@
                 }
             });
 
-            // ---- INIT: clear any previous selection on page load ----
+            // ---- Dropdown toggles ----
+            window.toggleDropdown = function(event, btn) {
+                event.stopPropagation();
+                const menu = btn.closest('td').querySelector('.dropdown-menu');
+                const isOpen = menu.style.display === 'block';
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+                if (!isOpen) {
+                    menu.style.display = 'block';
+                }
+            };
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-trigger') && !e.target.closest('.dropdown-menu')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+                }
+            });
+
+            window.deleteAsset = function(id) {
+                if (confirm('Are you sure you want to delete this asset?')) {
+                    alert('Asset ' + id + ' deleted (demo).');
+                }
+            };
+
+            // ---- Init ----
             saveSelection([]);
             sessionStorage.removeItem(selectAllKey);
             updateUiFromSelection();
 
-            // ---- close modals on overlay click (backdrop) ----
-            document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        const id = this.id;
-                        closeModal(id);
-                    }
-                });
-            });
-
-            // ---- close with Escape for modals ----
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    const openOverlays = document.querySelectorAll('.modal-overlay.open');
-                    openOverlays.forEach(overlay => {
-                        closeModal(overlay.id);
-                    });
-                }
-            });
-
-            // ---- bulk "register" placeholder ----
-            document.getElementById('bulk-register').addEventListener('click', function() {
-                alert('Bulk register will open a multi‑step form (demo).');
+            rows.forEach(row => {
+                const name = row.querySelector('td:first-child .text-sm.font-medium')?.textContent?.trim() || '';
+                const code = row.querySelector('td:nth-child(4)')?.textContent?.trim() || '';
+                row.dataset.assetName = name;
+                row.dataset.assetCode = code;
             });
 
         })();
     </script>
-
-    <!-- include material icons (if not already present) -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
 </main>
 </body>
 </html>

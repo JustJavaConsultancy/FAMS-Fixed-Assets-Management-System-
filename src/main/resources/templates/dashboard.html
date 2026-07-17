@@ -1,221 +1,1032 @@
 <!DOCTYPE html>
-<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <title>JustJava FAMS - Dashboard</title>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+    <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">JustJava FAMS</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffffff",
+                        "status-info": "#1558A8",
+                        "surface": "#f9f9ff",
+                        "tertiary-fixed": "#9bf6ba",
+                        "border-default": "#E4E6EA",
+                        "surface-container-low": "#f1f3ff",
+                        "on-background": "#151b29",
+                        "surface-variant": "#dde2f5",
+                        "on-surface-variant": "#5b403e",
+                        "on-secondary-fixed-variant": "#45464d",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e9edff",
+                        "brand-primary-light": "#F5E4E6",
+                        "surface-tint": "#bb1327",
+                        "tertiary": "#005530",
+                        "secondary-fixed-dim": "#c5c6ce",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f9f9ff",
+                        "nav-hover": "#F4F5F7",
+                        "surface-dim": "#d4daed",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#e4bdbb",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#80d9a0",
+                        "on-primary-container": "#ffd3d0",
+                        "on-error-container": "#93000a",
+                        "outline": "#906f6d",
+                        "border-strong": "#CBD0D8",
+                        "on-tertiary-fixed-variant": "#00522e",
+                        "secondary-fixed": "#e2e2ea",
+                        "tertiary-container": "#067041",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-surface": "#151b29",
+                        "surface-card": "#FFFFFF",
+                        "secondary-container": "#dfdfe8",
+                        "on-secondary-container": "#61626a",
+                        "brand-primary-dark": "#8F0F1E",
+                        "secondary": "#5d5e65",
+                        "inverse-surface": "#2a303f",
+                        "primary-fixed-dim": "#ffb3af",
+                        "on-primary-fixed-variant": "#930019",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#410006",
+                        "on-secondary-fixed": "#191b22",
+                        "primary": "#98001a",
+                        "surface-container-highest": "#dde2f5",
+                        "on-tertiary-container": "#96f0b5",
+                        "surface-container-high": "#e2e8fb",
+                        "primary-container": "#c0182a",
+                        "status-success": "#1A7A4A",
+                        "surface-canvas": "#F4F5F7",
+                        "on-tertiary-fixed": "#00210f",
+                        "background": "#f9f9ff",
+                        "status-warning": "#A05C00",
+                        "inverse-primary": "#ffb3af",
+                        "primary-fixed": "#ffdad8",
+                        "nav-text": "#1A1D23",
+                        "sidebar-text": "#1A1D23"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        "2xl": "1rem",
+                        xxl: "1rem",
+                        sidebar: "1rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        gutter: "1rem",
+                        "topbar-height": "64px",
+                        "row-height": "48px",
+                        "sidebar-width": "260px",
+                        "sidebar-margin": "20px",
+                        "edge-margin": "20px",
+                        "input-height": "38px",
+                        "button-height": "36px",
+                        "container-padding": "1.25rem"
+                    },
+                    fontFamily: {
+                        "technical-data": ["JetBrains Mono"],
+                        "nav-group": ["Inter"],
+                        "card-header": ["Inter"],
+                        "body-medium": ["Inter"],
+                        "label-small": ["Inter"],
+                        "page-title": ["Inter"],
+                        "body-default": ["Inter"],
+                        "section-header": ["Inter"],
+                        "badge-label": ["Inter"]
+                    },
+                    fontSize: {
+                        "technical-data": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "nav-group": ["10px", { lineHeight: "12px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "card-header": ["15px", { lineHeight: "20px", fontWeight: "500" }],
+                        "body-medium": ["13px", { lineHeight: "18px", fontWeight: "500" }],
+                        "label-small": ["12px", { lineHeight: "16px", fontWeight: "400" }],
+                        "page-title": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "body-default": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "section-header": ["18px", { lineHeight: "24px", fontWeight: "500" }],
+                        "badge-label": ["11px", { lineHeight: "14px", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ── Variables & base ── */
+        :root {
+            --transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fafafc;
+            color: #0f172a;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ── Sidebar scrollbar ── */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        /* ── Active sidebar link (soft red) ── */
+        .sidebar-active {
+            background-color: #fce4e6 !important;
+            color: #98001a !important;
+            font-weight: 600;
+        }
+        .sidebar-active .nav-icon {
+            color: #98001a !important;
+        }
+
+        /* ── Search input focus ── */
+        .search-wrap input:focus {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.12);
+        }
+
+        /* ── Modal styles ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 200ms ease, visibility 200ms ease;
+            backdrop-filter: blur(2px);
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            animation: slideUp 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #E4E6EA;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .modal-header {
+            margin-bottom: 16px;
+        }
+        .modal-header .modal-icon {
+            width: 48px;
+            height: 48px;
+            background: #ffebee;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .modal-header .modal-icon .material-symbols-outlined {
+            color: #ba1a1a;
+            font-size: 28px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1D23;
+            line-height: 1.4;
+        }
+        .modal-body {
+            margin-bottom: 24px;
+        }
+        .modal-body p {
+            margin: 0;
+            font-size: 13px;
+            color: #5d5e65;
+            line-height: 1.6;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 150ms;
+            white-space: nowrap;
+        }
+        .modal-btn-secondary {
+            background: #F4F5F7;
+            color: #1A1D23;
+            border: 1px solid #E4E6EA;
+        }
+        .modal-btn-secondary:hover {
+            background: #e8eaef;
+        }
+        .modal-btn-primary {
+            background: #ba1a1a;
+            color: #fff;
+        }
+        .modal-btn-primary:hover {
+            background: #8f0f1e;
+        }
+        .modal-btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* ── Responsive adjustments for modal ── */
+        @media (max-width: 640px) {
+            .modal-content {
+                width: 95%;
+                max-width: 380px;
+                padding: 28px;
+            }
+            .modal-header h2 {
+                font-size: 17px;
+            }
+        }
+        @media (max-width: 400px) {
+            .modal-content {
+                padding: 24px;
+                width: 95%;
+                max-width: none;
+            }
+            .modal-header .modal-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .modal-header h2 {
+                font-size: 16px;
+            }
+            .modal-body p {
+                font-size: 12px;
+            }
+            .modal-btn {
+                font-size: 12px;
+                height: 32px;
+                padding: 0 16px;
+            }
+            .modal-footer {
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+            .modal-btn {
+                width: 100%;
+            }
+        }
+
+        /* ── Mobile sidebar overlay ── */
+        #sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.32);
+            backdrop-filter: blur(2px);
+            z-index: 45;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #sidebar-backdrop.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        /* ── Sidebar on mobile ── */
+        @media (max-width: 767px) {
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: var(--sidebar-width);
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform var(--transition);
+                border-radius: 0;
+                border-right: 1px solid #E4E6EA;
+                box-shadow: 2px 0 16px rgba(0,0,0,0.1);
+                display: flex !important;
+                flex-direction: column;
+                justify-content: space-between;
+                background: white;
+                overflow-y: auto;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Hamburger toggle button ── */
+        #hamburger-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #E4E6EA;
+            background: #fff;
+            cursor: pointer;
+            color: #5d5e65;
+            transition: background 150ms, color 150ms;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+        #hamburger-btn:hover {
+            background: #F4F5F7;
+        }
+        #hamburger-btn .material-symbols-outlined {
+            font-size: 24px;
+        }
+        @media (max-width: 767px) {
+            #hamburger-btn {
+                display: flex;
+            }
+        }
+
+        /* ── Topbar responsive tweaks ── */
+        @media (max-width: 640px) {
+            .topbar-register span.label {
+                display: none;
+            }
+            .topbar-register {
+                padding: 0 10px !important;
+                min-width: 36px;
+                justify-content: center;
+            }
+            .topbar-register .material-symbols-outlined {
+                font-size: 20px !important;
+            }
+            .search-wrap {
+                max-width: 140px;
+            }
+            .search-wrap input {
+                font-size: 12px;
+                height: 34px;
+                padding-left: 32px;
+                padding-right: 10px;
+            }
+            .search-wrap .material-symbols-outlined {
+                font-size: 18px !important;
+                left: 8px !important;
+            }
+            .topbar-actions .divider {
+                height: 20px;
+            }
+            .topbar-actions .icon-btn {
+                width: 32px;
+                height: 32px;
+            }
+            .topbar-actions .icon-btn .material-symbols-outlined {
+                font-size: 20px;
+            }
+            .topbar-actions .icon-btn .badge-dot {
+                top: 4px;
+                right: 4px;
+                width: 6px;
+                height: 6px;
+            }
+            header {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .search-wrap {
+                max-width: 100px;
+            }
+            .search-wrap input {
+                font-size: 11px;
+                height: 30px;
+                padding-left: 28px;
+                padding-right: 8px;
+            }
+            .search-wrap .material-symbols-outlined {
+                font-size: 16px !important;
+                left: 6px !important;
+            }
+        }
+
+        /* ── Main content padding ── */
+        .main-content-area {
+            padding: 2rem;
+        }
+        @media (max-width: 767px) {
+            .main-content-area {
+                padding: 1rem;
+            }
+        }
+        @media (max-width: 640px) {
+            .main-content-area {
+                padding: 0.75rem;
+            }
+        }
+
+        /* ── Custom scrollbar for activity feed ── */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD0D8;
+            border-radius: 4px;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+        }
+
+        /* ── Card styling (Nexus style: no hover elevation) ── */
+        .card-nexus {
+            border: 1px solid #E4E6EA;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* rounded-xl */
+            transition: none; /* no hover animation */
+        }
+
+        /* ── Metric icon containers ── */
+        .metric-icon-bg {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fce4e6; /* soft red */
+        }
+        .metric-icon-bg .material-symbols-outlined {
+            color: #c0182a;
+            font-size: 22px;
+        }
+
+        /* ── Depreciation bar colors ── */
+        .depreciation-bar {
+            background-color: #c0182a;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .depreciation-bar:hover {
+            opacity: 1;
+        }
+
+        /* ── Activity feed border colors ── */
+        .border-activity-primary { border-color: #c0182a; }
+        .border-activity-secondary { border-color: #e57373; }
+        .border-activity-tertiary { border-color: #f5a39e; }
+
+        /* ── Status badge colors ── */
+        .badge-soft-red {
+            background-color: #fce4e6;
+            color: #98001a;
+        }
+        .badge-soft-blue {
+            background-color: #e2e8fb;
+            color: #1558A8;
+        }
+        .badge-soft-green {
+            background-color: #e6fcf5;
+            color: #1A7A4A;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/responsive.css}" href="/css/responsive.css" />
 </head>
-<body>
-<main id="main-content" class="space-y-6" layout:fragment="content">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
-        <div>
-            <h2 class="font-page-title text-page-title text-on-background">Dashboard</h2>
-            <p class="text-body-default text-secondary">Asset portfolio performance and status overview</p>
+<body class="flex h-screen overflow-hidden antialiased text-[13px]">
+
+<!-- ══ SIDEBAR BACKDROP (mobile) ══ -->
+<div id="sidebar-backdrop"></div>
+
+<!-- ══ SIDEBAR (Nexus style) ══ -->
+<aside id="sidebar" class="w-[260px] bg-white border-r border-border-default hidden md:flex flex-col justify-between sidebar-scroll overflow-y-auto flex-shrink-0">
+    <div>
+        <!-- Brand -->
+        <div class="h-[72px] flex items-center px-6 border-b border-border-default">
+            <div class="flex items-center gap-2 text-primary font-bold text-xl">
+                <span class="material-symbols-outlined text-[28px] text-primary">inventory_2</span>
+                <span>FAMS</span>
+            </div>
+            <div class="ml-auto w-6 h-6"></div>
         </div>
-        <div class="flex items-center gap-2 px-3 md:px-4 h-[38px] border border-border-default rounded-lg bg-surface-card text-body-default text-secondary">
-            <span class="material-symbols-outlined" style="font-size:18px;">calendar_month</span>
-            <span th:text="${periodLabel}">As of today</span>
+
+        <!-- Navigation -->
+        <div class="px-3 py-6">
+            <div class="mb-6">
+                <h3 class="px-3 text-[11px] font-semibold text-secondary uppercase tracking-wider mb-2">General</h3>
+                <nav class="space-y-0.5">
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium sidebar-active"
+                       th:href="@{/dashboard}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">dashboard</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/assets}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">inventory_2</span>
+                        <span>All Assets</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/assets/lifecycle/workflows}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">account_tree</span>
+                        <span>Lifecycle Workflows</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/depreciation}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">payments</span>
+                        <span>Depreciation</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/assets/checkout}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">assignment_return</span>
+                        <span>Check-Out</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/maintenance}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">home_repair_service</span>
+                        <span>Maintenance</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/audit}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">verified_user</span>
+                        <span>Audit</span>
+                    </a>
+                </nav>
+            </div>
+            <div>
+                <h3 class="px-3 text-[11px] font-semibold text-secondary uppercase tracking-wider mb-2">Tools</h3>
+                <nav class="space-y-0.5">
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/reports}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">bar_chart</span>
+                        <span>Reports</span>
+                    </a>
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:href="@{/notifications}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">notifications</span>
+                        <span>Notifications</span>
+                    </a>
+                </nav>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-surface-card p-5 rounded-xl card-shadow">
-            <div class="flex justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined">inventory_2</span>
+    <!-- User & Logout -->
+    <div class="p-4 bg-white border-t border-border-default">
+        <div class="flex items-center justify-between bg-surface-canvas p-2.5 rounded-lg border border-border-default mb-4 cursor-pointer hover:bg-nav-hover transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-white shadow-sm">
+                    <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
                 </div>
-                <span class="text-secondary font-label-small text-label-small">Registered</span>
-            </div>
-            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Total Assets</p>
-            <p class="text-2xl sm:text-[28px] font-bold leading-none" th:text="${totalAssets}">0</p>
-        </div>
-
-        <div class="bg-surface-card p-5 rounded-xl card-shadow">
-            <div class="flex justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-brand-primary-light flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined">payments</span>
-                </div>
-                <span class="text-secondary font-label-small text-label-small">Purchase cost</span>
-            </div>
-            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Total Asset Value</p>
-            <p class="text-2xl sm:text-[28px] font-bold leading-none" th:text="${totalAssetValue}">NGN 0.00</p>
-        </div>
-
-        <div class="bg-surface-card p-5 rounded-xl card-shadow">
-            <div class="flex justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-[#E2E8FB] flex items-center justify-center text-status-info">
-                    <span class="material-symbols-outlined">person_pin_circle</span>
-                </div>
-                <span class="text-secondary font-label-small text-label-small" th:text="${assetsInMaintenance + ' in maintenance'}">0 in maintenance</span>
-            </div>
-            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Assigned Right Now</p>
-            <p class="text-2xl sm:text-[28px] font-bold leading-none" th:text="${assignedAssets}">0</p>
-        </div>
-
-        <div class="bg-surface-card p-5 rounded-xl card-shadow">
-            <div class="flex justify-between mb-4">
-                <div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center text-error">
-                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">warning</span>
-                </div>
-                <span class="text-secondary font-label-small text-label-small" th:text="${openMaintenance + ' open maintenance'}">0 open maintenance</span>
-            </div>
-            <p class="text-label-small text-secondary font-label-small mb-1 uppercase tracking-wider">Active Audits</p>
-            <p class="text-2xl sm:text-[28px] font-bold leading-none text-error" th:text="${activeAudits}">0</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="col-span-1 lg:col-span-8 bg-surface-card rounded-xl card-shadow overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-border-default flex justify-between items-center">
                 <div>
-                    <h3 class="font-section-header text-section-header">Asset Portfolio Breakdown</h3>
-                    <p class="text-label-small text-secondary mt-1">Grouped by asset category</p>
-                </div>
-                <span class="material-symbols-outlined text-secondary">bar_chart</span>
-            </div>
-            <div class="p-4 sm:p-6">
-                <div th:if="${#lists.isEmpty(categoryBreakdown)}" class="min-h-52 flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-8">
-                    <span class="material-symbols-outlined text-secondary mb-2" style="font-size:34px;">inventory_2</span>
-                    <p class="font-body-medium text-on-surface">No asset categories yet</p>
-                    <p class="text-body-default text-secondary mt-1">Registered assets will appear here as a category breakdown.</p>
-                </div>
-                <div th:unless="${#lists.isEmpty(categoryBreakdown)}" class="space-y-5 sm:space-y-6">
-                    <div class="space-y-2" th:each="row : ${categoryBreakdown}">
-                        <div class="flex justify-between text-label-small flex-wrap gap-1">
-                            <span class="font-medium text-on-surface" th:text="${row.label}">Category</span>
-                            <span class="text-secondary" th:text="${row.percentage + '% - ' + row.formattedCount + ' units'}">0% - 0 units</span>
-                        </div>
-                        <div class="w-full bg-surface-canvas h-3 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full" th:style="${'width:' + row.percentage + '%; background-color:' + row.color}"></div>
-                        </div>
-                    </div>
+                    <div class="text-[10px] text-secondary uppercase font-bold tracking-wider leading-none mb-1">USER</div>
+                    <div class="font-semibold text-nav-text text-[13px] leading-none" th:text="${currentUserDisplayName}">User Name</div>
                 </div>
             </div>
+            <button class="logout-btn flex items-center justify-center w-6 h-6 rounded text-slate-400 hover:text-error hover:bg-nav-hover transition-colors" id="sidebar-logout-btn" aria-label="Logout">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+            </button>
         </div>
-
-        <div class="col-span-1 lg:col-span-4 bg-surface-card rounded-xl card-shadow overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-border-default">
-                <h3 class="font-section-header text-section-header">Asset Status</h3>
-                <p class="text-label-small text-secondary mt-1">Live status distribution</p>
-            </div>
-            <div class="p-4 sm:p-6 flex flex-col items-center">
-                <div th:if="${#lists.isEmpty(statusBreakdown)}" class="min-h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-6">
-                    <span class="material-symbols-outlined text-secondary mb-2" style="font-size:34px;">donut_large</span>
-                    <p class="font-body-medium text-on-surface">No asset statuses yet</p>
-                    <p class="text-body-default text-secondary mt-1">Status data will show after assets are registered.</p>
-                </div>
-                <div th:unless="${#lists.isEmpty(statusBreakdown)}" class="w-full flex flex-col items-center">
-                    <div class="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" fill="transparent" r="40" stroke="#E4E6EA" stroke-width="20"></circle>
-                            <circle th:each="segment : ${statusSegments}" cx="50" cy="50" fill="transparent" r="40" stroke-linecap="round" stroke-width="20"
-                                    th:attr="stroke=${segment.color}, stroke-dasharray=${segment.dashLength + ' 251.2'}, stroke-dashoffset=${'-' + segment.offset}"></circle>
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <p class="text-xl sm:text-2xl font-bold leading-none" th:text="${totalAssets}">0</p>
-                            <p class="text-[9px] sm:text-[10px] text-secondary font-medium uppercase tracking-tight">Total Units</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 w-full gap-y-3 gap-x-4">
-                        <div class="flex items-center gap-2" th:each="row : ${statusBreakdown}">
-                            <div class="w-3 h-3 rounded-full shrink-0" th:style="${'background-color:' + row.color}"></div>
-                            <span class="text-body-default text-on-surface truncate" th:text="${row.label}">Status</span>
-                            <span class="ml-auto text-secondary text-body-default" th:text="${row.percentage + '%'}">0%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center text-[11px] text-secondary mt-2 font-medium">
+            © 2026 JustJava FAMS
         </div>
     </div>
+</aside>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
-            <div class="p-4 border-b border-border-default flex justify-between items-center flex-wrap gap-2">
-                <h4 class="font-card-header text-card-header">Upcoming Maintenance</h4>
-                <span class="text-label-small font-label-small bg-surface-canvas px-2 py-0.5 rounded text-secondary">Next 5</span>
-            </div>
-            <div th:if="${#lists.isEmpty(maintenanceItems)}" class="p-8 min-h-64 flex flex-col items-center justify-center text-center">
-                <span class="material-symbols-outlined text-secondary mb-2" style="font-size:34px;">event_available</span>
-                <p class="font-body-medium text-on-surface">No maintenance tasks</p>
-                <p class="text-body-default text-secondary mt-1">Upcoming work orders will appear here.</p>
-            </div>
-            <div th:unless="${#lists.isEmpty(maintenanceItems)}" class="divide-y divide-border-default">
-                <div class="p-3 sm:p-4 flex items-center gap-3 hover:bg-surface-canvas transition-colors group" th:each="item : ${maintenanceItems}">
-                    <div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-secondary group-hover:text-primary transition-colors shrink-0">
-                        <span class="material-symbols-outlined">build</span>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                        <p class="text-body-medium font-body-medium truncate" th:text="${item.title}">Asset</p>
-                        <p class="text-label-small text-secondary" th:text="${item.serviceType + ' - ' + item.dueLabel}">Service - date</p>
-                    </div>
-                    <span class="font-badge-label text-badge-label px-2 py-0.5 rounded-full shrink-0"
-                          th:classappend="${item.overdue} ? ' text-error bg-error-container' : ' text-status-info bg-[#D1E7DD]'"
-                          th:text="${item.status}">STATUS</span>
-                </div>
-                <div class="p-3 sm:p-4 flex items-center justify-center">
-                    <a th:href="@{/maintenance}" class="text-label-small font-label-small text-primary hover:underline">View all schedule</a>
+<!-- ══ MAIN CONTENT ══ -->
+<main class="flex-1 flex flex-col bg-surface-canvas overflow-hidden">
+    <!-- TOP HEADER (Nexus style) -->
+    <header class="h-[72px] flex items-center justify-between px-8 border-b border-border-default bg-white z-10 flex-shrink-0">
+        <div class="flex items-center flex-1 max-w-lg">
+            <button id="hamburger-btn" aria-label="Toggle sidebar">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="search-wrap relative flex items-center w-full h-10 rounded-md border border-border-default bg-white overflow-hidden px-3 shadow-sm group focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                <span class="material-symbols-outlined text-secondary text-sm">search</span>
+                <input class="peer h-full w-full outline-none text-[13px] text-nav-text px-3 bg-transparent border-none focus:ring-0 placeholder-secondary font-medium"
+                       type="text"
+                       data-input-type="search"
+                       placeholder="Search assets, locations, or personnel…" />
+                <div class="text-[10px] text-secondary border border-border-default rounded px-1.5 py-0.5 bg-surface-canvas flex items-center gap-1 font-semibold hidden sm:flex">
+                    <span class="material-symbols-outlined text-[12px]">keyboard_command_key</span> + F
                 </div>
             </div>
         </div>
-
-        <div class="bg-surface-card rounded-xl card-shadow overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-border-default">
-                <h4 class="font-card-header text-card-header">Recent Activity Feed</h4>
-            </div>
-            <div th:if="${#lists.isEmpty(activityItems)}" class="p-8 min-h-64 flex flex-col items-center justify-center text-center">
-                <span class="material-symbols-outlined text-secondary mb-2" style="font-size:34px;">history</span>
-                <p class="font-body-medium text-on-surface">No recent activity</p>
-                <p class="text-body-default text-secondary mt-1">Lifecycle events will appear here when assets change.</p>
-            </div>
-            <div th:unless="${#lists.isEmpty(activityItems)}" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-[320px] custom-scrollbar">
-                <div class="relative pl-6 border-l-2 py-1" th:each="item : ${activityItems}" th:classappend="${' ' + item.colorClass}">
-                    <div class="absolute -left-1.5 top-2 w-3 h-3 rounded-full bg-primary border-2 border-white"></div>
-                    <p class="text-body-default"><span class="font-semibold" th:text="${item.actor}">System</span> <span th:text="${item.description}">Activity</span></p>
-                    <p class="text-label-small text-secondary mt-1" th:text="${item.when}">Now</p>
-                </div>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4 text-secondary">
+                <a class="topbar-register flex items-center gap-2 bg-primary-container text-white h-9 px-4 rounded-md text-[13px] font-medium hover:bg-brand-primary-dark transition-colors"
+                   th:href="@{/assets/register}">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    <span class="label">Register Asset</span>
+                </a>
+                <a class="relative hover:text-nav-text transition-colors" th:href="@{/notifications}" aria-label="Notifications">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error rounded-full border-[1.5px] border-white"></span>
+                </a>
+                <button class="hover:text-nav-text transition-colors" aria-label="Account">
+                    <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                </button>
             </div>
         </div>
+    </header>
 
-        <div class="bg-surface-card rounded-xl card-shadow overflow-hidden">
-            <div class="p-4 border-b border-border-default flex justify-between items-center flex-wrap gap-2">
-                <h4 class="font-card-header text-card-header">Depreciation Snapshot</h4>
-                <div class="flex items-center gap-1 text-error text-label-small font-semibold">
-                    <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span>
-                    <span th:text="${depreciationPercentage}">0%</span>
+    <!-- PAGE CONTENT: DASHBOARD (Nexus style) -->
+    <div class="flex-1 overflow-y-auto p-8 main-content-area">
+        <div class="max-w-[1200px] mx-auto" layout:fragment="content">
+            <!-- Page Title & Controls -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                <div>
+                    <h1 class="text-[22px] font-bold text-slate-900 tracking-tight">Dashboard</h1>
+                    <p class="text-[13px] text-slate-500 font-medium mt-0.5">Asset portfolio performance and status overview</p>
+                </div>
+                <div class="flex items-center gap-2 px-3 md:px-4 h-[38px] border border-border-default rounded-lg bg-white text-body-default text-secondary shadow-sm">
+                    <span class="material-symbols-outlined" style="font-size:18px;">calendar_month</span>
+                    <span th:text="${periodLabel}">As of today</span>
                 </div>
             </div>
-            <div class="p-4">
-                <div th:if="${#lists.isEmpty(depreciationBars)}" class="min-h-56 flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-6">
-                    <span class="material-symbols-outlined text-secondary mb-2" style="font-size:34px;">query_stats</span>
-                    <p class="font-body-medium text-on-surface">No depreciation postings</p>
-                    <p class="text-body-default text-secondary mt-1">Run depreciation to populate the monthly chart.</p>
+
+            <!-- Top Metrics Row (Nexus icons + no hover elevation) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Metric 1: Total Assets -->
+                <div class="card-nexus p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="metric-icon-bg">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Registered</span>
+                    </div>
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1">Total Assets</p>
+                    <p class="text-[28px] font-bold text-slate-900 leading-none" th:text="${totalAssets}">0</p>
                 </div>
-                <div th:unless="${#lists.isEmpty(depreciationBars)}">
-                    <div class="flex justify-between items-end h-32 mb-4 gap-[2px] sm:gap-1">
-                        <div class="flex-1 bg-primary/10 hover:bg-primary/30 transition-colors rounded-t relative group"
-                             th:each="bar : ${depreciationBars}"
-                             th:style="${'height:' + bar.height + '%'}">
-                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-1.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity" th:text="${bar.value}">NGN 0.00</div>
+                <!-- Metric 2: Total Value -->
+                <div class="card-nexus p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="metric-icon-bg">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Purchase cost</span>
+                    </div>
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1">Total Asset Value</p>
+                    <p class="text-[28px] font-bold text-slate-900 leading-none" th:text="${totalAssetValue}">NGN 0.00</p>
+                </div>
+                <!-- Metric 3: Assigned Right Now -->
+                <div class="card-nexus p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="metric-icon-bg">
+                            <span class="material-symbols-outlined">person_pin_circle</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" th:text="${assetsInMaintenance + ' in maintenance'}">0 in maintenance</span>
+                    </div>
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1">Assigned Right Now</p>
+                    <p class="text-[28px] font-bold text-slate-900 leading-none" th:text="${assignedAssets}">0</p>
+                </div>
+                <!-- Metric 4: Active Audits -->
+                <div class="card-nexus p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[22px] text-error" style="font-variation-settings:'FILL' 1;">warning</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider" th:text="${openMaintenance + ' open maintenance'}">0 open maintenance</span>
+                    </div>
+                    <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-1">Active Audits</p>
+                    <p class="text-[28px] font-bold text-error leading-none" th:text="${activeAudits}">0</p>
+                </div>
+            </div>
+
+            <!-- Middle Row: Portfolio Breakdown & Status -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+                <!-- Portfolio Breakdown (Bar Chart) -->
+                <div class="col-span-1 lg:col-span-8 card-nexus overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-border-default flex justify-between items-center">
+                        <div>
+                            <h3 class="text-[16px] font-semibold text-slate-800">Asset Portfolio Breakdown</h3>
+                            <p class="text-[12px] text-slate-500 mt-0.5">Grouped by asset category</p>
+                        </div>
+                        <span class="material-symbols-outlined text-slate-400">bar_chart</span>
+                    </div>
+                    <div class="p-4 sm:p-6">
+                        <div th:if="${#lists.isEmpty(categoryBreakdown)}" class="min-h-52 flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-8">
+                            <span class="material-symbols-outlined text-slate-400 mb-2" style="font-size:34px;">inventory_2</span>
+                            <p class="font-medium text-slate-700">No asset categories yet</p>
+                            <p class="text-[13px] text-slate-500 mt-1">Registered assets will appear here as a category breakdown.</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(categoryBreakdown)}" class="space-y-5 sm:space-y-6">
+                            <div class="space-y-2" th:each="row : ${categoryBreakdown}">
+                                <div class="flex justify-between text-[12px] flex-wrap gap-1">
+                                    <span class="font-medium text-slate-800" th:text="${row.label}">Category</span>
+                                    <span class="text-slate-500" th:text="${row.percentage + '% - ' + row.formattedCount + ' units'}">0% - 0 units</span>
+                                </div>
+                                <div class="w-full bg-surface-canvas h-3 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full" th:style="${'width:' + row.percentage + '%; background-color:' + row.color}"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex justify-between text-[10px] text-secondary font-medium uppercase tracking-tight">
-                        <span th:each="bar : ${depreciationBars}" th:text="${bar.month}">Jan</span>
+                </div>
+
+                <!-- Asset Status (Donut Chart) -->
+                <div class="col-span-1 lg:col-span-4 card-nexus overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-border-default">
+                        <h3 class="text-[16px] font-semibold text-slate-800">Asset Status</h3>
+                        <p class="text-[12px] text-slate-500 mt-0.5">Live status distribution</p>
+                    </div>
+                    <div class="p-4 sm:p-6 flex flex-col items-center">
+                        <div th:if="${#lists.isEmpty(statusBreakdown)}" class="min-h-64 w-full flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-6">
+                            <span class="material-symbols-outlined text-slate-400 mb-2" style="font-size:34px;">donut_large</span>
+                            <p class="font-medium text-slate-700">No asset statuses yet</p>
+                            <p class="text-[13px] text-slate-500 mt-1">Status data will show after assets are registered.</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(statusBreakdown)}" class="w-full flex flex-col items-center">
+                            <div class="relative w-40 h-40 sm:w-48 sm:h-48 mb-6">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" fill="transparent" r="40" stroke="#E4E6EA" stroke-width="20"></circle>
+                                    <circle th:each="segment : ${statusSegments}" cx="50" cy="50" fill="transparent" r="40" stroke-linecap="round" stroke-width="20"
+                                            th:attr="stroke=${segment.color}, stroke-dasharray=${segment.dashLength + ' 251.2'}, stroke-dashoffset=${'-' + segment.offset}"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <p class="text-xl sm:text-2xl font-bold leading-none" th:text="${totalAssets}">0</p>
+                                    <p class="text-[9px] sm:text-[10px] text-slate-500 font-medium uppercase tracking-tight">Total Units</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 w-full gap-y-3 gap-x-4">
+                                <div class="flex items-center gap-2" th:each="row : ${statusBreakdown}">
+                                    <div class="w-3 h-3 rounded-full shrink-0" th:style="${'background-color:' + row.color}"></div>
+                                    <span class="text-[13px] text-slate-700 truncate" th:text="${row.label}">Status</span>
+                                    <span class="ml-auto text-slate-500 text-[13px]" th:text="${row.percentage + '%'}">0%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-6 p-3 sm:p-4 bg-surface-canvas rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                        <p class="text-label-small text-secondary">Net Book Value</p>
-                        <p class="font-technical-data text-technical-data font-bold" th:text="${bookValue}">NGN 0.00</p>
+            </div>
+
+            <!-- Bottom Row: Maintenance, Activity, Depreciation -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Upcoming Maintenance -->
+                <div class="card-nexus overflow-hidden">
+                    <div class="p-4 border-b border-border-default flex justify-between items-center flex-wrap gap-2">
+                        <h4 class="text-[15px] font-medium text-slate-800">Upcoming Maintenance</h4>
+                        <span class="text-[11px] font-medium bg-surface-canvas px-2 py-0.5 rounded text-slate-500">Next 5</span>
                     </div>
-                    <div class="sm:text-right">
-                        <p class="text-label-small text-secondary">Asset Age Avg</p>
-                        <p class="font-technical-data text-technical-data font-bold" th:text="${averageAssetAge}">No purchase dates</p>
+                    <div th:if="${#lists.isEmpty(maintenanceItems)}" class="p-8 min-h-64 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-2" style="font-size:34px;">event_available</span>
+                        <p class="font-medium text-slate-700">No maintenance tasks</p>
+                        <p class="text-[13px] text-slate-500 mt-1">Upcoming work orders will appear here.</p>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(maintenanceItems)}" class="divide-y divide-border-default">
+                        <div class="p-3 sm:p-4 flex items-center gap-3 hover:bg-surface-canvas transition-colors group" th:each="item : ${maintenanceItems}">
+                            <div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-slate-500 group-hover:text-primary transition-colors shrink-0">
+                                <span class="material-symbols-outlined">build</span>
+                            </div>
+                            <div class="flex-1 overflow-hidden">
+                                <p class="text-[13px] font-medium truncate" th:text="${item.title}">Asset</p>
+                                <p class="text-[12px] text-slate-500" th:text="${item.serviceType + ' - ' + item.dueLabel}">Service - date</p>
+                            </div>
+                            <span class="text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0"
+                                  th:classappend="${item.overdue} ? 'badge-soft-red' : 'badge-soft-blue'"
+                                  th:text="${item.status}">STATUS</span>
+                        </div>
+                        <div class="p-3 sm:p-4 flex items-center justify-center">
+                            <a th:href="@{/maintenance}" class="text-[12px] font-medium text-primary hover:underline">View all schedule</a>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-3 text-label-small text-secondary">
-                    <span>Recovery potential: </span><span class="font-semibold text-on-surface" th:text="${resalePercentage}">0%</span>
+
+                <!-- Recent Activity -->
+                <div class="card-nexus overflow-hidden flex flex-col">
+                    <div class="p-4 border-b border-border-default">
+                        <h4 class="text-[15px] font-medium text-slate-800">Recent Activity Feed</h4>
+                    </div>
+                    <div th:if="${#lists.isEmpty(activityItems)}" class="p-8 min-h-64 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-slate-400 mb-2" style="font-size:34px;">history</span>
+                        <p class="font-medium text-slate-700">No recent activity</p>
+                        <p class="text-[13px] text-slate-500 mt-1">Lifecycle events will appear here when assets change.</p>
+                    </div>
+                    <div th:unless="${#lists.isEmpty(activityItems)}" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-[320px] custom-scrollbar">
+                        <div class="relative pl-6 border-l-2 py-1" th:each="item : ${activityItems}" th:classappend="${' ' + item.colorClass}">
+                            <div class="absolute -left-1.5 top-2 w-3 h-3 rounded-full bg-primary border-2 border-white"></div>
+                            <p class="text-[13px]"><span class="font-semibold" th:text="${item.actor}">System</span> <span th:text="${item.description}">Activity</span></p>
+                            <p class="text-[12px] text-slate-500 mt-1" th:text="${item.when}">Now</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depreciation Snapshot -->
+                <div class="card-nexus overflow-hidden">
+                    <div class="p-4 border-b border-border-default flex justify-between items-center flex-wrap gap-2">
+                        <h4 class="text-[15px] font-medium text-slate-800">Depreciation Snapshot</h4>
+                        <div class="flex items-center gap-1 text-error text-[12px] font-semibold">
+                            <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span>
+                            <span th:text="${depreciationPercentage}">0%</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div th:if="${#lists.isEmpty(depreciationBars)}" class="min-h-56 flex flex-col items-center justify-center text-center border border-dashed border-border-default rounded-xl bg-surface-canvas/60 p-6">
+                            <span class="material-symbols-outlined text-slate-400 mb-2" style="font-size:34px;">query_stats</span>
+                            <p class="font-medium text-slate-700">No depreciation postings</p>
+                            <p class="text-[13px] text-slate-500 mt-1">Run depreciation to populate the monthly chart.</p>
+                        </div>
+                        <div th:unless="${#lists.isEmpty(depreciationBars)}">
+                            <div class="flex justify-between items-end h-32 mb-4 gap-[2px] sm:gap-1">
+                                <div class="flex-1 depreciation-bar rounded-t relative group"
+                                     th:each="bar : ${depreciationBars}"
+                                     th:style="${'height:' + bar.height + '%'}">
+                                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-1.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity" th:text="${bar.value}">NGN 0.00</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-500 font-medium uppercase tracking-tight">
+                                <span th:each="bar : ${depreciationBars}" th:text="${bar.month}">Jan</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-3 sm:p-4 bg-surface-canvas rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[12px] text-slate-500">Net Book Value</p>
+                                <p class="font-mono text-[12px] font-bold" th:text="${bookValue}">NGN 0.00</p>
+                            </div>
+                            <div class="sm:text-right">
+                                <p class="text-[12px] text-slate-500">Asset Age Avg</p>
+                                <p class="font-mono text-[12px] font-bold" th:text="${averageAssetAge}">No purchase dates</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-[12px] text-slate-500">
+                            <span>Recovery potential: </span><span class="font-semibold text-slate-800" th:text="${resalePercentage}">0%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- ══ LOGOUT MODAL ══ -->
+<div id="logout-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <span class="material-symbols-outlined">logout</span>
+            </div>
+            <h2>Confirm Logout</h2>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout? You will be redirected to the login page and your session will be ended.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" id="logout-cancel-btn">Cancel</button>
+            <button class="modal-btn modal-btn-primary" id="logout-confirm-btn">Logout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ── Mobile sidebar toggle ──
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        const hamburger = document.getElementById('hamburger-btn');
+
+        function toggleSidebar(open) {
+            if (open === undefined) {
+                const isOpen = sidebar.classList.contains('open');
+                open = !isOpen;
+            }
+            sidebar.classList.toggle('open', open);
+            backdrop.classList.toggle('visible', open);
+            document.body.style.overflow = open ? 'hidden' : '';
+            if (hamburger) {
+                hamburger.innerHTML = open
+                    ? '<span class="material-symbols-outlined">close</span>'
+                    : '<span class="material-symbols-outlined">menu</span>';
+            }
+        }
+
+        if (hamburger) {
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
+
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                toggleSidebar(false);
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
+            }
+        });
+
+        const navLinks = sidebar ? sidebar.querySelectorAll('a') : [];
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    toggleSidebar(false);
+                }
+            });
+        });
+
+        // ── Logout modal ──
+        const logoutModal = document.getElementById('logout-modal');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+        const logoutCancelBtn = document.getElementById('logout-cancel-btn');
+        const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
+
+        if (logoutModal && sidebarLogoutBtn) {
+            sidebarLogoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutModal.classList.add('visible');
+                setTimeout(() => logoutCancelBtn?.focus(), 50);
+            });
+
+            logoutCancelBtn?.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutModal.classList.remove('visible');
+            });
+
+            logoutModal.addEventListener('click', function(e) {
+                if (e.target === logoutModal) {
+                    logoutModal.classList.remove('visible');
+                }
+            });
+
+            logoutConfirmBtn?.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutConfirmBtn.disabled = true;
+                logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
+                window.location.href = '/users/logout';
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    if (logoutModal.classList.contains('visible')) {
+                        logoutModal.classList.remove('visible');
+                    }
+                }
+            });
+        }
+
+        // ── Resize handler ──
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth >= 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar(false);
+                }
+            }, 200);
+        });
+
+    })();
+</script>
+
+<script th:src="@{/js/input-restrict.js}"></script>
 </body>
 </html>
