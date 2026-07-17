@@ -59,7 +59,7 @@
                         "error": "#ba1a1a",
                         "on-primary-fixed": "#410006",
                         "on-secondary-fixed": "#191b22",
-                        "primary": "#98001a",
+                        "primary": "#c0182a",
                         "surface-container-highest": "#dde2f5",
                         "on-tertiary-container": "#96f0b5",
                         "surface-container-high": "#e2e8fb",
@@ -121,13 +121,10 @@
         }
     </script>
     <style>
-        /* ── Variables ── */
+        /* ── Variables & base ── */
         :root {
-            --sidebar-w: 260px;
-            --sidebar-collapsed-w: 72px;
-            --sidebar-margin: 20px;
             --transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
-            --topbar-h: 64px;
+            --sidebar-width: 260px;
         }
 
         * {
@@ -135,475 +132,143 @@
         }
 
         body {
-            background-color: #F4F5F7;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fafafc;
+            color: #0f172a;
         }
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
-        /* ── Sidebar ── */
-        #sidebar {
-            position: fixed;
-            top: var(--sidebar-margin);
-            left: var(--sidebar-margin);
-            bottom: var(--sidebar-margin);
-            width: var(--sidebar-w);
-            transition: width var(--transition), left var(--transition), top var(--transition), bottom var(--transition);
-            z-index: 50;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-            display: flex;
-            flex-direction: column;
-            overflow: visible;
-        }
-
-        #sidebar-inner {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-radius: 16px;
-            height: 100%;
-            width: 100%;
-        }
-
-        #sidebar-nav {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 0 12px 8px;
-            scrollbar-width: thin;
-        }
-        #sidebar-nav::-webkit-scrollbar {
+        /* ── Sidebar scrollbar ── */
+        .sidebar-scroll::-webkit-scrollbar {
             width: 4px;
         }
-        #sidebar-nav::-webkit-scrollbar-track {
+        .sidebar-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
-        #sidebar-nav::-webkit-scrollbar-thumb {
-            background: #CBD0D8;
-            border-radius: 10px;
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
         }
 
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 6px 16px 16px 16px;
-            flex-shrink: 0;
-            transition: padding var(--transition);
-        }
-        .sidebar-brand .brand-icon {
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-            background: #c0182a;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .sidebar-brand .brand-icon .material-symbols-outlined {
-            color: #fff;
-            font-size: 24px;
-            font-variation-settings: 'FILL' 1;
-        }
-        .sidebar-brand .brand-text {
-            overflow: hidden;
-            transition: opacity var(--transition), max-width var(--transition), margin var(--transition);
-            opacity: 1;
-            max-width: 180px;
-            white-space: nowrap;
-        }
-        .sidebar-brand .brand-text h1 {
-            font-size: 15px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #1A1D23;
-            letter-spacing: -0.3px;
-            margin: 0;
-        }
-        .sidebar-brand .brand-text p {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: #5d5e65;
-            margin: 0;
-        }
-
-        .nav-link-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1A1D23;
-            transition: background 150ms, color 150ms, padding var(--transition);
-            text-decoration: none;
-            gap: 12px;
-            min-height: 44px;
-            cursor: pointer;
-            position: relative;
-            z-index: 1;
-        }
-        .nav-link .nav-icon {
-            flex-shrink: 0;
-            font-size: 22px;
-            color: #5d5e65;
-            transition: color 150ms;
-            width: 24px;
-            text-align: center;
-        }
-        .nav-link .nav-label {
-            transition: opacity var(--transition), max-width var(--transition);
-            opacity: 1;
-            max-width: 180px;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        .nav-link:hover:not(.sidebar-active) {
-            background: #F4F5F7;
-        }
-        .nav-link:hover:not(.sidebar-active) .nav-icon {
-            color: #1A1D23;
-        }
+        /* ── Active sidebar link ── */
         .sidebar-active {
-            background: #c0182a !important;
-            color: #fff !important;
+            background-color: #F5E4E6 !important;
+            color: #c0182a !important;
+            font-weight: 600;
         }
         .sidebar-active .nav-icon {
-            color: #fff !important;
+            color: #c0182a !important;
         }
 
-        .nav-tooltip {
+        /* ── Search input focus ── */
+        .search-wrap input:focus {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.12);
+        }
+
+        /* ── Mobile sidebar overlay ── */
+        #sidebar-backdrop {
             position: fixed;
-            background: #1A1D23;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 500;
-            padding: 5px 12px;
-            border-radius: 6px;
-            white-space: nowrap;
-            pointer-events: none;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.32);
+            backdrop-filter: blur(2px);
+            z-index: 45;
+            display: none;
             opacity: 0;
-            transform: scale(0.92);
-            transition: opacity 160ms ease, transform 160ms ease;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            letter-spacing: 0.2px;
+            transition: opacity 0.25s ease;
         }
-        .nav-tooltip::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 6px solid transparent;
-            border-right-color: #1A1D23;
-        }
-        .nav-tooltip.visible {
+        #sidebar-backdrop.visible {
+            display: block;
             opacity: 1;
-            transform: scale(1);
         }
 
-        #sidebar.collapsed {
-            width: var(--sidebar-collapsed-w);
+        /* ── Sidebar base visibility (plain CSS, no Tailwind md: dependency) ── */
+        #sidebar {
+            display: flex; /* desktop: always visible as a column */
         }
-        #sidebar.collapsed .brand-text {
-            opacity: 0;
-            max-width: 0;
-            margin: 0;
+
+        /* ── Layout shell fallbacks (work even if Tailwind CDN fails to load) ── */
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
-        #sidebar.collapsed .brand-icon {
+        .app-content {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .main-content-area {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 2rem;
+            background: #F4F5F7;
+        }
+        #main-content {
+            min-width: 0;
+        }
+
+        /* ── Sidebar on mobile: slide-in / slide-out ── */
+        @media (max-width: 767px) {
+            #sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: var(--sidebar-width);
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform var(--transition);
+                border-radius: 0;
+                border-right: 1px solid #E4E6EA;
+                box-shadow: 2px 0 16px rgba(0,0,0,0.1);
+                display: flex !important;
+                flex-direction: column;
+                justify-content: space-between;
+                background: white;
+                overflow-y: auto;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
+        /* ── Hamburger toggle button ── */
+        #hamburger-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
             width: 40px;
             height: 40px;
-        }
-        #sidebar.collapsed .sidebar-brand {
-            padding: 6px 16px 16px 16px;
-            justify-content: center;
-        }
-        #sidebar.collapsed .nav-link {
-            padding: 10px 0;
-            justify-content: center;
-            gap: 0;
-        }
-        #sidebar.collapsed .nav-link .nav-label {
-            opacity: 0;
-            max-width: 0;
-        }
-        #sidebar.collapsed .nav-link .nav-icon {
-            margin: 0;
-        }
-
-        .sidebar-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px 4px 16px;
-            border-top: 1px solid rgba(228, 230, 234, 0.5);
-            transition: padding var(--transition), gap var(--transition);
-            flex-shrink: 0;
-        }
-        .sidebar-user .avatar {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 1px solid #E4E6EA;
-        }
-        .sidebar-user .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .sidebar-user .user-text {
-            overflow: hidden;
-            transition: opacity var(--transition), max-width var(--transition);
-            opacity: 1;
-            max-width: 140px;
-            white-space: nowrap;
-        }
-        .sidebar-user .user-text p {
-            margin: 0;
-            font-size: 12px;
-            font-weight: 600;
-            color: #1A1D23;
-            line-height: 1.3;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .sidebar-user .user-text span {
-            font-size: 10px;
-            color: #5d5e65;
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #sidebar.collapsed .sidebar-user {
-            padding: 12px 0 4px 0;
-            justify-content: center;
-            gap: 0;
-        }
-        #sidebar.collapsed .sidebar-user .user-text {
-            opacity: 0;
-            max-width: 0;
-        }
-        #sidebar.collapsed .sidebar-user .avatar {
-            width: 32px;
-            height: 32px;
-        }
-
-        /* ── Topbar ── */
-        #topbar {
-            position: fixed;
-            top: var(--sidebar-margin);
-            left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
-            right: var(--sidebar-margin);
-            height: var(--topbar-h);
-            transition: left var(--transition), right var(--transition), top var(--transition), padding var(--transition), border-radius var(--transition);
-            z-index: 40;
-            border-radius: 16px;
-            border: 1px solid #E4E6EA;
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            gap: 16px;
-        }
-        body.sidebar-collapsed #topbar {
-            left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-        }
-
-        /* ── Main content ── */
-        #main-content {
-            margin-left: calc(var(--sidebar-w) + var(--sidebar-margin) * 2);
-            margin-top: calc(var(--topbar-h) + var(--sidebar-margin) * 2);
-            padding: 20px;
-            transition: margin-left var(--transition), margin-top var(--transition), padding var(--transition);
-            min-height: calc(100vh - var(--topbar-h) - var(--sidebar-margin) * 2);
-        }
-        body.sidebar-collapsed #main-content {
-            margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-        }
-
-        /* ── Toggle button ── */
-        #toggle-btn {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #E4E6EA;
             background: #fff;
             cursor: pointer;
-            flex-shrink: 0;
-            transition: background 150ms, transform 150ms;
-            position: relative;
             color: #5d5e65;
+            transition: background 150ms, color 150ms;
+            flex-shrink: 0;
+            margin-right: 8px;
         }
-        #toggle-btn:hover {
+        #hamburger-btn:hover {
             background: #F4F5F7;
         }
-        #toggle-btn:active {
-            transform: scale(0.94);
+        #hamburger-btn .material-symbols-outlined {
+            font-size: 24px;
         }
-        #toggle-btn .icon-open,
-        #toggle-btn .icon-close {
-            transition: opacity var(--transition), transform var(--transition);
-            font-size: 22px;
-            position: absolute;
-        }
-        #toggle-btn .icon-open {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-        }
-        #toggle-btn .icon-close {
-            opacity: 0;
-            transform: rotate(90deg) scale(0.6);
-        }
-        body.sidebar-collapsed #toggle-btn .icon-open {
-            opacity: 0;
-            transform: rotate(-90deg) scale(0.6);
-        }
-        body.sidebar-collapsed #toggle-btn .icon-close {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-        }
-
-        /* ── Responsive ── */
-        @media (max-width: 1023px) {
-            :root {
-                --sidebar-margin: 14px;
-            }
-            body:not(.manual-override) #sidebar,
-            body:not(.manual-override) #sidebar.collapsed {
-                width: var(--sidebar-collapsed-w);
-            }
-            body:not(.manual-override) #sidebar .brand-text {
-                opacity: 0;
-                max-width: 0;
-                margin: 0;
-            }
-            body:not(.manual-override) #sidebar .nav-link .nav-label {
-                opacity: 0;
-                max-width: 0;
-            }
-            body:not(.manual-override) #sidebar .nav-link {
-                padding: 10px 0;
-                justify-content: center;
-                gap: 0;
-            }
-            body:not(.manual-override) #sidebar .sidebar-user .user-text {
-                opacity: 0;
-                max-width: 0;
-            }
-            body:not(.manual-override) #sidebar .sidebar-user {
-                padding: 12px 0 4px 0;
-                justify-content: center;
-                gap: 0;
-            }
-            body:not(.manual-override) #topbar {
-                left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-            }
-            body:not(.manual-override) #main-content {
-                margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-            }
-            body:not(.manual-override) #toggle-btn {
-                opacity: 0.5;
-                pointer-events: none;
+        @media (max-width: 767px) {
+            #hamburger-btn {
+                display: flex;
             }
         }
 
+        /* ── Topbar responsive tweaks ── */
         @media (max-width: 640px) {
-            :root {
-                --sidebar-margin: 8px;
-                --topbar-h: 56px;
-            }
-            #topbar {
-                padding: 0 12px;
-                gap: 10px;
-                border-radius: 12px;
-                height: var(--topbar-h);
-            }
-            #main-content {
-                padding: 12px;
-                margin-top: calc(var(--topbar-h) + var(--sidebar-margin) * 2);
-            }
-            #sidebar {
-                border-radius: 12px;
-                top: var(--sidebar-margin);
-                left: var(--sidebar-margin);
-                bottom: var(--sidebar-margin);
-            }
-            #sidebar-inner {
-                border-radius: 12px;
-            }
-            .nav-link {
-                min-height: 40px;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            .nav-link .nav-icon {
-                font-size: 20px;
-                width: 20px;
-            }
-            #sidebar.collapsed .nav-link {
-                padding: 8px 0;
-            }
-            .sidebar-brand .brand-icon {
-                width: 34px;
-                height: 34px;
-            }
-            .sidebar-brand .brand-icon .material-symbols-outlined {
-                font-size: 20px;
-            }
-            .sidebar-brand {
-                padding: 4px 12px 12px 12px;
-            }
-            #sidebar.collapsed .sidebar-brand {
-                padding: 4px 12px 12px 12px;
-            }
-            .sidebar-user {
-                padding: 10px 12px 2px 12px;
-            }
-            .sidebar-user .avatar {
-                width: 28px;
-                height: 28px;
-            }
-            #sidebar.collapsed .sidebar-user {
-                padding: 10px 0 2px 0;
-            }
-            #sidebar.collapsed .sidebar-user .avatar {
-                width: 28px;
-                height: 28px;
-            }
-            #toggle-btn {
-                width: 32px;
-                height: 32px;
-            }
-            #toggle-btn .icon-open,
-            #toggle-btn .icon-close {
-                font-size: 18px;
-            }
             .topbar-register span.label {
                 display: none;
             }
@@ -615,199 +280,73 @@
             .topbar-register .material-symbols-outlined {
                 font-size: 20px !important;
             }
-            #topbar .search-wrap {
+            .search-wrap {
                 max-width: 140px;
             }
-            #topbar .search-wrap input {
+            .search-wrap input {
                 font-size: 12px;
                 height: 34px;
                 padding-left: 32px;
                 padding-right: 10px;
             }
-            #topbar .search-wrap .material-symbols-outlined {
+            .search-wrap .material-symbols-outlined {
                 font-size: 18px !important;
                 left: 8px !important;
+            }
+            .topbar-actions .divider {
+                height: 20px;
+            }
+            .topbar-actions .icon-btn {
+                width: 32px;
+                height: 32px;
+            }
+            .topbar-actions .icon-btn .material-symbols-outlined {
+                font-size: 20px;
+            }
+            .topbar-actions .icon-btn .badge-dot {
+                top: 4px;
+                right: 4px;
+                width: 6px;
+                height: 6px;
+            }
+            header {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
             }
         }
 
         @media (max-width: 400px) {
-            :root {
-                --sidebar-margin: 6px;
-                --sidebar-collapsed-w: 60px;
-                --topbar-h: 50px;
-            }
-            #topbar .search-wrap {
+            .search-wrap {
                 max-width: 100px;
             }
-            #topbar .search-wrap input {
+            .search-wrap input {
                 font-size: 11px;
                 height: 30px;
                 padding-left: 28px;
                 padding-right: 8px;
             }
-            #topbar .search-wrap .material-symbols-outlined {
+            .search-wrap .material-symbols-outlined {
                 font-size: 16px !important;
                 left: 6px !important;
             }
-            .nav-link .nav-icon {
-                font-size: 18px;
-                width: 18px;
-            }
-            #sidebar.collapsed .nav-link {
-                padding: 6px 0;
-            }
-            #sidebar.collapsed {
-                width: var(--sidebar-collapsed-w);
-            }
-            body.sidebar-collapsed #topbar {
-                left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-            }
-            body.sidebar-collapsed #main-content {
-                margin-left: calc(var(--sidebar-collapsed-w) + var(--sidebar-margin) * 2);
-            }
-            .sidebar-brand .brand-icon {
-                width: 30px;
-                height: 30px;
-            }
-            .sidebar-brand .brand-icon .material-symbols-outlined {
-                font-size: 18px;
-            }
-            .sidebar-user .avatar {
-                width: 24px;
-                height: 24px;
-            }
-            #sidebar.collapsed .sidebar-user .avatar {
-                width: 24px;
-                height: 24px;
-            }
-            .topbar-register .material-symbols-outlined {
-                font-size: 18px !important;
-            }
         }
 
-        /* ── Utility ── */
-        .card-shadow {
-            border: 1px solid #E4E6EA;
-            transition: box-shadow 0.2s ease-in-out;
+        /* ── Main content padding ── */
+        .main-content-area {
+            padding: 2rem;
         }
-        .card-shadow:hover {
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        @media (max-width: 767px) {
+            .main-content-area {
+                padding: 1rem;
+            }
         }
-        .search-wrap {
-            flex: 1;
-            max-width: 400px;
-            position: relative;
-        }
-        .search-wrap .material-symbols-outlined {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #5d5e65;
-            font-size: 20px;
-            transition: color 150ms;
-            pointer-events: none;
-        }
-        .search-wrap input:focus+.material-symbols-outlined,
-        .search-wrap input:focus~.material-symbols-outlined {
-            color: #98001a;
-        }
-        .search-wrap input {
-            width: 100%;
-            height: 38px;
-            padding-left: 40px;
-            padding-right: 14px;
-            background: #F4F5F7;
-            border: 1px solid #E4E6EA;
-            border-radius: 10px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            color: #1A1D23;
-            transition: border-color 150ms, box-shadow 150ms;
-            outline: none;
-        }
-        .search-wrap input:focus {
-            border-color: #98001a;
-            box-shadow: 0 0 0 3px rgba(152, 0, 26, 0.12);
-            background: #fff;
-        }
-        .search-wrap input::placeholder {
-            color: #9aa0aa;
-        }
-
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-            margin-left: auto;
-        }
-        .topbar-actions .divider {
-            width: 1px;
-            height: 28px;
-            background: #E4E6EA;
-            flex-shrink: 0;
-        }
-        .topbar-actions .icon-btn {
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            color: #5d5e65;
-            transition: background 150ms, color 150ms;
-            text-decoration: none;
-            position: relative;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-        }
-        .topbar-actions .icon-btn:hover {
-            background: #f0f2f8;
-            color: #1A1D23;
-        }
-        .topbar-actions .icon-btn .badge-dot {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 8px;
-            height: 8px;
-            background: #c0182a;
-            border-radius: 50%;
-            border: 2px solid #fff;
-        }
-        .topbar-actions .icon-btn .material-symbols-outlined {
-            font-size: 22px;
-        }
-        .topbar-register {
-            background: #c0182a;
-            color: #fff;
-            height: 36px;
-            padding: 0 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: background 150ms, transform 150ms;
-            border: none;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .topbar-register:hover {
-            background: #8F0F1E;
-        }
-        .topbar-register:active {
-            transform: scale(0.96);
-        }
-        .topbar-register .material-symbols-outlined {
-            font-size: 18px;
+        @media (max-width: 640px) {
+            .main-content-area {
+                padding: 0.75rem;
+            }
         }
     </style>
-    <!-- Modal & logout button styles (identical to the study version) -->
+    <!-- Modal & logout button styles -->
     <style>
         /* ── Modal Styles ── */
         .modal-overlay {
@@ -826,6 +365,22 @@
         .modal-overlay.visible {
             opacity: 1;
             visibility: visible;
+        }
+
+        /* ── Confirm-delete modal (fragment, hidden until triggered) ── */
+        .cs-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            backdrop-filter: blur(2px);
+            padding: 1rem;
+        }
+        .cs-modal-overlay.open {
+            display: flex;
         }
         .modal-content {
             background: white;
@@ -854,17 +409,12 @@
         .modal-btn-primary:active { transform: scale(0.98) }
 
         /* ── Logout Button in Sidebar ── */
-        .sidebar-user .logout-btn { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#5d5e65; transition: all 150ms; flex-shrink:0 }
-        .sidebar-user .logout-btn:hover { background:#f0f2f8; color:#ba1a1a }
+        .logout-btn { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:transparent; border:none; cursor:pointer; color:#5d5e65; transition: all 150ms; flex-shrink:0 }
+        .logout-btn:hover { background:#f0f2f8; color:#ba1a1a }
 
-        @media (max-width: 1023px) {
-            .modal-content { width:95%; max-width:380px; padding:28px }
-            .modal-header h2 { font-size:17px }
-            body:not(.manual-override) #sidebar .sidebar-user .logout-btn { opacity:1 }
-        }
         @media (max-width: 640px) {
-            .sidebar-user .logout-btn { width:24px; height:24px }
-            .sidebar-user .logout-btn .material-symbols-outlined { font-size:18px }
+            .logout-btn { width:24px; height:24px }
+            .logout-btn .material-symbols-outlined { font-size:18px }
         }
         @media (max-width: 400px) {
             .modal-content { padding:24px; width:95%; max-width:none }
@@ -878,146 +428,160 @@
     </style>
     <link rel="stylesheet" th:href="@{/css/responsive.css}" href="/css/responsive.css" />
 </head>
-<body>
+<body class="flex h-screen overflow-hidden antialiased text-[13px]">
 
-<!-- ══ SIDEBAR ══ -->
-<aside id="sidebar">
-    <div id="sidebar-inner">
+<!-- ══ SIDEBAR BACKDROP (mobile) ══ -->
+<div id="sidebar-backdrop"></div>
 
+<!-- ══ SIDEBAR (flat, flush-left) ══ -->
+<aside id="sidebar" class="w-[260px] bg-white border-r border-border-default flex flex-col justify-between sidebar-scroll overflow-y-auto flex-shrink-0">
+    <div>
         <!-- Brand -->
-        <div class="sidebar-brand">
-            <div class="brand-icon">
-                <span class="material-symbols-outlined">inventory_2</span>
+        <div class="h-[72px] flex items-center px-6 border-b border-border-default">
+            <div class="flex items-center gap-2 text-primary font-bold text-xl">
+                <span class="material-symbols-outlined text-[28px] text-primary">inventory_2</span>
+                <span>FAMS</span>
             </div>
-            <div class="brand-text">
-                <h1>FAMS</h1>
-                <p>Asset Management</p>
-            </div>
+            <div class="ml-auto w-6 h-6"></div>
         </div>
 
         <!-- Navigation -->
-        <nav id="sidebar-nav">
-            <div class="space-y-1">
-
-                <!-- Overview -->
-                <div class="nav-link-wrap" data-label="Overview">
-                    <a class="nav-link" th:classappend="${currentPath == '/admin/dashboard'} ? ' sidebar-active' : ''" th:href="@{/admin/dashboard}">
-                        <span class="nav-icon material-symbols-outlined">dashboard</span>
-                        <span class="nav-label">Overview</span>
+        <div class="px-3 py-6">
+            <!-- GENERAL -->
+            <div class="mb-6">
+                <h3 class="px-3 text-[11px] font-semibold text-secondary uppercase tracking-wider mb-2">General</h3>
+                <nav class="space-y-0.5">
+                    <!-- Overview -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/admin/dashboard'} ? ' sidebar-active' : ''"
+                       th:href="@{/admin/dashboard}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">dashboard</span>
+                        <span>Overview</span>
                     </a>
-                </div>
-
-                <!-- User Management -->
-                <div class="nav-link-wrap" data-label="User Management">
-                    <a class="nav-link" th:classappend="${currentPath == '/admin/users'} ? ' sidebar-active' : ''" th:href="@{/admin/users}">
-                        <span class="nav-icon material-symbols-outlined">people</span>
-                        <span class="nav-label">User Management</span>
+                    <!-- User Management -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/admin/users'} ? ' sidebar-active' : ''"
+                       th:href="@{/admin/users}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">people</span>
+                        <span>User Management</span>
                     </a>
-                </div>
-
-                <!-- Company Structure (Super Admin) -->
-                <div class="nav-link-wrap" data-label="Company Structure">
-                    <a class="nav-link" th:classappend="${currentPath == '/superadmin/company-structure'} ? ' sidebar-active' : ''" th:href="@{/superadmin/company-structure}">
-                        <span class="nav-icon material-symbols-outlined">business</span>
-                        <span class="nav-label">Company Structure</span>
+                    <!-- Company Structure -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/superadmin/company-structure'} ? ' sidebar-active' : ''"
+                       th:href="@{/superadmin/company-structure}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">business</span>
+                        <span>Company Structure</span>
                     </a>
-                </div>
-
-                <!-- Departments (Super Admin) -->
-                <div class="nav-link-wrap" data-label="Departments">
-                    <a class="nav-link" th:classappend="${currentPath == '/superadmin/departments'} ? ' sidebar-active' : ''" th:href="@{/superadmin/departments}">
-                        <span class="nav-icon material-symbols-outlined">folder</span>
-                        <span class="nav-label">Departments</span>
+                    <!-- Departments -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/superadmin/departments'} ? ' sidebar-active' : ''"
+                       th:href="@{/superadmin/departments}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">folder</span>
+                        <span>Departments</span>
                     </a>
-                </div>
-
-                <!-- Bottom section: Support & Settings -->
-                <div class="pt-4 mt-2 border-t border-border-default/40">
-                    <div class="nav-link-wrap" data-label="Support">
-                        <a class="nav-link" th:classappend="${currentPath == '/admin/support'} ? ' sidebar-active' : ''" th:href="@{/admin/support}">
-                            <span class="nav-icon material-symbols-outlined">help</span>
-                            <span class="nav-label">Support</span>
-                        </a>
-                    </div>
-                    <div class="nav-link-wrap" data-label="Settings">
-                        <a class="nav-link" th:classappend="${currentPath == '/admin/settings'} ? ' sidebar-active' : ''" th:href="@{/admin/settings}">
-                            <span class="nav-icon material-symbols-outlined">settings</span>
-                            <span class="nav-label">Settings</span>
-                        </a>
-                    </div>
-                </div>
-
+                </nav>
             </div>
-        </nav>
 
-        <!-- User profile -->
-        <div class="sidebar-user">
-            <div class="avatar bg-gradient-to-br from-primary/30 to-primary-container/50 flex items-center justify-center text-primary">
-                <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
+            <!-- SUPPORT -->
+            <div>
+                <h3 class="px-3 text-[11px] font-semibold text-secondary uppercase tracking-wider mb-2">Support</h3>
+                <nav class="space-y-0.5">
+                    <!-- Support -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/admin/support'} ? ' sidebar-active' : ''"
+                       th:href="@{/admin/support}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">help</span>
+                        <span>Support</span>
+                    </a>
+                    <!-- Settings -->
+                    <a class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-slate-500 hover:bg-nav-hover hover:text-nav-text font-medium"
+                       th:classappend="${currentPath == '/admin/settings'} ? ' sidebar-active' : ''"
+                       th:href="@{/admin/settings}">
+                        <span class="material-symbols-outlined text-slate-400 w-5 text-center text-sm">settings</span>
+                        <span>Settings</span>
+                    </a>
+                </nav>
             </div>
-            <div class="user-text">
-                <p th:text="${currentUserDisplayName}">User Name</p>
-                <span th:text="${'Admin'}">username</span>
+        </div>
+    </div>
+
+    <!-- User & Logout (bottom) -->
+    <div class="p-4 bg-white border-t border-border-default">
+        <div class="flex items-center justify-between bg-surface-canvas p-2.5 rounded-lg border border-border-default mb-4 cursor-pointer hover:bg-nav-hover transition-colors">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-white shadow-sm">
+                    <span th:text="${currentUserInitials}" class="text-sm font-bold">AA</span>
+                </div>
+                <div>
+                    <div class="text-[10px] text-secondary uppercase font-bold tracking-wider leading-none mb-1">USER</div>
+                    <div class="font-semibold text-nav-text text-[13px] leading-none" th:text="${currentUserDisplayName}">User Name</div>
+                </div>
             </div>
-            <button class="logout-btn" id="sidebar-logout-btn" aria-label="Logout" title="Logout">
-                <span class="material-symbols-outlined">logout</span>
+            <button class="logout-btn flex items-center justify-center w-6 h-6 rounded text-slate-400 hover:text-error hover:bg-nav-hover transition-colors" id="sidebar-logout-btn" aria-label="Logout">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
             </button>
         </div>
-
+        <div class="text-center text-[11px] text-secondary mt-2 font-medium">
+            © 2026 JustJava FAMS
+        </div>
     </div>
 </aside>
 
-<!-- ══ TOPBAR ══ -->
-<header id="topbar">
-    <button id="toggle-btn" aria-label="Toggle sidebar">
-        <span class="material-symbols-outlined icon-open">menu_open</span>
-        <span class="material-symbols-outlined icon-close">menu</span>
-    </button>
-
-    <div class="search-wrap">
-        <span class="material-symbols-outlined">search</span>
-        <input type="text" data-input-type="search" placeholder="Search assets, locations, or personnel…" />
-    </div>
-
-    <div class="topbar-actions">
-        <a class="icon-btn" th:href="@{/notifications}" aria-label="Notifications">
-            <span class="material-symbols-outlined">notifications</span>
-            <span class="badge-dot"></span>
-        </a>
-        <button class="icon-btn" aria-label="Account">
-            <span class="material-symbols-outlined">account_circle</span>
-        </button>
-    </div>
-</header>
-
 <!-- ══ MAIN CONTENT ══ -->
-<main id="main-content" class="space-y-6" layout:fragment="content">
-    <div class="bg-white rounded-2xl border border-border-default p-6 card-shadow">
-        <h2 class="text-page-title">Dashboard</h2>
-        <p class="text-body-default text-secondary mt-2">Welcome back, Alex. Here's your asset overview.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                <p class="text-label-small text-secondary">Total Assets</p>
-                <p class="text-2xl font-bold text-nav-text">1,284</p>
+<div class="app-content flex-1 flex flex-col bg-surface-canvas overflow-hidden">
+    <!-- TOP HEADER (asset-manager style) -->
+    <header class="h-[72px] flex items-center justify-between px-8 border-b border-border-default bg-white z-10 flex-shrink-0">
+        <!-- Left side: hamburger (mobile) + search -->
+        <div class="flex items-center flex-1 max-w-lg">
+            <button id="hamburger-btn" aria-label="Toggle sidebar">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+
+            <div class="search-wrap relative flex items-center w-full h-10 rounded-md border border-border-default bg-white overflow-hidden px-3 shadow-sm group focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                <span class="material-symbols-outlined text-secondary text-sm">search</span>
+                <input class="peer h-full w-full outline-none text-[13px] text-nav-text px-3 bg-transparent border-none focus:ring-0 placeholder-secondary font-medium"
+                       type="text"
+                       data-input-type="search"
+                       placeholder="Search assets, locations, or personnel…" />
+                <div class="text-[10px] text-secondary border border-border-default rounded px-1.5 py-0.5 bg-surface-canvas flex items-center gap-1 font-semibold hidden sm:flex">
+                    <span class="material-symbols-outlined text-[12px]">keyboard_command_key</span> + F
+                </div>
             </div>
-            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                <p class="text-label-small text-secondary">In Maintenance</p>
-                <p class="text-2xl font-bold text-status-warning">23</p>
+        </div>
+
+        <!-- Right actions -->
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4 text-secondary">
+                <!-- Register Asset -->
+                <a class="topbar-register flex items-center gap-2 bg-primary-container text-white h-9 px-4 rounded-md text-[13px] font-medium hover:bg-brand-primary-dark transition-colors"
+                   th:href="@{/assets/register}">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    <span class="label">Register Asset</span>
+                </a>
+                <!-- Notification -->
+                <a class="relative hover:text-nav-text transition-colors" th:href="@{/notifications}" aria-label="Notifications">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error rounded-full border-[1.5px] border-white"></span>
+                </a>
+                <!-- Account -->
+                <button class="hover:text-nav-text transition-colors" aria-label="Account">
+                    <span class="material-symbols-outlined text-[20px]">account_circle</span>
+                </button>
             </div>
-            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                <p class="text-label-small text-secondary">Pending Audit</p>
-                <p class="text-2xl font-bold text-status-info">12</p>
-            </div>
-            <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                <p class="text-label-small text-secondary">Depreciated Value</p>
-                <p class="text-2xl font-bold text-status-success">$48.2K</p>
+        </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <div class="flex-1 overflow-y-auto p-8 main-content-area">
+        <div layout:fragment="content">
+            <!-- Default fallback content (will be replaced by fragments) -->
+            <div class="bg-white rounded-xl p-6 border border-border-default shadow-sm">
+                <h1 class="text-page-title">Dashboard</h1>
+                <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
             </div>
         </div>
     </div>
-</main>
-
-<!-- ══ GLOBAL TOOLTIP CONTAINER ══ -->
-<div id="tooltip-container" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999;"></div>
+</div>
 
 <!-- ══ DEPARTMENT / HEAD CONFIRM DELETE MODAL (fragment) ══ -->
 <div th:replace="~{admin/fragments/confirm-delete-modal :: confirm-delete-modal}"></div>
@@ -1041,328 +605,107 @@
     </div>
 </div>
 
-<!-- ══ SIDEBAR & TOOLTIP SCRIPT ══ -->
 <script>
     (function() {
         'use strict';
 
+        // ── Mobile sidebar toggle ──
         const sidebar = document.getElementById('sidebar');
-        const body = document.body;
-        const toggleBtn = document.getElementById('toggle-btn');
-        const tooltipContainer = document.getElementById('tooltip-container');
-        let tooltipEl = null;
-        let isManualOverride = false;
-        let isCollapsed = false;
-        let resizeTimer = null;
-        let backdropEl = null;
+        const backdrop = document.getElementById('sidebar-backdrop');
+        const hamburger = document.getElementById('hamburger-btn');
 
-        // ── Create tooltip element ──
-        function createTooltip() {
-            if (!tooltipContainer) return null;
-            const el = document.createElement('div');
-            el.className = 'nav-tooltip';
-            el.textContent = '';
-            tooltipContainer.appendChild(el);
-            return el;
-        }
-        tooltipEl = createTooltip();
-
-        // ── Create backdrop ──
-        function createBackdrop() {
-            const b = document.createElement('div');
-            b.id = 'sidebar-backdrop';
-            b.style.position = 'fixed';
-            b.style.left = '0';
-            b.style.top = '0';
-            b.style.right = '0';
-            b.style.bottom = '0';
-            b.style.background = 'rgba(0,0,0,0.32)';
-            b.style.zIndex = '45';
-            b.style.display = 'none';
-            b.style.backdropFilter = 'blur(2px)';
-            document.body.appendChild(b);
-            return b;
-        }
-        backdropEl = createBackdrop();
-
-        // ── Apply collapse state ──
-        function applyCollapse(collapse) {
-            isCollapsed = collapse;
-            if (collapse) {
-                body.classList.add('sidebar-collapsed');
-                sidebar.classList.add('collapsed');
-                if (backdropEl) backdropEl.style.display = 'none';
-            } else {
-                body.classList.remove('sidebar-collapsed');
-                sidebar.classList.remove('collapsed');
-                if (backdropEl && window.innerWidth < 1024) backdropEl.style.display = 'block';
+        function toggleSidebar(open) {
+            if (open === undefined) {
+                const isOpen = sidebar.classList.contains('open');
+                open = !isOpen;
             }
-            if (tooltipEl) {
-                tooltipEl.classList.remove('visible');
+            sidebar.classList.toggle('open', open);
+            backdrop.classList.toggle('visible', open);
+            document.body.style.overflow = open ? 'hidden' : '';
+            if (hamburger) {
+                hamburger.innerHTML = open
+                    ? '<span class="material-symbols-outlined">close</span>'
+                    : '<span class="material-symbols-outlined">menu</span>';
             }
         }
 
-        // ── Position tooltip ──
-        function positionTooltip(anchor, label) {
-            if (!tooltipEl || !anchor) return;
-            const rect = anchor.getBoundingClientRect();
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            if (!isCollapsed) {
-                tooltipEl.classList.remove('visible');
-                return;
-            }
-            const gap = 10;
-            const left = rect.right + gap;
-            const top = rect.top + rect.height / 2;
-            tooltipEl.textContent = label || anchor.getAttribute('data-label') || '';
-
-            const tw = tooltipEl.offsetWidth || 0;
-            const th = tooltipEl.offsetHeight || 0;
-
-            let finalLeft = left;
-            let finalTop = top - th / 2;
-
-            const flipToLeft = finalLeft + tw > window.innerWidth - 12;
-            if (flipToLeft) {
-                finalLeft = rect.left - tw - gap;
-            }
-
-            if (finalTop < 8) finalTop = 8;
-            if (finalTop + th > window.innerHeight - 8) {
-                finalTop = window.innerHeight - th - 8;
-            }
-
-            tooltipEl.style.left = finalLeft + 'px';
-            tooltipEl.style.top = finalTop + 'px';
-            tooltipEl.classList.add('visible');
-
-            const arrowPointsRight = flipToLeft;
-            const pseudoStyle = document.createElement('style');
-            pseudoStyle.id = 'tooltip-arrow-style';
-            const oldStyle = document.getElementById('tooltip-arrow-style');
-            if (oldStyle) oldStyle.remove();
-
-            if (arrowPointsRight) {
-                pseudoStyle.textContent = `
-                    .nav-tooltip::before {
-                        left: auto !important;
-                        right: -6px !important;
-                        border-right-color: transparent !important;
-                        border-left-color: #1A1D23 !important;
-                    }
-                `;
-            } else {
-                pseudoStyle.textContent = `
-                    .nav-tooltip::before {
-                        left: -6px !important;
-                        right: auto !important;
-                        border-right-color: #1A1D23 !important;
-                        border-left-color: transparent !important;
-                    }
-                `;
-            }
-            document.head.appendChild(pseudoStyle);
-        }
-
-        // ── Setup hover for nav links ──
-        function setupTooltips() {
-            const wraps = document.querySelectorAll('.nav-link-wrap');
-            wraps.forEach(wrap => {
-                const link = wrap.querySelector('.nav-link');
-                if (!link) return;
-
-                const label = wrap.getAttribute('data-label') ||
-                    link.querySelector('.nav-label')?.textContent?.trim() ||
-                    '';
-
-                wrap.addEventListener('mouseenter', function(e) {
-                    if (!sidebar.classList.contains('collapsed')) return;
-                    const labelEl = link.querySelector('.nav-label');
-                    if (labelEl && labelEl.offsetWidth > 0) return;
-                    positionTooltip(link, label);
-                });
-
-                wrap.addEventListener('mouseleave', function() {
-                    if (tooltipEl) {
-                        tooltipEl.classList.remove('visible');
-                    }
-                });
-
-                link.addEventListener('mouseenter', function(e) {
-                    if (!sidebar.classList.contains('collapsed')) return;
-                    const labelEl = link.querySelector('.nav-label');
-                    if (labelEl && labelEl.offsetWidth > 0) return;
-                    const lbl = wrap.getAttribute('data-label') ||
-                        labelEl?.textContent?.trim() ||
-                        '';
-                    positionTooltip(link, lbl);
-                });
-
-                link.addEventListener('mouseleave', function() {
-                    if (tooltipEl) {
-                        tooltipEl.classList.remove('visible');
-                    }
-                });
+        if (hamburger) {
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
             });
         }
 
-        // ── Handle resize ──
-        function handleResize() {
-            const isSmallScreen = window.innerWidth < 1024;
-            if (isSmallScreen) {
-                if (!body.classList.contains('sidebar-collapsed')) {
-                    applyCollapse(true);
-                }
-                isManualOverride = false;
-                body.classList.remove('manual-override');
-            } else {
-                if (!isManualOverride && body.classList.contains('sidebar-collapsed')) {
-                    applyCollapse(false);
-                }
-            }
-            if (tooltipEl) {
-                tooltipEl.classList.remove('visible');
-            }
-        }
-
-        // ── Toggle click ──
-        toggleBtn.addEventListener('click', function(e) {
-            const isSmallScreen = window.innerWidth < 1024;
-            if (isSmallScreen) {
-                isManualOverride = true;
-                body.classList.add('manual-override');
-                const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
-                applyCollapse(!currentlyCollapsed);
-                return;
-            }
-            isManualOverride = true;
-            body.classList.add('manual-override');
-            const currentlyCollapsed = body.classList.contains('sidebar-collapsed');
-            applyCollapse(!currentlyCollapsed);
-        });
-
-        // ── Backdrop click ──
-        if (backdropEl) {
-            backdropEl.addEventListener('click', function() {
-                isManualOverride = true;
-                body.classList.add('manual-override');
-                applyCollapse(true);
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                toggleSidebar(false);
             });
         }
 
-        // ── Escape key ──
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' || e.key === 'Esc') {
-                if (!body.classList.contains('sidebar-collapsed') && window.innerWidth < 1024) {
-                    isManualOverride = true;
-                    body.classList.add('manual-override');
-                    applyCollapse(true);
-                }
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                toggleSidebar(false);
             }
         });
 
-        // ── Window resize ──
-        window.addEventListener('resize', function() {
-            if (resizeTimer) cancelAnimationFrame(resizeTimer);
-            resizeTimer = requestAnimationFrame(function() {
-                handleResize();
-                resizeTimer = null;
+        const navLinks = sidebar ? sidebar.querySelectorAll('a') : [];
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    toggleSidebar(false);
+                }
             });
         });
 
-        // ── Scroll: hide tooltip ──
-        window.addEventListener('scroll', function() {
-            if (tooltipEl && tooltipEl.classList.contains('visible')) {
-                const activeWrap = document.querySelector('.nav-link-wrap:hover');
-                if (activeWrap) {
-                    const link = activeWrap.querySelector('.nav-link');
-                    const label = activeWrap.getAttribute('data-label') || '';
-                    if (link) positionTooltip(link, label);
-                } else {
-                    tooltipEl.classList.remove('visible');
-                }
-            }
-        }, { passive: true });
-
-        // ── MutationObserver for dynamic nav changes ──
-        if (window.MutationObserver) {
-            const observer = new MutationObserver(function() {
-                setupTooltips();
-            });
-            const nav = document.getElementById('sidebar-nav');
-            if (nav) {
-                observer.observe(nav, {
-                    childList: true,
-                    subtree: true
-                });
-            }
-        }
-
-        // ── Init ──
-        function init() {
-            if (window.innerWidth < 1024) {
-                applyCollapse(true);
-                body.classList.remove('manual-override');
-            } else {
-                applyCollapse(false);
-            }
-            setupTooltips();
-            setTimeout(handleResize, 100);
-        }
-        init();
-
-        // ── Debug ──
-        window.__sidebar = {
-            toggle: function() { toggleBtn.click(); },
-            collapse: function(v) { applyCollapse(v); },
-            state: function() { return isCollapsed; }
-        };
-
-    })();
-</script>
-
-<!-- ══ LOGOUT MODAL SCRIPT ══ -->
-<script>
-    (function() {
-        'use strict';
-
+        // ── Logout modal ──
         const logoutModal = document.getElementById('logout-modal');
         const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
         const logoutCancelBtn = document.getElementById('logout-cancel-btn');
         const logoutConfirmBtn = document.getElementById('logout-confirm-btn');
 
-        if (!logoutModal || !sidebarLogoutBtn) return;
+        if (logoutModal && sidebarLogoutBtn) {
+            sidebarLogoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutModal.classList.add('visible');
+                setTimeout(() => logoutCancelBtn?.focus(), 50);
+            });
 
-        sidebarLogoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logoutModal.classList.add('visible');
-            setTimeout(() => logoutCancelBtn?.focus(), 50);
-        });
-
-        logoutCancelBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logoutModal.classList.remove('visible');
-        });
-
-        logoutModal.addEventListener('click', function(e) {
-            if (e.target === logoutModal) {
+            logoutCancelBtn?.addEventListener('click', function(e) {
+                e.preventDefault();
                 logoutModal.classList.remove('visible');
-            }
-        });
+            });
 
-        logoutConfirmBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logoutConfirmBtn.disabled = true;
-            logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
-            window.location.href = '/users/logout';
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' || e.key === 'Esc') {
-                if (logoutModal.classList.contains('visible')) {
+            logoutModal.addEventListener('click', function(e) {
+                if (e.target === logoutModal) {
                     logoutModal.classList.remove('visible');
                 }
-            }
+            });
+
+            logoutConfirmBtn?.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutConfirmBtn.disabled = true;
+                logoutConfirmBtn.innerHTML = '<span class="material-symbols-outlined" style="display:inline-block;animation:spin 1s linear infinite;">hourglass_empty</span>';
+                window.location.href = '/users/logout';
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' || e.key === 'Esc') {
+                    if (logoutModal.classList.contains('visible')) {
+                        logoutModal.classList.remove('visible');
+                    }
+                }
+            });
+        }
+
+        // ── Handle window resize ──
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth >= 768 && sidebar.classList.contains('open')) {
+                    toggleSidebar(false);
+                }
+            }, 200);
         });
 
     })();
