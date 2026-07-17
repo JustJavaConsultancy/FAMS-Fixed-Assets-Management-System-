@@ -336,6 +336,32 @@
             opacity: 1;
         }
 
+        /* ── Sidebar base visibility (plain CSS, no Tailwind md: dependency) ── */
+        #sidebar {
+            display: flex; /* desktop: always visible as a column */
+        }
+
+        /* ── Layout shell fallbacks (work even if Tailwind CDN fails to load) ── */
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .app-content {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+        #main-content {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow-y: auto;
+            background: #F4F5F7;
+            min-width: 0;
+        }
+
         /* ── Sidebar on mobile: slide-in / slide-out ── */
         @media (max-width: 767px) {
             #sidebar {
@@ -350,7 +376,7 @@
                 border-radius: 0;
                 border-right: 1px solid #E4E6EA;
                 box-shadow: 2px 0 16px rgba(0,0,0,0.1);
-                display: flex !important; /* override hidden md:flex */
+                display: flex !important; /* off-canvas until .open */
                 flex-direction: column;
                 justify-content: space-between;
                 background: white;
@@ -487,7 +513,7 @@
 <div id="sidebar-backdrop"></div>
 
 <!-- ══ SIDEBAR (Nexus style) ══ -->
-<aside id="sidebar" class="w-[260px] bg-white border-r border-border-default hidden md:flex flex-col justify-between sidebar-scroll overflow-y-auto flex-shrink-0">
+<aside id="sidebar" class="w-[260px] bg-white border-r border-border-default flex flex-col justify-between sidebar-scroll overflow-y-auto flex-shrink-0">
     <div>
         <!-- Brand -->
         <div class="h-[72px] flex items-center px-6 border-b border-border-default">
@@ -605,7 +631,7 @@
 </aside>
 
 <!-- ══ MAIN CONTENT ══ -->
-<main class="flex-1 flex flex-col bg-surface-canvas overflow-hidden">
+<div class="app-content flex-1 flex flex-col bg-surface-canvas overflow-hidden">
     <!-- TOP HEADER (Nexus style) -->
     <header class="h-[72px] flex items-center justify-between px-8 border-b border-border-default bg-white z-10 flex-shrink-0">
         <!-- Left side: hamburger (mobile) + search -->
@@ -651,34 +677,32 @@
     </header>
 
     <!-- PAGE CONTENT -->
-    <div class="flex-1 overflow-y-auto p-8 main-content-area">
-        <div class="max-w-[1200px] mx-auto" layout:fragment="content">
-            <!-- Default fallback content (will be replaced by fragments) -->
-            <div class="bg-white rounded-xl p-6 border border-border-default shadow-sm">
-                <h1 class="text-page-title">Dashboard</h1>
-                <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                    <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                        <p class="text-label-small text-secondary">Total Assets</p>
-                        <p class="text-2xl font-bold text-nav-text">1,284</p>
-                    </div>
-                    <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                        <p class="text-label-small text-secondary">In Maintenance</p>
-                        <p class="text-2xl font-bold text-status-warning">23</p>
-                    </div>
-                    <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                        <p class="text-label-small text-secondary">Pending Audit</p>
-                        <p class="text-2xl font-bold text-status-info">12</p>
-                    </div>
-                    <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
-                        <p class="text-label-small text-secondary">Depreciated Value</p>
-                        <p class="text-2xl font-bold text-status-success">$48.2K</p>
-                    </div>
+    <main id="main-content" class="flex-1 overflow-y-auto p-8 main-content-area" layout:fragment="content">
+        <!-- Default fallback content (will be replaced by fragments) -->
+        <div class="bg-white rounded-xl p-6 border border-border-default shadow-sm">
+            <h1 class="text-page-title">Dashboard</h1>
+            <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                    <p class="text-label-small text-secondary">Total Assets</p>
+                    <p class="text-2xl font-bold text-nav-text">1,284</p>
+                </div>
+                <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                    <p class="text-label-small text-secondary">In Maintenance</p>
+                    <p class="text-2xl font-bold text-status-warning">23</p>
+                </div>
+                <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                    <p class="text-label-small text-secondary">Pending Audit</p>
+                    <p class="text-2xl font-bold text-status-info">12</p>
+                </div>
+                <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
+                    <p class="text-label-small text-secondary">Depreciated Value</p>
+                    <p class="text-2xl font-bold text-status-success">$48.2K</p>
                 </div>
             </div>
         </div>
-    </div>
 </main>
+</div>
 
 <!-- ══ LOGOUT CONFIRMATION MODAL ══ -->
 <div id="logout-modal" class="modal-overlay">
