@@ -3,6 +3,9 @@ package com.example.fams.employee;
 import com.example.fams.assets.Asset;
 import com.example.fams.assets.AssetRepository;
 import com.example.fams.assets.AssetService;
+import com.example.fams.assets.AssetCheckout;
+import com.example.fams.assets.AssetCheckoutRepository;
+import com.example.fams.assets.AssetCheckoutService;
 import com.example.fams.lifecycle.AssetLifecycleService;
 import com.example.fams.lifecycle.AssetLifecycleWorkflowRepository;
 import com.example.fams.lifecycle.LifecycleWorkflowForm;
@@ -37,19 +40,25 @@ public class EmployeeController {
     private final MaintenanceRecordRepository maintenanceRecordRepository;
     private final AssetLifecycleService assetLifecycleService;
     private final AssetLifecycleWorkflowRepository workflowRepository;
+    private final AssetCheckoutService checkoutService;
+    private final AssetCheckoutRepository checkoutRepository;
 
     public EmployeeController(AssetRepository assetRepository,
                               AssetService assetService,
                               MaintenanceService maintenanceService,
                               MaintenanceRecordRepository maintenanceRecordRepository,
                               AssetLifecycleService assetLifecycleService,
-                              AssetLifecycleWorkflowRepository workflowRepository) {
+                              AssetLifecycleWorkflowRepository workflowRepository,
+                              AssetCheckoutService checkoutService,
+                              AssetCheckoutRepository checkoutRepository) {
         this.assetRepository = assetRepository;
         this.assetService = assetService;
         this.maintenanceService = maintenanceService;
         this.maintenanceRecordRepository = maintenanceRecordRepository;
         this.assetLifecycleService = assetLifecycleService;
         this.workflowRepository = workflowRepository;
+        this.checkoutService = checkoutService;
+        this.checkoutRepository = checkoutRepository;
     }
 
     @GetMapping("/employee/dashboard")
@@ -76,6 +85,16 @@ public class EmployeeController {
         model.addAttribute("maintenanceRequests", maintenanceRecordRepository.findByAssetOrderByMaintenanceDateDescCreatedAtDesc(asset));
         model.addAttribute("returnRequests", workflowRepository.findByAssetOrderByRequestedAtDesc(asset));
         model.addAttribute("timeline", assetLifecycleService.timeline(asset));
+        List<AssetCheckout> activeCheckouts = checkoutRepository
+                .findByAssetIdAndStatusOrderByCheckoutDateDesc(asset.getId(), "Checked Out");
+        List<AssetCheckout> pendingReturns = checkoutRepository
+                .findByAssetIdAndStatusOrderByCheckoutDateDesc(asset.getId(), "Pending Return");
+        List<AssetCheckout> openCheckouts = new java.util.ArrayList<>(activeCheckouts);
+        openCheckouts.addAll(pendingReturns);
+        model.addAttribute("activeCheckout", openCheckouts.isEmpty() ? null : openCheckouts.get(0));
+        List<AssetCheckout> pendingCheckouts = checkoutRepository
+                .findByAssetIdAndStatusOrderByCheckoutDateDesc(asset.getId(), "Pending Approval");
+        model.addAttribute("pendingCheckout", pendingCheckouts.isEmpty() ? null : pendingCheckouts.get(0));
         return "employee/asset-details";
     }
 
@@ -132,6 +151,84 @@ public class EmployeeController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/employee/return-requests";
+    }
+
+    @GetMapping("/employee/checkout-requests")
+    public String checkoutRequests(Model model) {
+        String current = currentUsername();
+        List<AssetCheckout> myRequests = checkoutRepository
+                .findByStatusAndRequestedByOrderByRequestedAtDesc("Pending Approval", current);
+        List<AssetCheckout> myHistory = checkoutRepository
+                .findByRequestedByOrderByRequestedAtDesc(current);
+        model.addAttribute("myRequests", myRequests);
+        model.addAttribute("myHistory", myHistory);
+        model.addAttribute("assignedAssets", assignedAssets());
+        model.addAttribute("today", LocalDate.now());
+        model.addAttribute("tomorrow", LocalDate.now().plusDays(1));
+        return "employee/checkout-requests";
+    }
+
+    @PostMapping("/employee/checkout-requests")
+    public String submitCheckoutRequest(@RequestParam Long assetId,
+                                        @RequestParam LocalDate checkoutDate,
+                                        @RequestParam LocalDate dueReturnDate,
+                                        @RequestParam(required = false) String purpose,
+                                        @RequestParam(required = false) String conditionBeforeCheckout,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            Asset asset = requireAssignedAsset(assetId);
+            checkoutService.requestCheckout(asset.getId(), currentUsername(),
+                    checkoutDate, dueReturnDate, purpose, conditionBeforeCheckout);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Checkout request submitted and is awaiting asset manager approval.");
+        } catch (IllegalArgumentException | NoSuchElementException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/employee/checkout-requests";
+    }
+
+    /**
+     * Employee submits a return request for an asset they currently have checked out. The request
+     * goes into "Pending Return" and is approved by the asset manager before the asset is returned.
+     */
+    @PostMapping("/employee/checkout/{checkoutId}/request-return")
+    public String requestReturn(@PathVariable Long checkoutId,
+                                @RequestParam(required = false) String conditionAfterReturn,
+                                @RequestParam(required = false) String returnNotes,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            AssetCheckout checkout = checkoutRepository.findById(checkoutId)
+                    .orElseThrow(() -> new NoSuchElementException("Checkout not found with id: " + checkoutId));
+            String current = currentUsername();
+            if (checkout.getRequestedBy() != null && !checkout.getRequestedBy().equalsIgnoreCase(current)
+                    && checkout.getCheckedOutBy() != null && !checkout.getCheckedOutBy().equalsIgnoreCase(current)) {
+                throw new NoSuchElementException("This checkout does not belong to the current employee.");
+            }
+            checkoutService.requestReturn(checkout.getId(), conditionAfterReturn, returnNotes);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Return request submitted. Awaiting asset manager approval.");
+        } catch (IllegalArgumentException | NoSuchElementException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/employee/assets";
+    }
+
+    /**
+     * Display the employee's return-request form for a checkout they own.
+     */
+    @GetMapping("/employee/checkout/{checkoutId}/request-return-form")
+    public String requestReturnForm(@PathVariable Long checkoutId, Model model) {
+        AssetCheckout checkout = checkoutRepository.findById(checkoutId)
+                .orElseThrow(() -> new NoSuchElementException("Checkout not found with id: " + checkoutId));
+        String current = currentUsername();
+        boolean owns = (checkout.getRequestedBy() != null && checkout.getRequestedBy().equalsIgnoreCase(current))
+                || (checkout.getCheckedOutBy() != null && checkout.getCheckedOutBy().equalsIgnoreCase(current));
+        if (!owns) {
+            throw new NoSuchElementException("This checkout does not belong to the current employee.");
+        }
+        model.addAttribute("checkout", checkout);
+        model.addAttribute("asset", checkout.getAsset());
+        return "assets/fragments/checkout-form :: request-return-form";
     }
 
     private List<Asset> assignedAssets() {

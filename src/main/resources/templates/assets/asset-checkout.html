@@ -572,6 +572,9 @@
         .gap-2 {
             gap: 8px;
         }
+        .inline-form {
+            display: inline-flex;
+        }
 
         /* ── Responsive ── */
         @media (max-width: 1024px) {
@@ -818,6 +821,24 @@
                 <div class="stat-value blue" th:text="${pendingVerificationCount}">0</div>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-danger">
+                <span class="material-symbols-outlined">approval</span>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Pending Approvals</div>
+                <div class="stat-value danger" th:text="${pendingApprovalCount}">0</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-orange">
+                <span class="material-symbols-outlined">assignment_return</span>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Pending Returns</div>
+                <div class="stat-value orange" th:text="${pendingReturnCount}">0</div>
+            </div>
+        </div>
     </div>
 
     <!-- ─── Main Content ─── -->
@@ -839,6 +860,14 @@
             <button class="tab" data-tab="pending-verification" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">verified_user</span>
                 Pending Verification
+            </button>
+            <button class="tab" data-tab="pending-approvals" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">approval</span>
+                Pending Approvals
+            </button>
+            <button class="tab" data-tab="pending-returns" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">assignment_return</span>
+                Pending Returns
             </button>
         </div>
 
@@ -1044,6 +1073,150 @@
         </div>
     </div>
 
+    <!-- ─── Pending Approvals Tab ─── -->
+    <div id="pending-approvals" class="tab-content" role="tabpanel">
+        <div class="table-container">
+            <div th:if="${#lists.isEmpty(pendingApprovals)}" class="empty-state">
+                <span class="material-symbols-outlined">approval</span>
+                <p>No checkout requests awaiting approval. Employee requests will appear here for review.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(pendingApprovals)}">
+                <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Requested By</th>
+                    <th>Checkout Date</th>
+                    <th>Due Return Date</th>
+                    <th>Purpose</th>
+                    <th>Requested</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="checkout : ${pendingApprovals}">
+                    <td>
+                        <div class="asset-cell">
+                            <span class="asset-name" th:text="${checkout.asset.name}"></span>
+                            <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
+                        </div>
+                    </td>
+                    <td th:text="${checkout.requestedBy}"></td>
+                    <td th:text="${#temporals.format(checkout.checkoutDate, 'dd MMM yyyy')}"></td>
+                    <td th:text="${#temporals.format(checkout.dueReturnDate, 'dd MMM yyyy')}"></td>
+                    <td th:text="${checkout.purpose ?: '—'}"></td>
+                    <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
+                    <td>
+                        <div class="actions-cell">
+                            <form th:action="@{/assets/checkout/{id}/approve(id=${checkout.id})}" method="post" class="inline-form">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    Approve
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-outline open-reject-modal"
+                                    th:attr="data-checkout-id=${checkout.id}">
+                                <span class="material-symbols-outlined">cancel</span>
+                                Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ─── Pending Returns Tab ─── -->
+    <div id="pending-returns" class="tab-content" role="tabpanel">
+        <div class="table-container">
+            <div th:if="${#lists.isEmpty(pendingReturns)}" class="empty-state">
+                <span class="material-symbols-outlined">assignment_return</span>
+                <p>No return requests awaiting approval. Employee check-in requests will appear here for review.</p>
+            </div>
+            <table th:unless="${#lists.isEmpty(pendingReturns)}">
+                <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Checked Out By</th>
+                    <th>Condition</th>
+                    <th>Return Notes</th>
+                    <th>Requested</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="checkout : ${pendingReturns}">
+                    <td>
+                        <div class="asset-cell">
+                            <span class="asset-name" th:text="${checkout.asset.name}"></span>
+                            <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
+                        </div>
+                    </td>
+                    <td th:text="${checkout.checkedOutBy}"></td>
+                    <td th:text="${checkout.conditionAfterReturn ?: 'Not specified'}"></td>
+                    <td th:text="${checkout.returnNotes ?: '—'}"></td>
+                    <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
+                    <td>
+                        <div class="actions-cell">
+                            <form th:action="@{/assets/checkout/{id}/approve-return(id=${checkout.id})}" method="post" class="inline-form">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    Approve Return
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-outline open-reject-return-modal"
+                                    th:attr="data-checkout-id=${checkout.id}">
+                                <span class="material-symbols-outlined">cancel</span>
+                                Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ─── Reject Modal ─── -->
+    <div id="rejectModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
+        <div id="rejectModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
+        <div style="position:relative; width:clamp(320px, 90%, 480px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
+            <h3 style="margin:0 0 4px; font-size:18px; font-weight:600; color:var(--color-gray-700);">Reject Checkout Request</h3>
+            <p style="margin:0 0 16px; font-size:13px; color:var(--color-gray-500);">Provide a reason for rejecting this request. The requester will be notified of the rejection.</p>
+            <form id="rejectForm" method="post">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--color-gray-500); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Rejection Reason</label>
+                <textarea name="rejectionReason" rows="4" required placeholder="Reason for rejection…" style="width:100%; padding:10px 12px; border:1px solid var(--color-gray-200); border-radius:8px; font-family:inherit; font-size:13px; resize:vertical;"></textarea>
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                    <button type="button" id="rejectModalCancel" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <span class="material-symbols-outlined">cancel</span>
+                        Reject Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── Reject Return Modal ─── -->
+    <div id="rejectReturnModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
+        <div id="rejectReturnModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
+        <div style="position:relative; width:clamp(320px, 90%, 480px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
+            <h3 style="margin:0 0 4px; font-size:18px; font-weight:600; color:var(--color-gray-700);">Reject Return Request</h3>
+            <p style="margin:0 0 16px; font-size:13px; color:var(--color-gray-500);">Provide a reason for rejecting this return. The asset will remain checked out with the employee.</p>
+            <form id="rejectReturnForm" method="post">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--color-gray-500); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Rejection Reason</label>
+                <textarea name="rejectionReason" rows="4" required placeholder="Reason for rejection…" style="width:100%; padding:10px 12px; border:1px solid var(--color-gray-200); border-radius:8px; font-family:inherit; font-size:13px; resize:vertical;"></textarea>
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                    <button type="button" id="rejectReturnModalCancel" class="btn btn-outline">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <span class="material-symbols-outlined">cancel</span>
+                        Reject Return
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ─── Modal Container (for fragment forms) ─── -->
     <div id="fragmentModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
         <div id="fragmentModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
@@ -1176,6 +1349,54 @@
                             });
                     });
                 }
+            });
+
+            // ── Reject modal logic (Pending Approvals tab) ──
+            const rejectModal = document.getElementById('rejectModal');
+            const rejectForm = document.getElementById('rejectForm');
+            const rejectCancel = document.getElementById('rejectModalCancel');
+            document.querySelectorAll('.open-reject-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-checkout-id');
+                    rejectForm.setAttribute('action', '/assets/checkout/' + id + '/reject');
+                    rejectModal.style.display = 'flex';
+                    rejectModal.setAttribute('aria-hidden', 'false');
+                });
+            });
+            function hideRejectModal() {
+                rejectModal.style.display = 'none';
+                rejectModal.setAttribute('aria-hidden', 'true');
+                rejectForm.querySelector('textarea').value = '';
+            }
+            rejectCancel.addEventListener('click', hideRejectModal);
+            document.getElementById('rejectModalBackdrop').addEventListener('click', hideRejectModal);
+            rejectForm.addEventListener('submit', function() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.classList.add('active');
+            });
+
+            // ── Reject-return modal logic (Pending Returns tab) ──
+            const rejectReturnModal = document.getElementById('rejectReturnModal');
+            const rejectReturnForm = document.getElementById('rejectReturnForm');
+            const rejectReturnCancel = document.getElementById('rejectReturnModalCancel');
+            document.querySelectorAll('.open-reject-return-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-checkout-id');
+                    rejectReturnForm.setAttribute('action', '/assets/checkout/' + id + '/reject-return');
+                    rejectReturnModal.style.display = 'flex';
+                    rejectReturnModal.setAttribute('aria-hidden', 'false');
+                });
+            });
+            function hideRejectReturnModal() {
+                rejectReturnModal.style.display = 'none';
+                rejectReturnModal.setAttribute('aria-hidden', 'true');
+                rejectReturnForm.querySelector('textarea').value = '';
+            }
+            rejectReturnCancel.addEventListener('click', hideRejectReturnModal);
+            document.getElementById('rejectReturnModalBackdrop').addEventListener('click', hideRejectReturnModal);
+            rejectReturnForm.addEventListener('submit', function() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) overlay.classList.add('active');
             });
 
         })();

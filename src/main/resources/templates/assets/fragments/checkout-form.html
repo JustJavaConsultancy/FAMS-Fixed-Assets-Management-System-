@@ -537,6 +537,119 @@
     </script>
 </div>
 
+<!-- ==================== REQUEST RETURN FORM (employee) ==================== -->
+<div th:fragment="request-return-form" th:if="${checkout != null and asset != null}" id="requestReturnFormFragment" class="modal-fragment">
+    <style>
+        .modal-fragment { max-width:100%; overflow:hidden; }
+        .modal-fragment .form-section { margin-bottom:16px; }
+        .modal-fragment .section-title { font-size:13px; font-weight:600; color:#1A1D23; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid #E4E6EA; }
+        .modal-fragment .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+        .modal-fragment .form-group { display:flex; flex-direction:column; }
+        .modal-fragment .form-label { font-size:12px; font-weight:500; color:#1A1D23; margin-bottom:4px; }
+        .modal-fragment .form-control { width:100%; padding:8px 10px; border:1px solid #E4E6EA; border-radius:8px; font-size:13px; font-family:inherit; transition:border-color 150ms, box-shadow 150ms; box-sizing:border-box; }
+        .modal-fragment .form-control:focus { outline:none; border-color:#c0182a; box-shadow:0 0 0 3px rgba(192,24,42,0.12); }
+        .modal-fragment textarea.form-control { resize:vertical; min-height:80px; }
+        .modal-fragment .helpers { font-size:11px; color:#5d5e65; margin-top:2px; }
+        .modal-fragment .asset-info { background:white; border:1px solid #E4E6EA; border-radius:10px; padding:12px; margin-bottom:16px; }
+        .modal-fragment .asset-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .modal-fragment .asset-icon { width:40px; height:40px; background:#c0182a; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0; }
+        .modal-fragment .asset-icon .material-symbols-outlined { font-size:20px; }
+        .modal-fragment .asset-header-text h3 { margin:0; font-size:14px; font-weight:600; color:#1A1D23; }
+        .modal-fragment .asset-header-text p { margin:2px 0 0 0; font-size:11px; color:#5d5e65; }
+        .modal-fragment .asset-details { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; }
+        .modal-fragment .detail-item { border-top:1px solid #E4E6EA; padding-top:6px; }
+        .modal-fragment .detail-label { font-size:10px; text-transform:uppercase; color:#5d5e65; font-weight:600; letter-spacing:0.3px; }
+        .modal-fragment .detail-value { font-size:12px; color:#1A1D23; margin-top:2px; word-break:break-word; }
+        .modal-fragment .spinner { display:inline-block; width:14px; height:14px; border:2px solid #f3f3f3; border-top:2px solid #c0182a; border-radius:50%; animation:spin 1s linear infinite; margin-right:6px; vertical-align:middle; }
+        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        .modal-fragment .button-group { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; padding-top:16px; border-top:1px solid #E4E6EA; flex-wrap:wrap; }
+        @media (max-width:480px) { .modal-fragment .button-group { justify-content:center; } }
+        .modal-fragment .btn { height:34px; padding:0 16px; border-radius:8px; font-size:12px; font-weight:500; border:none; cursor:pointer; transition:all 150ms; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .modal-fragment .btn-primary { background:#c0182a; color:white; }
+        .modal-fragment .btn-primary:hover { background:#8F0F1E; }
+        .modal-fragment .btn-primary:disabled { background:#d4a5a5; cursor:not-allowed; }
+        .modal-fragment .btn-secondary { background:#F4F5F7; color:#1A1D23; border:1px solid #E4E6EA; }
+        .modal-fragment .btn-secondary:hover { background:#e8eaef; }
+        .modal-fragment select.form-control { appearance:auto; }
+    </style>
+
+    <div class="card-container">
+        <div class="asset-info">
+            <div class="asset-header">
+                <div class="asset-icon">
+                    <span class="material-symbols-outlined">assignment_return</span>
+                </div>
+                <div class="asset-header-text">
+                    <h3>Request Check-In / Return</h3>
+                    <p th:text="${asset.name}"></p>
+                </div>
+            </div>
+            <div class="asset-details">
+                <div class="detail-item">
+                    <div class="detail-label">Asset Code</div>
+                    <div class="detail-value" th:text="${asset.assetCode}"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Checked Out By</div>
+                    <div class="detail-value" th:text="${checkout.checkedOutBy}"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Checkout Date</div>
+                    <div class="detail-value" th:text="${#temporals.format(checkout.checkoutDate, 'dd MMM yyyy')}"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Due Date</div>
+                    <div class="detail-value" th:text="${#temporals.format(checkout.dueReturnDate, 'dd MMM yyyy')}"></div>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/employee/checkout/{checkoutId}/request-return(checkoutId=${checkout.id})}" method="post" id="requestReturnForm">
+            <div class="form-section">
+                <div class="section-title">Return Condition &amp; Notes</div>
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Condition After Return</label>
+                        <select name="conditionAfterReturn" class="form-control">
+                            <option value="">Select condition...</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Damaged">Damaged</option>
+                            <option value="Lost">Lost</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label class="form-label">Return Notes</label>
+                        <textarea name="returnNotes" data-input-type="text" class="form-control"
+                                  placeholder="Any observations or issues found? Document damage, maintenance needs, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="requestReturnSubmitBtn">
+                    <span class="material-symbols-outlined">send</span>
+                    Submit Return Request
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('requestReturnForm');
+            const submitBtn = document.getElementById('requestReturnSubmitBtn');
+            form.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
+            });
+        });
+    </script>
+</div>
+
 <!-- ==================== VERIFY FORM ==================== -->
 <div th:fragment="verify-form" th:if="${checkout != null}" id="verifyFormFragment" class="modal-fragment">
     <style>

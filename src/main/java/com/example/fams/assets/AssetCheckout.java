@@ -45,13 +45,29 @@ public class AssetCheckout {
     private String conditionAfterReturn;
 
     @Column(nullable = false, length = 40)
-    private String status; // Available, Checked Out, Returned, Verified
+    private String status; // Pending Approval, Approved, Checked Out, Returned, Verified, Rejected, Available
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    // Request / approval details (employee requests checkout, asset manager approves)
+    @Column(length = 120)
+    private String requestedBy;
+
+    @Column
+    private LocalDateTime requestedAt;
+
+    @Column(length = 120)
+    private String approvedBy;
+
+    @Column
+    private LocalDateTime approvedAt;
+
+    @Column(length = 500)
+    private String rejectionReason;
 
     // Return details (populated when asset is returned)
     @Column
@@ -72,7 +88,7 @@ public class AssetCheckout {
         createdAt = now;
         updatedAt = now;
         if (status == null || status.isBlank()) {
-            status = "Checked Out";
+            status = "Pending Approval";
         }
     }
 
@@ -188,6 +204,46 @@ public class AssetCheckout {
 
     public void setVerifiedAt(LocalDateTime verifiedAt) {
         this.verifiedAt = verifiedAt;
+    }
+
+    public String getRequestedBy() {
+        return requestedBy;
+    }
+
+    public void setRequestedBy(String requestedBy) {
+        this.requestedBy = requestedBy;
+    }
+
+    public LocalDateTime getRequestedAt() {
+        return requestedAt;
+    }
+
+    public void setRequestedAt(LocalDateTime requestedAt) {
+        this.requestedAt = requestedAt;
+    }
+
+    public String getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(String approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public LocalDateTime getApprovedAt() {
+        return approvedAt;
+    }
+
+    public void setApprovedAt(LocalDateTime approvedAt) {
+        this.approvedAt = approvedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }
 

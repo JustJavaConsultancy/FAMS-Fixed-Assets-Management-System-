@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/employee-layout}">
+<head>
+    <title>Checkout Requests | JustJava FAMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* ── Custom Tom-Select Styling for Professional Look ── */
+        .ts-wrapper { width: 100%; }
+        .ts-control {
+            background: rgb(249, 249, 255);
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            min-height: 2.75rem;
+            font-size: 0.9375rem;
+            transition: all 200ms ease;
+        }
+        .ts-control:focus-within {
+            border-color: #c0182a;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.1);
+            outline: none;
+        }
+        .ts-control input { font-size: 0.9375rem; color: #1a1d23; }
+        .ts-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+        }
+        .ts-dropdown-content { padding: 0.25rem 0; }
+        .ts-option, .ts-optgroup-header { padding: 0.625rem 0.75rem; font-size: 0.9375rem; color: #1a1d23; }
+        .ts-option:hover { background: #fce4e4; color: #1a1d23; }
+        .ts-option.selected { background: #c0182a; color: white; }
+        .ts-optgroup-header {
+            background: #f9f9ff;
+            font-weight: 600;
+            color: #5d5e65;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #d1d5db;
+        }
+    </style>
+</head>
+<body>
+<main id="main-content" class="space-y-6" layout:fragment="content">
+    <div>
+        <h2 class="font-page-title text-page-title text-on-background">Checkout Requests</h2>
+        <p class="text-body-default text-secondary mt-1">Request an asset checkout. Your request is reviewed and approved by asset management before the asset is released.</p>
+    </div>
+
+    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">check_circle</span>
+        <p class="font-body-medium" th:text="${successMessage}">Request submitted.</p>
+    </div>
+    <div th:if="${errorMessage}" class="bg-error-container border border-error/20 text-on-error-container rounded-xl p-4 flex items-center gap-3">
+        <span class="material-symbols-outlined">error</span>
+        <p class="font-body-medium" th:text="${errorMessage}">Unable to submit request.</p>
+    </div>
+
+    <section class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+        <div class="p-5 border-b border-border-default">
+            <h3 class="font-section-header text-section-header text-on-surface">New Checkout Request</h3>
+        </div>
+        <form th:action="@{/employee/checkout-requests}" method="post" class="p-5 grid grid-cols-1 lg:grid-cols-6 gap-4" data-spinner-form>
+            <div class="lg:col-span-3 space-y-1.5">
+                <label class="text-label-small text-secondary">Asset</label>
+                <select name="assetId" id="checkoutAssetSelect" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    <option value="">Select assigned asset</option>
+                    <option th:each="asset : ${assignedAssets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
+                </select>
+            </div>
+            <div class="lg:col-span-3 space-y-1.5">
+                <label class="text-label-small text-secondary">Purpose</label>
+                <input name="purpose" type="text" placeholder="Reason for checkout" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            <div class="lg:col-span-3 space-y-1.5">
+                <label class="text-label-small text-secondary">Checkout Date</label>
+                <input name="checkoutDate" type="date" required th:min="${today}" th:value="${today}" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            <div class="lg:col-span-3 space-y-1.5">
+                <label class="text-label-small text-secondary">Due Return Date</label>
+                <input name="dueReturnDate" type="date" required th:min="${tomorrow}" th:value="${tomorrow}" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            <div class="lg:col-span-6 space-y-1.5">
+                <label class="text-label-small text-secondary">Condition Before Checkout</label>
+                <textarea name="conditionBeforeCheckout" rows="3" placeholder="Note the asset's current condition (optional)." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
+            </div>
+            <div class="lg:col-span-6 flex justify-end">
+                <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px] submit-icon">send</span>
+                    <span class="hidden submit-spinner w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    Submit Request
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+        <div class="p-5 border-b border-border-default">
+            <h3 class="font-section-header text-section-header text-on-surface">My Pending Requests</h3>
+        </div>
+        <div th:if="${#lists.isEmpty(myRequests)}" class="p-12 text-center">
+            <span class="material-symbols-outlined text-[42px] text-secondary">outbox</span>
+            <p class="text-body-default text-secondary mt-2">No pending checkout requests.</p>
+        </div>
+        <div th:unless="${#lists.isEmpty(myRequests)}" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[760px]">
+                <thead>
+                <tr class="bg-surface-canvas border-b border-border-default">
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Asset</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Checkout</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Due</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Status</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-border-default">
+                <tr th:each="req : ${myRequests}" class="hover:bg-surface-canvas/50">
+                    <td class="px-5 py-3">
+                        <p class="font-body-medium text-on-surface" th:text="${req.asset.name}">Asset</p>
+                        <p class="font-technical-data text-label-small text-primary" th:text="${req.asset.assetCode}">AST</p>
+                    </td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${req.checkoutDate}">Date</td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${req.dueReturnDate}">Date</td>
+                    <td class="px-5 py-3"><span class="px-2.5 py-0.5 rounded-full bg-status-warning/10 text-status-warning text-badge-label font-badge-label" th:text="${req.status}">PENDING</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+        <div class="p-5 border-b border-border-default">
+            <h3 class="font-section-header text-section-header text-on-surface">Request History</h3>
+        </div>
+        <div th:if="${#lists.isEmpty(myHistory)}" class="p-12 text-center">
+            <span class="material-symbols-outlined text-[42px] text-secondary">history</span>
+            <p class="text-body-default text-secondary mt-2">No checkout requests yet.</p>
+        </div>
+        <div th:unless="${#lists.isEmpty(myHistory)}" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[860px]">
+                <thead>
+                <tr class="bg-surface-canvas border-b border-border-default">
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Asset</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Checkout</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Due</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Requested</th>
+                    <th class="px-5 py-3 text-label-small text-secondary uppercase tracking-wider">Status</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-border-default">
+                <tr th:each="req : ${myHistory}" class="hover:bg-surface-canvas/50">
+                    <td class="px-5 py-3">
+                        <p class="font-body-medium text-on-surface" th:text="${req.asset.name}">Asset</p>
+                        <p class="font-technical-data text-label-small text-primary" th:text="${req.asset.assetCode}">AST</p>
+                    </td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${req.checkoutDate}">Date</td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${req.dueReturnDate}">Date</td>
+                    <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${req.requestedAt}">Requested</td>
+                    <td class="px-5 py-3">
+                        <span th:switch="${req.status}" class="px-2.5 py-0.5 rounded-full text-badge-label font-badge-label"
+                              th:classappend="${req.status == 'Pending Approval'} ? 'bg-status-warning/10 text-status-warning'
+                                            : (${req.status == 'Checked Out'} ? 'bg-status-success/10 text-status-success'
+                                            : (${req.status == 'Returned'} ? 'bg-status-info/10 text-status-info'
+                                            : (${req.status == 'Verified'} ? 'bg-status-success/10 text-status-success'
+                                            : 'bg-error/10 text-on-error-container')))">
+                            <th:block th:text="${req.status}">PENDING</th:block>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <script>
+        document.querySelectorAll('[data-spinner-form]').forEach(form => form.addEventListener('submit', () => {
+            form.querySelector('.submit-icon')?.classList.add('hidden');
+            form.querySelector('.submit-spinner')?.classList.remove('hidden');
+            form.querySelector('button[type="submit"]')?.setAttribute('disabled', 'disabled');
+        }));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+            const assetSelect = document.getElementById('checkoutAssetSelect');
+            if (assetSelect) {
+                new TomSelect(assetSelect, {
+                    placeholder: 'Search and select an asset...',
+                    searchField: ['text', 'value'],
+                    create: false,
+                    plugins: { dropdown_input: {} },
+                    render: {
+                        option: function(data, escape) {
+                            return '<div class="flex flex-col"><span class="font-medium">' + escape(data.text) + '</span></div>';
+                        },
+                        item: function(data, escape) {
+                            return '<div>' + escape(data.text) + '</div>';
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+</main>
+</body>
+</html>

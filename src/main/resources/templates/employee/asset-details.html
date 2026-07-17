@@ -42,6 +42,23 @@
                 <span class="material-symbols-outlined text-[18px]">sync_alt</span>
                 Transfer Request
             </a>
+            <a th:href="@{/employee/checkout-requests(assetId=${asset.id})}" class="h-[42px] border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas inline-flex items-center justify-center gap-2"
+               th:if="${pendingCheckout == null and activeCheckout == null}">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+                Request Checkout
+            </a>
+            <a th:if="${pendingCheckout != null}" class="h-[42px] border border-border-strong text-on-surface rounded-lg font-body-medium inline-flex items-center justify-center gap-2 cursor-default opacity-70">
+                <span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
+                Checkout Pending Approval
+            </a>
+            <a th:if="${activeCheckout != null}" th:href="@{/employee/checkout/{id}/request-return-form(id=${activeCheckout.id})}" class="h-[42px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark inline-flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">assignment_return</span>
+                Check In / Return
+            </a>
+            <a th:if="${activeCheckout != null && activeCheckout.status == 'Pending Return'}" class="h-[42px] border border-border-strong text-on-surface rounded-lg font-body-medium inline-flex items-center justify-center gap-2 cursor-default opacity-70">
+                <span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
+                Return Pending Approval
+            </a>
         </aside>
     </div>
 

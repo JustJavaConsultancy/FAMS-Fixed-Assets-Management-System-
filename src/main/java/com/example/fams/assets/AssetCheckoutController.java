@@ -53,14 +53,21 @@ public class AssetCheckoutController {
                 .filter(c -> "Returned".equalsIgnoreCase(c.getStatus()))
                 .toList();
 
+        List<AssetCheckout> pendingApprovals = checkoutService.getPendingApprovals();
+        List<AssetCheckout> pendingReturns = checkoutService.getPendingReturns();
+
         model.addAttribute("allCheckouts", allCheckouts);
         model.addAttribute("activeCheckouts", activeCheckouts);
         model.addAttribute("overdueCheckouts", overdueCheckouts);
         model.addAttribute("pendingVerifications", pendingVerifications);
+        model.addAttribute("pendingApprovals", pendingApprovals);
+        model.addAttribute("pendingReturns", pendingReturns);
         model.addAttribute("activeCount", activeCheckouts.size());
         model.addAttribute("overdueCount", overdueCheckouts.size());
         model.addAttribute("totalCount", allCheckouts.size());
         model.addAttribute("pendingVerificationCount", pendingVerifications.size());
+        model.addAttribute("pendingApprovalCount", pendingApprovals.size());
+        model.addAttribute("pendingReturnCount", pendingReturns.size());
 
         return "assets/asset-checkout";
     }
@@ -204,6 +211,84 @@ public class AssetCheckoutController {
         model.addAttribute("checkout", checkout);
         model.addAttribute("asset", checkout.getAsset());
         return "assets/checkout-details";
+    }
+
+    /**
+     * Asset manager approves a pending employee checkout request.
+     */
+    @PostMapping("/{checkoutId}/approve")
+    public String approveCheckout(@PathVariable Long checkoutId, RedirectAttributes redirectAttributes) {
+        try {
+            checkoutService.approveCheckout(checkoutId, currentUser());
+            redirectAttributes.addFlashAttribute("successMessage", "Checkout request approved. Asset is now checked out.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while approving the request: " + e.getMessage());
+        }
+        return "redirect:/assets/checkout";
+    }
+
+    /**
+     * Asset manager rejects a pending employee checkout request.
+     */
+    @PostMapping("/{checkoutId}/reject")
+    public String rejectCheckout(@PathVariable Long checkoutId,
+                                 @RequestParam(required = false) String rejectionReason,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            checkoutService.rejectCheckout(checkoutId, currentUser(), rejectionReason);
+            redirectAttributes.addFlashAttribute("successMessage", "Checkout request rejected.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while rejecting the request: " + e.getMessage());
+        }
+        return "redirect:/assets/checkout";
+    }
+
+    /**
+     * Asset manager approves a pending employee return request. The asset becomes returned and
+     * then awaits the manager's final verification before it is available again.
+     */
+    @PostMapping("/{checkoutId}/approve-return")
+    public String approveReturn(@PathVariable Long checkoutId, RedirectAttributes redirectAttributes) {
+        try {
+            checkoutService.returnCheckout(checkoutId, null, null);
+            redirectAttributes.addFlashAttribute("successMessage", "Return request approved. Asset is now awaiting verification.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while approving the return: " + e.getMessage());
+        }
+        return "redirect:/assets/checkout";
+    }
+
+    /**
+     * Asset manager rejects a pending employee return request. The asset stays checked out.
+     */
+    @PostMapping("/{checkoutId}/reject-return")
+    public String rejectReturn(@PathVariable Long checkoutId,
+                              @RequestParam(required = false) String rejectionReason,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            checkoutService.rejectReturn(checkoutId, currentUser(), rejectionReason);
+            redirectAttributes.addFlashAttribute("successMessage", "Return request rejected. Asset remains checked out.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while rejecting the return: " + e.getMessage());
+        }
+        return "redirect:/assets/checkout";
+    }
+
+    private String currentUser() {
+        org.springframework.security.core.Authentication authentication =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            return "Asset Manager";
+        }
+        return authentication.getName();
     }
 
     /**
