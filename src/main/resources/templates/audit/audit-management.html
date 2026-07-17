@@ -1,39 +1,463 @@
 <!DOCTYPE html>
-<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
 <head>
     <title>Audit Management | JustJava FAMS</title>
     <style>
-        .scan-frame {
-            position: relative;
-            min-height: 260px;
-            background: #151b29;
-            overflow: hidden;
-            border-radius: 12px;
+        /* ── Nexus Design Tokens ── */
+        :root {
+            --color-primary: #D32F2F;
+            --color-primary-dark: #B71C1C;
+            --color-primary-light: #FCE4E4;
+            --color-primary-hover: #C62828;
+            --color-success: #16a34a;
+            --color-success-light: #dcfce7;
+            --color-warning: #d97706;
+            --color-warning-light: #fef3c7;
+            --color-info: #2563eb;
+            --color-info-light: #dbeafe;
+            --color-danger: #dc2626;
+            --color-danger-light: #fee2e2;
+            --color-slate-50: #f8fafc;
+            --color-slate-100: #f1f5f9;
+            --color-slate-200: #e2e8f0;
+            --color-slate-300: #cbd5e1;
+            --color-slate-400: #94a3b8;
+            --color-slate-500: #64748b;
+            --color-slate-600: #475569;
+            --color-slate-700: #334155;
+            --color-slate-800: #1e293b;
+            --color-slate-900: #0f172a;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 200ms ease;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
-        .scan-frame video {
+
+        body {
+            font-family: var(--font);
+            color: var(--color-slate-900);
+            background: #fafafc;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(211, 47, 47, 0.15);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .spinner-lg {
+            width: 44px;
+            height: 44px;
+            border-width: 4px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-content {
+            text-align: center;
+            background: white;
+            padding: 32px 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-slate-200);
+        }
+        .loading-content p {
+            margin-top: 16px;
+            color: var(--color-slate-500);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            animation: slideDown 300ms ease-out;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .alert-success {
+            border-color: #86c7a3;
+            background: var(--color-success-light);
+            color: #065f46;
+        }
+        .alert-error {
+            border-color: #f0c8c8;
+            background: var(--color-danger-light);
+            color: #991b1b;
+        }
+        .alert-warning {
+            border-color: #f0d5b8;
+            background: var(--color-warning-light);
+            color: #78350f;
+        }
+        .alert-info {
+            border-color: #b8cfe8;
+            background: var(--color-info-light);
+            color: #1e40af;
+        }
+        .alert-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            line-height: 1.4;
+            display: inline-flex;
+            align-items: center;
+        }
+        .alert-content {
+            flex: 1;
+        }
+        .alert-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .alert-message {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* ── Nexus Cards ── */
+        .card-nexus {
+            background: #ffffff;
+            border-radius: var(--radius);
+            border: 1px solid var(--color-slate-200);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 200ms ease;
+        }
+        .card-nexus:hover {
+            border-color: var(--color-slate-300);
+        }
+
+        .card-header-nexus {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-slate-200);
+        }
+        .card-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card-header-left h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header-left h2 .material-symbols-outlined {
+            font-size: 22px;
+            color: var(--color-primary);
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--color-slate-500);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Nexus Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+            font-family: inherit;
+            line-height: 1;
+        }
+        .btn .material-symbols-outlined {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.30);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--color-slate-100);
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
+        }
+        .btn-secondary:hover {
+            background: var(--color-slate-200);
+            border-color: var(--color-slate-300);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.30);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
+        }
+        .btn-outline:hover {
+            background: var(--color-slate-100);
+            border-color: var(--color-slate-300);
+        }
+
+        .btn-sm {
+            height: 32px;
+            padding: 0 14px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        .btn-sm .material-symbols-outlined {
+            font-size: 16px;
+        }
+
+        /* ── Nexus Badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            line-height: 1.6;
+        }
+        .badge .material-symbols-outlined {
+            font-size: 14px;
+            line-height: 1;
+        }
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-found {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-missing {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-damaged {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-mismatch {
+            background: #fce4e4;
+            color: #D32F2F;
+        }
+
+        /* ── Nexus Stats Grid ── */
+        .stats-grid-nexus {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card-nexus {
+            background: white;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .stat-card-nexus:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-slate-300);
+            transform: translateY(-2px);
+        }
+        .stat-icon-nexus {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+        .stat-icon-nexus-red {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .stat-icon-nexus-orange {
+            background: var(--color-warning-light);
+            color: var(--color-warning);
+        }
+        .stat-icon-nexus-green {
+            background: var(--color-success-light);
+            color: var(--color-success);
+        }
+        .stat-info-nexus {
+            flex: 1;
+            min-width: 0;
+        }
+        .stat-info-nexus .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+        .stat-info-nexus .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-slate-900);
+            line-height: 1.2;
+        }
+        .stat-info-nexus .stat-value.red {
+            color: var(--color-primary);
+        }
+        .stat-info-nexus .stat-value.orange {
+            color: var(--color-warning);
+        }
+        .stat-info-nexus .stat-value.green {
+            color: var(--color-success);
+        }
+
+        /* ── Empty State ── */
+        .empty-state-nexus {
+            text-align: center;
+            padding: 48px 20px 40px;
+            color: var(--color-slate-500);
+        }
+        .empty-state-nexus .material-symbols-outlined {
+            font-size: 48px;
+            color: var(--color-slate-300);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .empty-state-nexus p {
+            margin: 0;
+            font-size: 14px;
+            max-width: 400px;
+            margin-inline: auto;
+        }
+
+        /* ── Scanner Frame ── */
+        .scan-frame-nexus {
+            position: relative;
+            min-height: 240px;
+            background: var(--color-slate-900);
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-slate-200);
+        }
+        .scan-frame-nexus video {
             width: 100%;
-            min-height: 260px;
-            max-height: 400px;
+            min-height: 240px;
+            max-height: 380px;
             object-fit: cover;
             display: block;
         }
-        .scan-reticle {
+        .scan-reticle-nexus {
             position: absolute;
             inset: 18%;
             border: 2px solid rgba(255, 255, 255, 0.88);
             border-radius: 14px;
             box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34);
             pointer-events: none;
+            display: none;
         }
-        .scan-reticle::after {
+        .scan-reticle-nexus::after {
             content: "";
             position: absolute;
             left: 12px;
             right: 12px;
             top: 50%;
             height: 2px;
-            background: #c0182a;
-            box-shadow: 0 0 12px rgba(192, 24, 42, 0.8);
+            background: var(--color-primary);
+            box-shadow: 0 0 12px rgba(211, 47, 47, 0.8);
+        }
+        .scan-reticle-nexus.visible {
+            display: block;
         }
         .camera-empty-overlay {
             position: absolute;
@@ -44,34 +468,24 @@
             justify-content: center;
             text-align: center;
             padding: 2rem;
+            color: white;
         }
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid currentColor;
-            border-right-color: transparent;
-            border-radius: 9999px;
-            animation: spin 700ms linear infinite;
-            display: inline-block;
-            vertical-align: middle;
+        .camera-empty-overlay .material-symbols-outlined {
+            font-size: 48px;
+            opacity: 0.8;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .camera-empty-overlay p {
+            font-weight: 500;
+            margin-top: 8px;
         }
-        /* Fix icon vertical alignment in buttons */
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            line-height: 1;
+        .camera-empty-overlay .sub {
+            opacity: 0.6;
+            font-size: 12px;
+            margin-top: 4px;
+            max-width: 220px;
         }
-        .btn-icon .material-symbols-outlined {
-            font-size: 17px;
-            line-height: 1;
-            display: block;
-        }
-        /* Verification radio cards */
+
+        /* ── Verification Radio Cards ── */
         .result-radio-label input[type="radio"] {
             position: absolute;
             opacity: 0;
@@ -85,127 +499,280 @@
             gap: 6px;
             height: 38px;
             padding: 0 12px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            border: 1px solid;
+            border: 1px solid var(--color-slate-200);
             font-weight: 500;
             font-size: 0.875rem;
-            transition: all 0.15s ease;
+            transition: var(--transition);
             user-select: none;
+            background: white;
+            color: var(--color-slate-700);
         }
         .result-radio-card .material-symbols-outlined {
             font-size: 16px;
             line-height: 1;
         }
+        .result-radio-card.checked-found {
+            border-color: var(--color-success);
+            background: var(--color-success-light);
+            color: #166534;
+        }
+        .result-radio-card.checked-missing {
+            border-color: var(--color-danger);
+            background: var(--color-danger-light);
+            color: #991b1b;
+        }
+        .result-radio-card.checked-damaged {
+            border-color: var(--color-warning);
+            background: var(--color-warning-light);
+            color: #92400e;
+        }
+        .result-radio-card.checked-mismatch {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+            color: #B71C1C;
+        }
+
+        /* ── Session sidebar ── */
+        .session-list-item {
+            transition: background 150ms ease;
+        }
+        .session-list-item:hover {
+            background: var(--color-slate-50);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .stats-grid-nexus {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .stats-grid-nexus {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .stat-card-nexus {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+            .stat-icon-nexus {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .stat-info-nexus .stat-value {
+                font-size: 20px;
+            }
+            .stat-info-nexus .stat-label {
+                font-size: 10px;
+            }
+
+            .card-nexus {
+                padding: 18px;
+            }
+            .card-header-nexus {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .card-header-actions {
+                width: 100%;
+            }
+            .card-header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+        @media (max-width: 480px) {
+            .stats-grid-nexus {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .stat-card-nexus {
+                padding: 12px 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 6px;
+            }
+            .stat-icon-nexus {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+            }
+            .stat-info-nexus .stat-value {
+                font-size: 18px;
+            }
+            .stat-info-nexus .stat-label {
+                font-size: 9px;
+            }
+            .btn {
+                height: 34px;
+                padding: 0 14px;
+                font-size: 12px;
+            }
+            .btn .material-symbols-outlined {
+                font-size: 16px;
+            }
+            .result-radio-card {
+                font-size: 12px;
+                padding: 0 8px;
+                height: 34px;
+            }
+            .result-radio-card .material-symbols-outlined {
+                font-size: 14px;
+            }
+        }
+
+        /* ── Utility ── */
+        .text-secondary {
+            color: var(--color-slate-500);
+        }
+        .text-error {
+            color: var(--color-danger);
+        }
+        .font-technical-data {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .max-h-420 { max-height: 420px; }
+        .max-h-280 { max-height: 280px; }
+        .overflow-y-auto { overflow-y: auto; }
     </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
+<main id="main-content" layout:fragment="content">
 
-    <!-- ── Page Header ── -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2.5">
-                <h2 class="font-page-title text-page-title text-on-background">Asset Audit</h2>
-                <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
-                      th:text="${activeSession != null ? activeSession.status : 'No active session'}">ACTIVE</span>
+    <!-- ─── Loading Overlay ─── -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner spinner-lg"></div>
+            <p>Processing request…</p>
+        </div>
+    </div>
+
+    <!-- ─── Page Header ─── -->
+    <div class="card-nexus">
+        <div class="card-header-nexus">
+            <div class="card-header-left">
+                <h2>
+                    <span class="material-symbols-outlined">verified_user</span>
+                    Asset Audit
+                    <span class="badge" th:classappend="${activeSession != null && activeSession.status.name() == 'ACTIVE'} ? 'badge-active' : 'badge-completed'"
+                          th:text="${activeSession != null ? activeSession.status : 'No active session'}">
+                        ACTIVE
+                    </span>
+                </h2>
+                <p class="card-subtitle">Scan QR codes or barcodes to verify asset existence, condition, and location.</p>
             </div>
-            <p class="text-body-default text-secondary mt-1">Scan QR codes or barcodes to verify asset existence, condition, and location.</p>
-        </div>
-
-        <!-- Start Audit: compact trigger → inline form approach -->
-        <div class="flex items-start">
-            <details class="relative" id="start-audit-details">
-                <summary class="h-9 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon cursor-pointer list-none">
-                    <span class="material-symbols-outlined">add_task</span>
-                    New Audit Session
-                </summary>
-                <form th:action="@{/audit/sessions}" method="post"
-                      class="absolute right-0 top-[calc(100%+8px)] z-30 bg-surface-card border border-border-default rounded-xl p-4 card-shadow w-[340px] sm:w-[420px] space-y-3">
-                    <p class="font-card-header text-card-header text-on-surface mb-1">Start audit session</p>
-                    <div>
-                        <label class="block text-label-small text-secondary mb-1">Session title <span class="text-error">*</span></label>
-                        <input name="title" required maxlength="160" th:value="${defaultAuditTitle}" data-input-type="text"
-                               class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-label-small text-secondary mb-1">Scope / location</label>
-                        <input name="scopeLocation" maxlength="160" placeholder="Branch, floor, department" data-input-type="text"
-                               class="h-[38px] w-full px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div class="flex gap-2 pt-1">
-                        <button type="submit" class="flex-1 h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon">
-                            <span class="material-symbols-outlined">add_task</span>
-                            Start Session
-                        </button>
-                        <button type="button" onclick="document.getElementById('start-audit-details').removeAttribute('open')"
-                                class="h-[38px] px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </details>
+            <div class="card-header-actions">
+                <details class="relative" id="start-audit-details">
+                    <summary class="btn btn-primary cursor-pointer list-none">
+                        <span class="material-symbols-outlined">add_task</span>
+                        New Audit Session
+                    </summary>
+                    <form th:action="@{/audit/sessions}" method="post"
+                          class="absolute right-0 top-[calc(100%+8px)] z-30 bg-white border border-slate-200 rounded-xl p-4 shadow-lg w-[340px] sm:w-[420px] space-y-3">
+                        <p class="font-semibold text-slate-800 mb-1">Start audit session</p>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Session title <span class="text-error">*</span></label>
+                            <input name="title" required maxlength="160" th:value="${defaultAuditTitle}" data-input-type="text"
+                                   class="h-10 w-full px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Scope / location</label>
+                            <input name="scopeLocation" maxlength="160" placeholder="Branch, floor, department" data-input-type="text"
+                                   class="h-10 w-full px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button type="submit" class="flex-1 h-10 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">add_task</span>
+                                Start Session
+                            </button>
+                            <button type="button" onclick="document.getElementById('start-audit-details').removeAttribute('open')"
+                                    class="h-10 px-4 border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-all">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </details>
+            </div>
         </div>
     </div>
 
-    <!-- ── Flash messages ── -->
-    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/30 text-status-success rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined shrink-0">check_circle</span>
-        <p class="font-body-medium" th:text="${successMessage}">Done.</p>
-    </div>
-    <div th:if="${errorMessage}" class="bg-error/10 border border-error/30 text-error rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined shrink-0">error</span>
-        <p class="font-body-medium" th:text="${errorMessage}">Something went wrong.</p>
-    </div>
-
-    <!-- ── Empty state ── -->
-    <div th:if="${activeSession == null}" class="bg-surface-card border border-border-default rounded-xl card-shadow p-14 sm:p-20 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-[40px]">qr_code_scanner</span>
+    <!-- ─── Alerts ─── -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span class="alert-icon material-symbols-outlined">check_circle</span>
+        <div class="alert-content">
+            <div class="alert-title">Success</div>
+            <div class="alert-message" th:text="${successMessage}">Done.</div>
         </div>
-        <h3 class="font-card-header text-card-header text-on-surface">No audit session active</h3>
-        <p class="text-body-default text-secondary mt-2 max-w-md mx-auto">Start a session using the button above to scan asset tags, record verification outcomes, and generate reports.</p>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <span class="alert-icon material-symbols-outlined">error</span>
+        <div class="alert-content">
+            <div class="alert-title">Error</div>
+            <div class="alert-message" th:text="${errorMessage}">Something went wrong.</div>
+        </div>
     </div>
 
-    <!-- ── Main layout (active session only) ── -->
+    <!-- ─── Empty State ─── -->
+    <div th:if="${activeSession == null}" class="card-nexus text-center py-16">
+        <div class="w-16 h-16 rounded-2xl bg-primary-light text-primary mx-auto flex items-center justify-center mb-6">
+            <span class="material-symbols-outlined text-4xl">qr_code_scanner</span>
+        </div>
+        <h3 class="text-base font-semibold text-slate-800">No audit session active</h3>
+        <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto">Start a session using the button above to scan asset tags, record verification outcomes, and generate reports.</p>
+    </div>
+
+    <!-- ─── Active Session Layout ─── -->
     <div th:if="${activeSession != null}" class="grid grid-cols-12 gap-6">
 
         <!-- ════ SIDEBAR ════ -->
-        <aside class="col-span-12 xl:col-span-3 space-y-4">
+        <aside class="col-span-12 xl:col-span-3 space-y-6">
 
             <!-- Session list -->
-            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                <div class="px-4 py-3.5 border-b border-border-default">
-                    <h3 class="font-card-header text-card-header text-on-surface">Audit Sessions</h3>
-                    <p class="text-label-small text-secondary mt-0.5">Recent and active sessions</p>
-                </div>
-                <div class="divide-y divide-border-default max-h-[500px] overflow-y-auto">
-                    <div th:if="${#lists.isEmpty(sessions)}" class="p-8 text-center">
-                        <span class="material-symbols-outlined text-secondary text-[34px]">inventory</span>
-                        <p class="text-body-default text-secondary mt-2">No audit sessions yet.</p>
+            <div class="card-nexus">
+                <div class="card-header-nexus" style="margin-bottom:0; padding-bottom:12px;">
+                    <div class="card-header-left">
+                        <h3 class="text-base font-semibold text-slate-800">Audit Sessions</h3>
+                        <p class="text-xs text-slate-500">Recent and active sessions</p>
                     </div>
-                    <div th:each="sess : ${sessions}" class="px-4 py-3.5 hover:bg-surface-canvas/70 transition-colors">
+                </div>
+                <div class="divide-y divide-slate-200 max-h-420 overflow-y-auto">
+                    <div th:if="${#lists.isEmpty(sessions)}" class="py-8 text-center">
+                        <span class="material-symbols-outlined text-slate-400 text-3xl">inventory</span>
+                        <p class="text-sm text-slate-500 mt-2">No audit sessions yet.</p>
+                    </div>
+                    <div th:each="sess : ${sessions}" class="session-list-item px-4 py-3.5">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                                <p class="font-body-medium text-on-surface truncate" th:text="${sess.title}">Audit title</p>
-                                <p class="text-label-small text-secondary mt-0.5 truncate" th:text="${sess.scopeLocation ?: 'All registered assets'}">Location</p>
+                                <p class="font-medium text-slate-800 truncate" th:text="${sess.title}">Audit title</p>
+                                <p class="text-xs text-slate-500 mt-0.5 truncate" th:text="${sess.scopeLocation ?: 'All registered assets'}">Location</p>
                             </div>
-                            <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                  th:classappend="${sess.status.name() == 'ACTIVE'} ? ' bg-primary/10 text-primary' : ' bg-status-success/10 text-status-success'"
+                            <span class="shrink-0 px-2 py-0.5 rounded-full text-xs font-bold"
+                                  th:classappend="${sess.status.name() == 'ACTIVE'} ? ' bg-primary/10 text-primary' : ' bg-success/10 text-success'"
                                   th:text="${sess.status}">ACTIVE</span>
                         </div>
                         <div class="grid grid-cols-3 gap-1.5 mt-3 text-center">
-                            <div class="bg-surface-canvas rounded-lg py-2">
-                                <p class="font-technical-data text-sm text-on-surface" th:text="${sess.verifiedCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Verified</p>
+                            <div class="bg-slate-50 rounded-lg py-2">
+                                <p class="font-mono text-sm text-slate-800" th:text="${sess.verifiedCount}">0</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">Verified</p>
                             </div>
-                            <div class="bg-surface-canvas rounded-lg py-2">
-                                <p class="font-technical-data text-sm text-error" th:text="${sess.missingCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Missing</p>
+                            <div class="bg-slate-50 rounded-lg py-2">
+                                <p class="font-mono text-sm text-red-600" th:text="${sess.missingCount}">0</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">Missing</p>
                             </div>
-                            <div class="bg-surface-canvas rounded-lg py-2">
-                                <p class="font-technical-data text-sm text-status-warning" th:text="${sess.discrepancyCount}">0</p>
-                                <p class="text-[10px] text-secondary uppercase tracking-wide mt-0.5">Issues</p>
+                            <div class="bg-slate-50 rounded-lg py-2">
+                                <p class="font-mono text-sm text-warning" th:text="${sess.discrepancyCount}">0</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">Issues</p>
                             </div>
                         </div>
                     </div>
@@ -213,39 +780,41 @@
             </div>
 
             <!-- History report -->
-            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
-                <div class="px-4 py-3.5 border-b border-border-default">
-                    <h3 class="font-card-header text-card-header text-on-surface">Audit History</h3>
-                    <p class="text-label-small text-secondary mt-0.5">Filter by date range</p>
+            <div class="card-nexus">
+                <div class="card-header-nexus" style="margin-bottom:0; padding-bottom:12px;">
+                    <div class="card-header-left">
+                        <h3 class="text-base font-semibold text-slate-800">Audit History</h3>
+                        <p class="text-xs text-slate-500">Filter by date range</p>
+                    </div>
                 </div>
-                <div class="p-4 space-y-3">
+                <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-label-small text-secondary mb-1">From</label>
-                            <input id="history-from" type="date" class="h-[38px] w-full px-2.5 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                            <label class="block text-xs text-slate-500 mb-1">From</label>
+                            <input id="history-from" type="date" class="h-10 w-full px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                         </div>
                         <div>
-                            <label class="block text-label-small text-secondary mb-1">To</label>
-                            <input id="history-to" type="date" class="h-[38px] w-full px-2.5 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
+                            <label class="block text-xs text-slate-500 mb-1">To</label>
+                            <input id="history-to" type="date" class="h-10 w-full px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                         </div>
                     </div>
-                    <button id="history-button" class="w-full h-[38px] border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all btn-icon">
+                    <button id="history-button" class="w-full h-10 border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined">history</span>
                         Run Report
                     </button>
                 </div>
-                <div id="history-list" class="border-t border-border-default divide-y divide-border-default max-h-[280px] overflow-y-auto">
+                <div id="history-list" class="border-t border-slate-200 divide-y divide-slate-200 max-h-280 overflow-y-auto mt-3">
                     <div th:each="audit : ${historyReport.audits}" class="px-4 py-3">
                         <div class="flex items-start justify-between gap-2">
-                            <p class="font-body-medium text-on-surface truncate text-sm" th:text="${audit.title}">Completed audit</p>
-                            <span class="shrink-0 font-technical-data text-secondary text-sm" th:text="${audit.verifiedCount}">0</span>
+                            <p class="font-medium text-slate-800 truncate text-sm" th:text="${audit.title}">Completed audit</p>
+                            <span class="shrink-0 font-mono text-slate-500 text-sm" th:text="${audit.verifiedCount}">0</span>
                         </div>
-                        <p class="text-label-small text-secondary mt-1"
+                        <p class="text-xs text-slate-500 mt-1"
                            th:text="${'Missing ' + audit.missingCount + ' · Discrepancies ' + audit.discrepancyCount}">Counts</p>
                     </div>
-                    <div th:if="${#lists.isEmpty(historyReport.audits)}" class="p-6 text-center">
-                        <span class="material-symbols-outlined text-secondary text-[32px]">event_available</span>
-                        <p class="text-body-default text-secondary mt-2 text-sm">No completed audits in the default period.</p>
+                    <div th:if="${#lists.isEmpty(historyReport.audits)}" class="py-6 text-center">
+                        <span class="material-symbols-outlined text-slate-400 text-3xl">event_available</span>
+                        <p class="text-sm text-slate-500 mt-2">No completed audits in the default period.</p>
                     </div>
                 </div>
             </div>
@@ -254,33 +823,33 @@
         <!-- ════ MAIN CONTENT ════ -->
         <section class="col-span-12 xl:col-span-9 space-y-6">
 
-            <!-- Active session header card -->
-            <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden">
+            <!-- Active session card -->
+            <div class="card-nexus">
 
                 <!-- Session meta + action -->
-                <div class="px-5 py-4 border-b border-border-default flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
+                <div class="card-header-nexus" style="margin-bottom:0; padding-bottom:16px;">
+                    <div class="card-header-left">
                         <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
-                            <h3 class="font-section-header text-section-header text-on-surface" th:text="${activeSession.title}">Active audit</h3>
+                            <span class="material-symbols-outlined text-primary text-xl">verified_user</span>
+                            <h3 class="text-base font-semibold text-slate-800" th:text="${activeSession.title}">Active audit</h3>
                         </div>
-                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-label-small text-secondary mt-1.5">
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-1.5">
                             <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">person</span>
+                                <span class="material-symbols-outlined text-sm">person</span>
                                 <span th:text="${activeSession.auditorName}">Auditor</span>
                             </span>
                             <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">location_on</span>
+                                <span class="material-symbols-outlined text-sm">location_on</span>
                                 <span th:text="${activeSession.scopeLocation ?: 'All registered assets'}">Scope</span>
                             </span>
                             <span class="flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                <span class="material-symbols-outlined text-sm">schedule</span>
                                 <span th:text="${#temporals.format(activeSession.startedAt, 'MMM dd, yyyy HH:mm')}">Started</span>
                             </span>
                         </div>
                     </div>
                     <form th:if="${activeSession.status.name() == 'ACTIVE'}" th:action="@{/audit/sessions/{id}/complete(id=${activeSession.id})}" method="post">
-                        <button type="submit" class="h-9 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon whitespace-nowrap">
+                        <button type="submit" class="btn btn-primary whitespace-nowrap">
                             <span class="material-symbols-outlined">task_alt</span>
                             Complete Audit
                         </button>
@@ -288,65 +857,79 @@
                 </div>
 
                 <!-- Metric strip -->
-                <div class="grid grid-cols-3 divide-x divide-border-default border-b border-border-default">
-                    <div class="px-5 py-4">
-                        <p class="text-label-small text-secondary uppercase tracking-wide">Verified</p>
-                        <p id="metric-verified" class="mt-1 font-technical-data text-2xl text-on-surface" th:text="${discrepancyReport.totalVerified}">0</p>
+                <div class="stats-grid-nexus" style="margin-bottom:0;">
+                    <div class="stat-card-nexus">
+                        <div class="stat-icon-nexus stat-icon-nexus-green">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div class="stat-info-nexus">
+                            <div class="stat-label">Verified</div>
+                            <div id="metric-verified" class="stat-value green" th:text="${discrepancyReport.totalVerified}">0</div>
+                        </div>
                     </div>
-                    <div class="px-5 py-4">
-                        <p class="text-label-small text-secondary uppercase tracking-wide">Discrepancies</p>
-                        <p id="metric-discrepancies" class="mt-1 font-technical-data text-2xl text-status-warning" th:text="${discrepancyReport.discrepancyCount}">0</p>
+                    <div class="stat-card-nexus">
+                        <div class="stat-icon-nexus stat-icon-nexus-orange">
+                            <span class="material-symbols-outlined">report_problem</span>
+                        </div>
+                        <div class="stat-info-nexus">
+                            <div class="stat-label">Discrepancies</div>
+                            <div id="metric-discrepancies" class="stat-value orange" th:text="${discrepancyReport.discrepancyCount}">0</div>
+                        </div>
                     </div>
-                    <div class="px-5 py-4">
-                        <p class="text-label-small text-secondary uppercase tracking-wide">Status</p>
-                        <p class="mt-1 font-body-medium text-on-surface" th:text="${activeSession.status.name() == 'ACTIVE' ? 'In progress' : 'Completed'}">In progress</p>
+                    <div class="stat-card-nexus">
+                        <div class="stat-icon-nexus stat-icon-nexus-red">
+                            <span class="material-symbols-outlined">pending_actions</span>
+                        </div>
+                        <div class="stat-info-nexus">
+                            <div class="stat-label">Status</div>
+                            <div class="stat-value" th:text="${activeSession.status.name() == 'ACTIVE' ? 'In progress' : 'Completed'}">In progress</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Scanner + verification form -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border-default">
+                <!-- Scanner + verification -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
 
                     <!-- LEFT: Camera scanner -->
                     <div class="p-5 space-y-4">
                         <div>
-                            <p class="font-body-medium text-on-surface mb-3">Camera Scanner</p>
-                            <div class="scan-frame border border-border-default">
+                            <p class="font-medium text-slate-800 mb-3">Camera Scanner</p>
+                            <div class="scan-frame-nexus">
                                 <video id="scanner-video" muted playsinline></video>
-                                <div class="scan-reticle hidden" id="scan-reticle"></div>
+                                <div class="scan-reticle-nexus" id="scan-reticle"></div>
                                 <div class="camera-empty-overlay" id="camera-empty">
-                                    <span class="material-symbols-outlined text-white/80 text-[48px]">qr_code_scanner</span>
-                                    <p class="font-body-medium text-white mt-2 text-sm">Camera scanner ready</p>
-                                    <p class="text-white/60 text-xs mt-1 max-w-[220px]">Use a supported mobile browser to scan QR or barcode tags.</p>
+                                    <span class="material-symbols-outlined">qr_code_scanner</span>
+                                    <p>Camera scanner ready</p>
+                                    <p class="sub">Use a supported mobile browser to scan QR or barcode tags.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex gap-2">
                             <button id="start-camera" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
-                                    class="flex-1 h-9 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon disabled:opacity-50">
+                                    class="flex-1 btn btn-primary disabled:opacity-50">
                                 <span class="material-symbols-outlined">photo_camera</span>
                                 Start Camera
                             </button>
-                            <button id="stop-camera"
-                                    class="h-9 px-4 border border-border-strong text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all btn-icon">
+                            <button id="stop-camera" class="btn btn-secondary">
                                 <span class="material-symbols-outlined">videocam_off</span>
                                 Stop
                             </button>
                         </div>
 
-                        <p id="scanner-message" class="text-label-small text-secondary">BarcodeDetector support depends on browser and device camera permissions.</p>
+                        <p id="scanner-message" class="text-xs text-slate-500">BarcodeDetector support depends on browser and device camera permissions.</p>
 
                         <!-- Manual lookup -->
                         <div>
-                            <label class="block text-label-small text-secondary mb-1.5">Manual lookup</label>
+                            <label class="block text-xs text-slate-500 mb-1.5">Manual lookup</label>
                             <div class="flex gap-2">
                                 <div class="relative flex-1">
-                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary" style="font-size:17px;">keyboard</span>
+                                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">keyboard</span>
                                     <input id="manual-code" type="text" placeholder="Asset code or barcode value" data-input-type="alphanumeric"
-                                           class="w-full h-[38px] pl-9 pr-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                           class="w-full h-10 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                                 </div>
                                 <button id="manual-lookup" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
-                                        class="h-[38px] px-4 bg-surface-container-high text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas border border-border-default transition-colors disabled:opacity-50 btn-icon whitespace-nowrap">
+                                        class="h-10 px-4 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 border border-slate-200 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap">
                                     <span class="material-symbols-outlined">search</span>
                                     Lookup
                                 </button>
@@ -354,42 +937,42 @@
                         </div>
                     </div>
 
-                    <!-- RIGHT: Asset card + verification form -->
+                    <!-- RIGHT: Asset card + verification -->
                     <div class="p-5 space-y-4">
 
-                        <!-- Loading state -->
-                        <div id="lookup-loading" class="hidden rounded-xl border border-border-default bg-surface-canvas p-6 text-center">
-                            <div class="spinner text-primary mx-auto"></div>
-                            <p class="text-body-default text-secondary mt-3 text-sm">Retrieving asset record…</p>
+                        <!-- Loading -->
+                        <div id="lookup-loading" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
+                            <div class="spinner mx-auto"></div>
+                            <p class="text-sm text-slate-500 mt-3">Retrieving asset record…</p>
                         </div>
 
-                        <!-- Error state -->
-                        <div id="lookup-error" class="hidden rounded-xl border border-error/20 bg-error/10 p-4 text-error flex items-start gap-3">
-                            <span class="material-symbols-outlined shrink-0 text-[20px]">error</span>
-                            <p class="font-body-medium text-sm" id="lookup-error-text">Asset not found.</p>
+                        <!-- Error -->
+                        <div id="lookup-error" class="hidden rounded-xl border border-red-200 bg-red-50 p-4 text-red-600 flex items-start gap-3">
+                            <span class="material-symbols-outlined shrink-0 text-xl">error</span>
+                            <p class="font-medium text-sm" id="lookup-error-text">Asset not found.</p>
                         </div>
 
                         <!-- Asset card -->
-                        <div id="asset-card" class="hidden rounded-xl border border-border-default overflow-hidden">
+                        <div id="asset-card" class="hidden rounded-xl border border-slate-200 overflow-hidden">
                             <div class="p-4 flex gap-3">
-                                <div class="w-14 h-14 rounded-lg bg-surface-variant border border-border-default overflow-hidden flex items-center justify-center shrink-0">
+                                <div class="w-14 h-14 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                                     <img id="asset-image" class="hidden w-full h-full object-cover" alt="Scanned asset">
-                                    <span id="asset-image-empty" class="material-symbols-outlined text-primary text-[28px]">inventory_2</span>
+                                    <span id="asset-image-empty" class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <h4 id="asset-name" class="font-card-header text-card-header text-on-surface truncate">Asset name</h4>
-                                    <p id="asset-code" class="font-technical-data text-secondary text-label-small mt-0.5">AST</p>
-                                    <span id="asset-status" class="mt-1.5 inline-flex px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info">Status</span>
+                                    <h4 id="asset-name" class="font-semibold text-slate-800 truncate text-sm">Asset name</h4>
+                                    <p id="asset-code" class="font-mono text-xs text-slate-500 mt-0.5">AST</p>
+                                    <span id="asset-status" class="mt-1.5 inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-info/10 text-info">Status</span>
                                 </div>
                             </div>
-                            <div class="bg-surface-canvas border-t border-border-default px-4 py-3 grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 border-t border-slate-200 px-4 py-3 grid grid-cols-2 gap-3">
                                 <div>
-                                    <p class="text-label-small text-secondary">Expected location</p>
-                                    <p id="asset-location" class="font-body-medium text-on-surface mt-0.5 text-sm">Location</p>
+                                    <p class="text-xs text-slate-500">Expected location</p>
+                                    <p id="asset-location" class="font-medium text-slate-800 mt-0.5 text-sm">Location</p>
                                 </div>
                                 <div>
-                                    <p class="text-label-small text-secondary">Custodian</p>
-                                    <p id="asset-custodian" class="font-body-medium text-on-surface mt-0.5 text-sm">Custodian</p>
+                                    <p class="text-xs text-slate-500">Custodian</p>
+                                    <p id="asset-custodian" class="font-medium text-slate-800 mt-0.5 text-sm">Custodian</p>
                                 </div>
                             </div>
                         </div>
@@ -400,29 +983,29 @@
                             <input type="hidden" id="scanned-code">
 
                             <div>
-                                <label class="block text-label-small text-secondary mb-2">Verification result</label>
+                                <label class="block text-xs text-slate-500 mb-2">Verification result</label>
                                 <div class="grid grid-cols-2 gap-2">
                                     <label class="result-radio-label">
                                         <input type="radio" name="resultStatus" value="FOUND" checked>
-                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-status-success bg-status-success/10 text-status-success">
+                                        <div class="result-radio-card" data-checked-class="checked-found">
                                             <span class="material-symbols-outlined">check_circle</span>Found
                                         </div>
                                     </label>
                                     <label class="result-radio-label">
                                         <input type="radio" name="resultStatus" value="MISSING">
-                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-error bg-error/10 text-error">
+                                        <div class="result-radio-card" data-checked-class="checked-missing">
                                             <span class="material-symbols-outlined">do_not_disturb_on</span>Missing
                                         </div>
                                     </label>
                                     <label class="result-radio-label">
                                         <input type="radio" name="resultStatus" value="DAMAGED">
-                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-status-warning bg-status-warning/10 text-status-warning">
+                                        <div class="result-radio-card" data-checked-class="checked-damaged">
                                             <span class="material-symbols-outlined">report_problem</span>Damaged
                                         </div>
                                     </label>
                                     <label class="result-radio-label">
                                         <input type="radio" name="resultStatus" value="LOCATION_MISMATCH">
-                                        <div class="result-radio-card border-border-default bg-surface-card text-on-surface" data-checked-class="border-primary bg-primary/10 text-primary">
+                                        <div class="result-radio-card" data-checked-class="checked-mismatch">
                                             <span class="material-symbols-outlined">wrong_location</span>Mismatch
                                         </div>
                                     </label>
@@ -430,17 +1013,17 @@
                             </div>
 
                             <div>
-                                <label class="block text-label-small text-secondary mb-1">Actual location</label>
+                                <label class="block text-xs text-slate-500 mb-1">Actual location</label>
                                 <input id="actual-location" maxlength="260" placeholder="Where the asset was found" data-input-type="text"
-                                       class="w-full h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                       class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
                             </div>
                             <div>
-                                <label class="block text-label-small text-secondary mb-1">Condition notes <span class="font-normal opacity-60">(optional)</span></label>
+                                <label class="block text-xs text-slate-500 mb-1">Condition notes <span class="font-normal opacity-60">(optional)</span></label>
                                 <textarea id="condition-notes" rows="3" placeholder="Note for damage, missing status, or location mismatch" data-input-type="text"
-                                          class="w-full px-3 py-2 bg-surface-canvas border border-border-default rounded-lg text-body-default text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
+                                          class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"></textarea>
                             </div>
                             <button id="submit-verification" th:disabled="${activeSession.status.name() != 'ACTIVE'}"
-                                    class="w-full h-[38px] bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all btn-icon disabled:opacity-50">
+                                    class="w-full btn btn-primary disabled:opacity-50">
                                 <span class="material-symbols-outlined">save</span>
                                 Submit Verification
                             </button>
@@ -453,71 +1036,73 @@
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
                 <!-- Verification Feed -->
-                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex flex-col">
-                    <div class="px-4 py-3.5 border-b border-border-default">
-                        <h3 class="font-card-header text-card-header text-on-surface">Verification Feed</h3>
-                        <p class="text-label-small text-secondary mt-0.5">Latest stored results for this session</p>
+                <div class="card-nexus flex flex-col" style="margin-bottom:0;">
+                    <div class="card-header-nexus" style="margin-bottom:0; padding-bottom:12px;">
+                        <div class="card-header-left">
+                            <h3 class="text-base font-semibold text-slate-800">Verification Feed</h3>
+                            <p class="text-xs text-slate-500">Latest stored results for this session</p>
+                        </div>
                     </div>
-                    <div id="verification-feed" class="divide-y divide-border-default flex-1 overflow-y-auto max-h-[420px]">
-                        <div th:if="${#lists.isEmpty(results)}" class="p-10 text-center">
-                            <span class="material-symbols-outlined text-secondary text-[40px]">fact_check</span>
-                            <h4 class="font-card-header text-card-header text-on-surface mt-3">No assets verified yet</h4>
-                            <p class="text-body-default text-secondary mt-1 text-sm">Scan or enter an asset tag above to begin.</p>
+                    <div id="verification-feed" class="divide-y divide-slate-200 flex-1 overflow-y-auto max-h-420">
+                        <div th:if="${#lists.isEmpty(results)}" class="py-10 text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-4xl">fact_check</span>
+                            <h4 class="text-base font-semibold text-slate-800 mt-3">No assets verified yet</h4>
+                            <p class="text-sm text-slate-500 mt-1">Scan or enter an asset tag above to begin.</p>
                         </div>
                         <div th:each="result : ${results}" class="px-4 py-3.5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
-                                    <p class="font-body-medium text-on-surface truncate text-sm" th:text="${result.assetName}">Asset</p>
-                                    <p class="font-technical-data text-label-small text-secondary mt-0.5" th:text="${result.assetCode}">AST</p>
+                                    <p class="font-medium text-slate-800 truncate text-sm" th:text="${result.assetName}">Asset</p>
+                                    <p class="font-mono text-xs text-slate-500 mt-0.5" th:text="${result.assetCode}">AST</p>
                                 </div>
-                                <span class="shrink-0 px-2 py-0.5 rounded-full text-badge-label font-badge-label"
-                                      th:classappend="${result.resultStatus.name() == 'FOUND'} ? ' bg-status-success/10 text-status-success' : (${result.resultStatus.name() == 'DAMAGED'} ? ' bg-status-warning/10 text-status-warning' : ' bg-error/10 text-error')"
+                                <span class="shrink-0 px-2 py-0.5 rounded-full text-xs font-medium"
+                                      th:classappend="${result.resultStatus.name() == 'FOUND'} ? 'badge-found' : (${result.resultStatus.name() == 'DAMAGED'} ? 'badge-damaged' : 'badge-missing')"
                                       th:text="${#strings.replace(result.resultStatus.name(), '_', ' ')}">FOUND</span>
                             </div>
-                            <p class="text-label-small text-secondary mt-1.5"
+                            <p class="text-xs text-slate-500 mt-1.5"
                                th:text="${'Expected: ' + result.expectedLocation + (result.actualLocation != null ? ' · Actual: ' + result.actualLocation : '')}">Location</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Discrepancy Report -->
-                <div class="bg-surface-card border border-border-default rounded-xl card-shadow overflow-hidden flex flex-col">
-                    <div class="px-4 py-3.5 border-b border-border-default flex items-center justify-between">
-                        <div>
-                            <h3 class="font-card-header text-card-header text-on-surface">Discrepancy Report</h3>
-                            <p class="text-label-small text-secondary mt-0.5">Mismatched, missing, or damaged assets</p>
+                <div class="card-nexus flex flex-col" style="margin-bottom:0;">
+                    <div class="card-header-nexus" style="margin-bottom:0; padding-bottom:12px;">
+                        <div class="card-header-left">
+                            <h3 class="text-base font-semibold text-slate-800">Discrepancy Report</h3>
+                            <p class="text-xs text-slate-500">Mismatched, missing, or damaged assets</p>
                         </div>
                         <button id="refresh-discrepancies"
-                                class="h-8 w-8 rounded-lg border border-border-default hover:bg-surface-canvas flex items-center justify-center transition-colors"
+                                class="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition-colors"
                                 aria-label="Refresh discrepancies">
-                            <span class="material-symbols-outlined" style="font-size:17px;">refresh</span>
+                            <span class="material-symbols-outlined text-sm">refresh</span>
                         </button>
                     </div>
                     <div id="discrepancy-report" class="flex-1 overflow-auto">
-                        <div th:if="${discrepancyReport.discrepancyCount == 0}" class="p-10 text-center">
-                            <span class="material-symbols-outlined text-status-success text-[40px]">verified</span>
-                            <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
-                            <p class="text-body-default text-secondary mt-1 text-sm">Issues will appear here once an auditor submits them.</p>
+                        <div th:if="${discrepancyReport.discrepancyCount == 0}" class="py-10 text-center">
+                            <span class="material-symbols-outlined text-success text-4xl">verified</span>
+                            <h4 class="text-base font-semibold text-slate-800 mt-3">No discrepancies recorded</h4>
+                            <p class="text-sm text-slate-500 mt-1">Issues will appear here once an auditor submits them.</p>
                         </div>
                         <div th:unless="${discrepancyReport.discrepancyCount == 0}" class="overflow-x-auto">
                             <table class="w-full text-left min-w-[480px]">
-                                <thead class="bg-surface-canvas border-b border-border-default">
+                                <thead class="bg-slate-50 border-b border-slate-200">
                                 <tr>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Asset</th>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Type</th>
-                                    <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Location</th>
+                                    <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Asset</th>
+                                    <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
+                                    <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Location</th>
                                 </tr>
                                 </thead>
-                                <tbody class="divide-y divide-border-default">
-                                <tr th:each="item : ${discrepancyReport.discrepancies}" class="hover:bg-surface-canvas/60 transition-colors">
+                                <tbody class="divide-y divide-slate-200">
+                                <tr th:each="item : ${discrepancyReport.discrepancies}" class="hover:bg-slate-50/60 transition-colors">
                                     <td class="px-4 py-3">
-                                        <p class="font-body-medium text-on-surface text-sm" th:text="${item.assetName}">Asset</p>
-                                        <p class="font-technical-data text-label-small text-secondary" th:text="${item.assetCode}">AST</p>
+                                        <p class="font-medium text-slate-800 text-sm" th:text="${item.assetName}">Asset</p>
+                                        <p class="font-mono text-xs text-slate-500" th:text="${item.assetCode}">AST</p>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label" th:text="${item.discrepancyType}">Missing</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-medium" th:text="${item.discrepancyType}">Missing</span>
                                     </td>
-                                    <td class="px-4 py-3 text-label-small text-secondary"
+                                    <td class="px-4 py-3 text-xs text-slate-500"
                                         th:text="${item.actualLocation != null ? item.actualLocation : item.expectedLocation}">Location</td>
                                 </tr>
                                 </tbody>
@@ -529,7 +1114,7 @@
         </section>
     </div>
 
-    <!-- ZXing JS fallback for browsers without BarcodeDetector -->
+    <!-- ─── ZXing JS fallback ─── -->
     <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
     <script th:inline="javascript">
         const activeSessionId = [[${activeSession != null ? activeSession.id : null}]];
@@ -541,13 +1126,13 @@
                 const input = label.querySelector('input[type="radio"]');
                 const card = label.querySelector('.result-radio-card');
                 if (!input || !card) return;
-                const checkedClasses = (card.dataset.checkedClass || '').split(' ').filter(Boolean);
-                const defaultClasses = ['border-border-default', 'bg-surface-card', 'text-on-surface'];
+                const checkedClass = card.dataset.checkedClass || '';
+                const defaultClasses = ['border-slate-200', 'bg-white', 'text-slate-700'];
                 if (input.checked) {
                     defaultClasses.forEach(c => card.classList.remove(c));
-                    checkedClasses.forEach(c => card.classList.add(c));
+                    card.classList.add(checkedClass);
                 } else {
-                    checkedClasses.forEach(c => card.classList.remove(c));
+                    card.classList.remove(checkedClass);
                     defaultClasses.forEach(c => card.classList.add(c));
                 }
             });
@@ -568,7 +1153,7 @@
         let currentAsset = null;
         let stream = null;
         let detector = null;
-        let codeReader = null; // ZXing fallback reader
+        let codeReader = null;
         let scanning = false;
         let lastDetectedCode = '';
         let lastDetectedAt = 0;
@@ -680,25 +1265,25 @@
         }
 
         function statusClass(status) {
-            if (status === 'FOUND') return 'bg-status-success/10 text-status-success';
-            if (status === 'DAMAGED') return 'bg-status-warning/10 text-status-warning';
-            return 'bg-error/10 text-error';
+            if (status === 'FOUND') return 'badge-found';
+            if (status === 'DAMAGED') return 'badge-damaged';
+            return 'badge-missing';
         }
 
         function prependFeedItem(result) {
             const feed = document.getElementById('verification-feed');
-            feed.querySelector('.text-center')?.closest('.p-10')?.remove();
+            feed.querySelector('.text-center')?.closest('.py-10')?.remove();
             const item = document.createElement('div');
             item.className = 'px-4 py-3.5';
             item.innerHTML = `
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="font-body-medium text-on-surface truncate text-sm">${escapeHtml(result.assetName)}</p>
-                        <p class="font-technical-data text-label-small text-secondary mt-0.5">${escapeHtml(result.assetCode)}</p>
+                        <p class="font-medium text-slate-800 truncate text-sm">${escapeHtml(result.assetName)}</p>
+                        <p class="font-mono text-xs text-slate-500 mt-0.5">${escapeHtml(result.assetCode)}</p>
                     </div>
-                    <span class="shrink-0 px-2 py-0.5 rounded-full text-badge-label font-badge-label ${statusClass(result.resultStatus)}">${result.resultStatus.replace('_', ' ')}</span>
+                    <span class="shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${statusClass(result.resultStatus)}">${result.resultStatus.replace('_', ' ')}</span>
                 </div>
-                <p class="text-label-small text-secondary mt-1.5">Expected: ${escapeHtml(result.expectedLocation || '')}${result.actualLocation ? ' · Actual: ' + escapeHtml(result.actualLocation) : ''}</p>`;
+                <p class="text-xs text-slate-500 mt-1.5">Expected: ${escapeHtml(result.expectedLocation || '')}${result.actualLocation ? ' · Actual: ' + escapeHtml(result.actualLocation) : ''}</p>`;
             feed.prepend(item);
         }
 
@@ -712,33 +1297,33 @@
             const container = document.getElementById('discrepancy-report');
             if (!report.discrepancies.length) {
                 container.innerHTML = `
-                    <div class="p-10 text-center">
-                        <span class="material-symbols-outlined text-status-success text-[40px]">verified</span>
-                        <h4 class="font-card-header text-card-header text-on-surface mt-3">No discrepancies recorded</h4>
-                        <p class="text-body-default text-secondary mt-1 text-sm">Issues will appear here once an auditor submits them.</p>
+                    <div class="py-10 text-center">
+                        <span class="material-symbols-outlined text-success text-4xl">verified</span>
+                        <h4 class="text-base font-semibold text-slate-800 mt-3">No discrepancies recorded</h4>
+                        <p class="text-sm text-slate-500 mt-1">Issues will appear here once an auditor submits them.</p>
                     </div>`;
                 return;
             }
             const rows = report.discrepancies.map(item => `
-                <tr class="hover:bg-surface-canvas/60 transition-colors">
+                <tr class="hover:bg-slate-50/60 transition-colors">
                     <td class="px-4 py-3">
-                        <p class="font-body-medium text-on-surface text-sm">${escapeHtml(item.assetName)}</p>
-                        <p class="font-technical-data text-label-small text-secondary">${escapeHtml(item.assetCode)}</p>
+                        <p class="font-medium text-slate-800 text-sm">${escapeHtml(item.assetName)}</p>
+                        <p class="font-mono text-xs text-slate-500">${escapeHtml(item.assetCode)}</p>
                     </td>
-                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-error/10 text-error text-badge-label font-badge-label">${escapeHtml(item.discrepancyType || '')}</span></td>
-                    <td class="px-4 py-3 text-label-small text-secondary">${escapeHtml(item.actualLocation || item.expectedLocation || '')}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-medium">${escapeHtml(item.discrepancyType || '')}</span></td>
+                    <td class="px-4 py-3 text-xs text-slate-500">${escapeHtml(item.actualLocation || item.expectedLocation || '')}</td>
                 </tr>`).join('');
             container.innerHTML = `
                 <div class="overflow-x-auto">
                     <table class="w-full text-left min-w-[480px]">
-                        <thead class="bg-surface-canvas border-b border-border-default">
+                        <thead class="bg-slate-50 border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Asset</th>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Type</th>
-                                <th class="px-4 py-3 font-nav-group text-label-small uppercase text-secondary tracking-wide">Location</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Asset</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Location</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-border-default">${rows}</tbody>
+                        <tbody class="divide-y divide-slate-200">${rows}</tbody>
                     </table>
                 </div>`;
         }
@@ -760,16 +1345,16 @@
                 const report = await response.json();
                 const list = document.getElementById('history-list');
                 if (!report.audits.length) {
-                    list.innerHTML = '<div class="p-6 text-center"><p class="text-body-default text-secondary text-sm">No completed audits found for this period.</p></div>';
+                    list.innerHTML = '<div class="py-6 text-center"><p class="text-sm text-slate-500">No completed audits found for this period.</p></div>';
                     return;
                 }
                 list.innerHTML = report.audits.map(audit => `
                     <div class="px-4 py-3">
                         <div class="flex items-start justify-between gap-2">
-                            <p class="font-body-medium text-on-surface truncate text-sm">${escapeHtml(audit.title)}</p>
-                            <span class="shrink-0 font-technical-data text-secondary text-sm">${audit.verifiedCount}</span>
+                            <p class="font-medium text-slate-800 truncate text-sm">${escapeHtml(audit.title)}</p>
+                            <span class="shrink-0 font-mono text-slate-500 text-sm">${audit.verifiedCount}</span>
                         </div>
-                        <p class="text-label-small text-secondary mt-1">Missing ${audit.missingCount} · Discrepancies ${audit.discrepancyCount}</p>
+                        <p class="text-xs text-slate-500 mt-1">Missing ${audit.missingCount} · Discrepancies ${audit.discrepancyCount}</p>
                     </div>`).join('');
             } catch (error) {
                 showError('Audit history could not be loaded.');
@@ -785,14 +1370,12 @@
         async function startCamera() {
             if (!sessionActive) return;
             try {
-                // Start media stream
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
                 video.srcObject = stream;
                 await video.play();
                 document.getElementById('camera-empty').classList.add('hidden');
-                document.getElementById('scan-reticle').classList.remove('hidden');
+                document.getElementById('scan-reticle').classList.add('visible');
 
-                // Prefer native BarcodeDetector when available
                 if ('BarcodeDetector' in window) {
                     detector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e'] });
                     scanning = true;
@@ -801,13 +1384,11 @@
                     return;
                 }
 
-                // Fallback: use ZXing's BrowserMultiFormatReader if loaded
                 if (window.ZXing && typeof ZXing.BrowserMultiFormatReader === 'function') {
                     try {
                         codeReader = new ZXing.BrowserMultiFormatReader();
                         scanning = true;
                         scannerMessage.textContent = 'Camera active (ZXing). Position the tag inside the frame.';
-                        // decodeFromVideoDevice accepts deviceId (null for default) and element id
                         codeReader.decodeFromVideoDevice(null, 'scanner-video', (result, err) => {
                             if (result && result.text) {
                                 const code = result.text;
@@ -821,14 +1402,10 @@
                             }
                         });
                         return;
-                    } catch (e) {
-                        // fall through to error handling below
-                    }
+                    } catch (e) { /* fall through */ }
                 }
 
-                // If we reached here, no detector available
                 scannerMessage.textContent = 'This browser does not support camera barcode detection. Use manual entry.';
-                // stop the stream we started
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
                 video.srcObject = null;
@@ -839,13 +1416,11 @@
 
         function stopCamera() {
             scanning = false;
-            // Stop BarcodeDetector loop
             if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
-            // Reset ZXing reader if used
             if (codeReader) { try { codeReader.reset(); } catch (e) { /* ignore */ } codeReader = null; }
             if (video) video.srcObject = null;
             document.getElementById('camera-empty')?.classList.remove('hidden');
-            document.getElementById('scan-reticle')?.classList.add('hidden');
+            document.getElementById('scan-reticle')?.classList.remove('visible');
         }
 
         async function scanLoop() {

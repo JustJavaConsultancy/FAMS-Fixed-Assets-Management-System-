@@ -1,46 +1,640 @@
 <!DOCTYPE html>
-<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
 <head>
     <title>Maintenance Management | JustJava FAMS</title>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <style>
-        .modal-panel {
-            max-height: calc(100vh - 48px);
+        /* ── Nexus Design Tokens (reused from Check-In/Out) ── */
+        :root {
+            --color-primary: #D32F2F;
+            --color-primary-dark: #B71C1C;
+            --color-primary-light: #FCE4E4;
+            --color-primary-hover: #C62828;
+            --color-success: #16a34a;
+            --color-success-light: #dcfce7;
+            --color-warning: #d97706;
+            --color-warning-light: #fef3c7;
+            --color-info: #2563eb;
+            --color-info-light: #dbeafe;
+            --color-danger: #dc2626;
+            --color-danger-light: #fee2e2;
+            --color-slate-50: #f8fafc;
+            --color-slate-100: #f1f5f9;
+            --color-slate-200: #e2e8f0;
+            --color-slate-300: #cbd5e1;
+            --color-slate-400: #94a3b8;
+            --color-slate-500: #64748b;
+            --color-slate-600: #475569;
+            --color-slate-700: #334155;
+            --color-slate-800: #1e293b;
+            --color-slate-900: #0f172a;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 200ms ease;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
-        @media (max-width: 640px) {
-            .modal-panel {
-                max-height: 92vh;
-                width: calc(100vw - 24px);
+
+        body {
+            font-family: var(--font);
+            color: var(--color-slate-900);
+            background: #fafafc;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(211, 47, 47, 0.15);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .spinner-lg {
+            width: 44px;
+            height: 44px;
+            border-width: 4px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
 
-        /* ── Custom Tom-Select Styling for Professional Look ── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-content {
+            text-align: center;
+            background: white;
+            padding: 32px 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-slate-200);
+        }
+        .loading-content p {
+            margin-top: 16px;
+            color: var(--color-slate-500);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            border: 1px solid transparent;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            animation: slideDown 300ms ease-out;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .alert-success {
+            border-color: #86c7a3;
+            background: var(--color-success-light);
+            color: #065f46;
+        }
+        .alert-error {
+            border-color: #f0c8c8;
+            background: var(--color-danger-light);
+            color: #991b1b;
+        }
+        .alert-warning {
+            border-color: #f0d5b8;
+            background: var(--color-warning-light);
+            color: #78350f;
+        }
+        .alert-info {
+            border-color: #b8cfe8;
+            background: var(--color-info-light);
+            color: #1e40af;
+        }
+        .alert-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            line-height: 1.4;
+            display: inline-flex;
+            align-items: center;
+        }
+        .alert-content {
+            flex: 1;
+        }
+        .alert-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .alert-message {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* ── Nexus Cards ── */
+        .card-nexus {
+            background: #ffffff;
+            border-radius: var(--radius);
+            border: 1px solid var(--color-slate-200);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 200ms ease;
+        }
+        .card-nexus:hover {
+            border-color: var(--color-slate-300);
+        }
+
+        .card-header-nexus {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-slate-200);
+        }
+        .card-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card-header-left h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header-left h2 .material-symbols-outlined {
+            font-size: 22px;
+            color: var(--color-primary);
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--color-slate-500);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Nexus Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            white-space: nowrap;
+            font-family: inherit;
+            line-height: 1;
+        }
+        .btn .material-symbols-outlined {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.30);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--color-slate-100);
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
+        }
+        .btn-secondary:hover {
+            background: var(--color-slate-200);
+            border-color: var(--color-slate-300);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.30);
+        }
+
+        .btn-warning {
+            background: var(--color-warning);
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background: #b45309;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.30);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
+        }
+        .btn-outline:hover {
+            background: var(--color-slate-100);
+            border-color: var(--color-slate-300);
+        }
+
+        .btn-sm {
+            height: 32px;
+            padding: 0 14px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        .btn-sm .material-symbols-outlined {
+            font-size: 16px;
+        }
+
+        /* ── Nexus Badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            line-height: 1.6;
+        }
+        .badge .material-symbols-outlined {
+            font-size: 14px;
+            line-height: 1;
+        }
+        .badge-available {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-checked-out {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-returned {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-verified {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* ── Nexus Tables ── */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -4px;
+            padding: 0 4px;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 680px;
+        }
+        .table-container thead {
+            background: var(--color-slate-50);
+            border-bottom: 2px solid var(--color-slate-200);
+        }
+        .table-container th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--color-slate-500);
+            white-space: nowrap;
+        }
+        .table-container td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--color-slate-200);
+            color: var(--color-slate-700);
+            vertical-align: middle;
+        }
+        .table-container tbody tr {
+            transition: background 150ms ease;
+        }
+        .table-container tbody tr:hover {
+            background: var(--color-slate-50);
+        }
+        .table-container .asset-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .table-container .asset-cell .asset-name {
+            font-weight: 600;
+            color: var(--color-slate-900);
+        }
+        .table-container .asset-cell .asset-code {
+            font-size: 12px;
+            color: var(--color-slate-400);
+        }
+        .table-container .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Nexus Tabs ── */
+        .tabs-nexus {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--color-slate-200);
+            margin-bottom: 24px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0;
+        }
+        .tab-nexus {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--color-slate-500);
+            border-bottom: 2.5px solid transparent;
+            transition: var(--transition);
+            font-family: inherit;
+            white-space: nowrap;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+        .tab-nexus .material-symbols-outlined {
+            font-size: 18px;
+            line-height: 1;
+        }
+        .tab-nexus:hover {
+            color: var(--color-slate-700);
+            background: var(--color-slate-50);
+            border-bottom-color: var(--color-slate-300);
+        }
+        .tab-nexus.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-nexus.active:hover {
+            background: transparent;
+        }
+
+        .tab-content-nexus {
+            display: none;
+            animation: fadeIn 300ms ease;
+        }
+        .tab-content-nexus.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Nexus Stats Grid ── */
+        .stats-grid-nexus {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card-nexus {
+            background: white;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .stat-card-nexus:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-slate-300);
+            transform: translateY(-2px);
+        }
+        .stat-icon-nexus {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+        .stat-icon-nexus-red {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .stat-icon-nexus-orange {
+            background: var(--color-warning-light);
+            color: var(--color-warning);
+        }
+        .stat-icon-nexus-danger {
+            background: var(--color-danger-light);
+            color: var(--color-danger);
+        }
+        .stat-icon-nexus-blue {
+            background: var(--color-info-light);
+            color: var(--color-info);
+        }
+        .stat-icon-nexus-green {
+            background: var(--color-success-light);
+            color: var(--color-success);
+        }
+        .stat-info-nexus {
+            flex: 1;
+            min-width: 0;
+        }
+        .stat-info-nexus .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+        .stat-info-nexus .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-slate-900);
+            line-height: 1.2;
+        }
+        .stat-info-nexus .stat-value.red {
+            color: var(--color-primary);
+        }
+        .stat-info-nexus .stat-value.orange {
+            color: var(--color-warning);
+        }
+        .stat-info-nexus .stat-value.danger {
+            color: var(--color-danger);
+        }
+        .stat-info-nexus .stat-value.blue {
+            color: var(--color-info);
+        }
+        .stat-info-nexus .stat-value.green {
+            color: var(--color-success);
+        }
+
+        /* ── Empty State ── */
+        .empty-state-nexus {
+            text-align: center;
+            padding: 48px 20px 40px;
+            color: var(--color-slate-500);
+        }
+        .empty-state-nexus .material-symbols-outlined {
+            font-size: 48px;
+            color: var(--color-slate-300);
+            margin-bottom: 12px;
+            display: block;
+        }
+        .empty-state-nexus p {
+            margin: 0;
+            font-size: 14px;
+            max-width: 400px;
+            margin-inline: auto;
+        }
+        .empty-state-nexus .empty-cta {
+            margin-top: 16px;
+        }
+
+        /* ── Utilities ── */
+        .text-secondary {
+            color: var(--color-slate-500);
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+        .inline-form {
+            display: inline-flex;
+        }
+        .flex-shrink-0 {
+            flex-shrink: 0;
+        }
+
+        /* ── Tom-Select Nexus Override ── */
         .ts-wrapper {
             width: 100%;
         }
         .ts-control {
-            background: rgb(249, 249, 255);
-            border: 1px solid #d1d5db;
-            border-radius: 0.75rem;
+            background: var(--color-slate-50);
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius-sm);
             padding: 0.625rem 0.75rem;
             min-height: 2.75rem;
             font-size: 0.9375rem;
-            transition: all 200ms ease;
+            transition: var(--transition);
         }
         .ts-control:focus-within {
-            border-color: #c0182a;
-            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.1);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.10);
             outline: none;
         }
         .ts-control input {
             font-size: 0.9375rem;
-            color: #1a1d23;
+            color: var(--color-slate-900);
         }
         .ts-dropdown {
-            border: 1px solid #d1d5db;
-            border-radius: 0.75rem;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius-sm);
             background: white;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--shadow-lg);
             z-index: 1000;
         }
         .ts-dropdown-content {
@@ -49,145 +643,431 @@
         .ts-option, .ts-optgroup-header {
             padding: 0.625rem 0.75rem;
             font-size: 0.9375rem;
-            color: #1a1d23;
+            color: var(--color-slate-900);
         }
         .ts-option:hover {
-            background: #fce4e4;
-            color: #1a1d23;
+            background: var(--color-primary-light);
+            color: var(--color-slate-900);
         }
         .ts-option.selected {
-            background: #c0182a;
+            background: var(--color-primary);
             color: white;
         }
         .ts-optgroup-header {
-            background: #f9f9ff;
+            background: var(--color-slate-50);
             font-weight: 600;
-            color: #5d5e65;
+            color: var(--color-slate-500);
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.03em;
-            border-top: 1px solid #d1d5db;
+            border-top: 1px solid var(--color-slate-200);
+        }
+
+        /* ── Modal Styles ── */
+        .modal-overlay-nexus {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 200ms ease;
+        }
+        .modal-overlay-nexus.active {
+            display: flex;
+        }
+        .modal-content-nexus {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            max-width: 640px;
+            width: 92%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-slate-200);
+            animation: slideUp 250ms ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-content-nexus h3 {
+            margin: 0 0 4px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+        }
+        .modal-content-nexus p {
+            margin: 0 0 16px;
+            font-size: 13px;
+            color: var(--color-slate-500);
+        }
+        .modal-content-nexus label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 6px;
+        }
+        .modal-content-nexus input,
+        .modal-content-nexus select,
+        .modal-content-nexus textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            background: var(--color-slate-50);
+            transition: border-color 200ms ease;
+        }
+        .modal-content-nexus input:focus,
+        .modal-content-nexus select:focus,
+        .modal-content-nexus textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.10);
+        }
+        .modal-content-nexus textarea {
+            resize: vertical;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .stats-grid-nexus {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .stats-grid-nexus {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .stat-card-nexus {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+            .stat-icon-nexus {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .stat-info-nexus .stat-value {
+                font-size: 20px;
+            }
+            .stat-info-nexus .stat-label {
+                font-size: 10px;
+            }
+
+            .card-nexus {
+                padding: 18px;
+            }
+            .card-header-nexus {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .card-header-actions {
+                width: 100%;
+            }
+            .card-header-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .tabs-nexus {
+                gap: 2px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 0;
+            }
+            .tab-nexus {
+                padding: 8px 14px;
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+            .tab-nexus .material-symbols-outlined {
+                font-size: 16px;
+            }
+
+            .table-container table {
+                font-size: 12px;
+                min-width: 600px;
+            }
+            .table-container th,
+            .table-container td {
+                padding: 10px 12px;
+            }
+
+            .alert {
+                padding: 12px 14px;
+                gap: 10px;
+            }
+            .alert-icon {
+                font-size: 18px;
+            }
+
+            .modal-content-nexus {
+                padding: 20px 22px;
+                max-width: 92%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid-nexus {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .stat-card-nexus {
+                padding: 12px 14px;
+                flex-direction: column;
+                text-align: center;
+                gap: 6px;
+            }
+            .stat-icon-nexus {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+            }
+            .stat-info-nexus .stat-value {
+                font-size: 18px;
+            }
+            .stat-info-nexus .stat-label {
+                font-size: 9px;
+            }
+
+            .card-header-left h2 {
+                font-size: 15px;
+            }
+
+            .btn {
+                height: 34px;
+                padding: 0 14px;
+                font-size: 12px;
+            }
+            .btn .material-symbols-outlined {
+                font-size: 16px;
+            }
+            .btn-sm {
+                height: 28px;
+                padding: 0 10px;
+                font-size: 11px;
+            }
+
+            .table-container table {
+                font-size: 11px;
+                min-width: 480px;
+            }
+            .table-container th,
+            .table-container td {
+                padding: 8px 10px;
+            }
+            .badge {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+
+            .modal-content-nexus {
+                padding: 16px 18px;
+                max-width: 96%;
+            }
+        }
+
+        /* ── Print-friendly ── */
+        @media print {
+            .btn,
+            .tab-nexus,
+            .loading-overlay {
+                display: none !important;
+            }
+            .card-nexus {
+                box-shadow: none !important;
+                border-color: #ddd !important;
+            }
+            .stats-grid-nexus {
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8" layout:fragment="content">
-    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-3 flex-wrap">
-                <h2 class="font-page-title text-page-title text-on-background">Maintenance Management</h2>
-                <span class="px-2.5 py-0.5 bg-surface-container-high text-on-secondary-fixed-variant rounded-full text-badge-label font-badge-label"
-                      th:text="${#lists.size(schedules)} + ' schedules'">0 schedules</span>
+<main id="main-content" layout:fragment="content">
+
+    <!-- ─── Loading Overlay ─── -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner spinner-lg"></div>
+            <p>Processing request…</p>
+        </div>
+    </div>
+
+    <!-- ─── Page Header ─── -->
+    <div class="card-nexus">
+        <div class="card-header-nexus">
+            <div class="card-header-left">
+                <h2>
+                    <span class="material-symbols-outlined">build_circle</span>
+                    Maintenance Management
+                </h2>
+                <p class="card-subtitle">Plan preventive work, record corrective repairs, and track asset maintenance costs.</p>
             </div>
-            <p class="text-body-default text-secondary mt-1">Plan preventive work, record corrective repairs, and track asset maintenance costs.</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            <button type="button" data-modal-target="schedule-modal"
-                    class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all shadow-sm flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">event_repeat</span>
-                New Schedule
-            </button>
-            <button type="button" data-modal-target="corrective-modal"
-                    class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">build_circle</span>
-                Log Corrective
-            </button>
-        </div>
-    </div>
-
-    <div th:if="${successMessage}" class="bg-status-success/10 border border-status-success/20 text-status-success rounded-xl p-4 flex items-center gap-3">
-        <span class="material-symbols-outlined">check_circle</span>
-        <p class="font-body-medium" th:text="${successMessage}">Maintenance action completed.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
-            <p class="text-label-small text-secondary">Preventive Schedules</p>
-            <p class="text-2xl font-semibold text-on-surface mt-2" th:text="${#lists.size(schedules)}">0</p>
-        </div>
-        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
-            <p class="text-label-small text-secondary">Corrective Events</p>
-            <p class="text-2xl font-semibold text-on-surface mt-2" th:text="${correctiveCount}">0</p>
-        </div>
-        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
-            <p class="text-label-small text-secondary">Due Tasks</p>
-            <p class="text-2xl font-semibold text-primary mt-2" th:text="${dueTaskCount}">0</p>
-        </div>
-        <div class="bg-surface-card border border-border-default rounded-xl p-5 card-shadow">
-            <p class="text-label-small text-secondary">Report Cost</p>
-            <p class="text-2xl font-semibold text-on-surface mt-2"
-               th:utext="'&#8358;' + ${#numbers.formatDecimal(reportTotal, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</p>
-        </div>
-    </div>
-
-    <div class="border-b border-border-default flex gap-6 overflow-x-auto">
-        <button type="button" data-tab-button="schedules" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-primary font-bold border-b-2 border-primary text-body-medium">Preventive Schedules</button>
-        <button type="button" data-tab-button="corrective" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Corrective Events</button>
-        <button type="button" data-tab-button="tasks" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Due Tasks</button>
-        <button type="button" data-tab-button="reports" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Reports</button>
-        <button type="button" data-tab-button="requests" class="maintenance-tab whitespace-nowrap pb-3 px-1 text-secondary font-body-medium border-b-2 border-transparent hover:text-primary transition-colors">Requests</button>
-    </div>
-
-    <section data-tab-panel="schedules" class="space-y-4">
-        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
-                <div>
-                    <h3 class="font-card-header text-card-header text-on-surface">Preventive Maintenance Schedules</h3>
-                    <p class="text-label-small text-secondary mt-1">Schedules can target a single asset or a full asset category.</p>
-                </div>
-                <button type="button" data-modal-target="schedule-modal" class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">add</span>
-                    Schedule
+            <div class="card-header-actions">
+                <button type="button" data-modal-target="schedule-modal" class="btn btn-primary">
+                    <span class="material-symbols-outlined">event_repeat</span>
+                    New Schedule
+                </button>
+                <button type="button" data-modal-target="corrective-modal" class="btn btn-secondary">
+                    <span class="material-symbols-outlined">build_circle</span>
+                    Log Corrective
                 </button>
             </div>
+        </div>
+    </div>
 
-            <div th:if="${#lists.isEmpty(schedules)}" class="p-12 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-brand-primary-light text-primary mx-auto flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[34px]">event_busy</span>
-                </div>
-                <h3 class="font-card-header text-card-header text-on-surface">No preventive schedules yet</h3>
-                <p class="text-body-default text-secondary mt-2">Create a recurring schedule to start planning maintenance work.</p>
+    <!-- ─── Alerts ─── -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <span class="alert-icon material-symbols-outlined">check_circle</span>
+        <div class="alert-content">
+            <div class="alert-title">Success</div>
+            <div class="alert-message" th:text="${successMessage}">Maintenance action completed.</div>
+        </div>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <span class="alert-icon material-symbols-outlined">error</span>
+        <div class="alert-content">
+            <div class="alert-title">Error</div>
+            <div class="alert-message" th:text="${errorMessage}">An error occurred.</div>
+        </div>
+    </div>
+
+    <!-- ─── Statistics Grid ─── -->
+    <div class="stats-grid-nexus">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-red">
+                <span class="material-symbols-outlined">event_repeat</span>
             </div>
+            <div class="stat-info-nexus">
+                <div class="stat-label">Preventive Schedules</div>
+                <div class="stat-value red" th:text="${#lists.size(schedules)}">0</div>
+            </div>
+        </div>
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-orange">
+                <span class="material-symbols-outlined">build</span>
+            </div>
+            <div class="stat-info-nexus">
+                <div class="stat-label">Corrective Events</div>
+                <div class="stat-value orange" th:text="${correctiveCount}">0</div>
+            </div>
+        </div>
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-danger">
+                <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <div class="stat-info-nexus">
+                <div class="stat-label">Due Tasks</div>
+                <div class="stat-value danger" th:text="${dueTaskCount}">0</div>
+            </div>
+        </div>
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-blue">
+                <span class="material-symbols-outlined">bar_chart</span>
+            </div>
+            <div class="stat-info-nexus">
+                <div class="stat-label">Report Cost</div>
+                <div class="stat-value blue" th:utext="'&#8358;' + ${#numbers.formatDecimal(reportTotal, 1, 'COMMA', 2, 'POINT')}">₦0.00</div>
+            </div>
+        </div>
+    </div>
 
-            <div th:unless="${#lists.isEmpty(schedules)}" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[860px]">
+    <!-- ─── Main Content Card ─── -->
+    <div class="card-nexus">
+
+        <!-- Nexus Tabs -->
+        <div class="tabs-nexus" role="tablist">
+            <button class="tab-nexus active" data-tab="schedules" role="tab" aria-selected="true">
+                <span class="material-symbols-outlined">event_repeat</span>
+                Preventive Schedules
+            </button>
+            <button class="tab-nexus" data-tab="corrective" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">build</span>
+                Corrective Events
+            </button>
+            <button class="tab-nexus" data-tab="tasks" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">task_alt</span>
+                Due Tasks
+            </button>
+            <button class="tab-nexus" data-tab="reports" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">bar_chart</span>
+                Reports
+            </button>
+            <button class="tab-nexus" data-tab="requests" role="tab" aria-selected="false">
+                <span class="material-symbols-outlined">request_quote</span>
+                Requests
+            </button>
+        </div>
+
+        <!-- ─── Tab: Schedules ─── -->
+        <div id="tab-schedules" class="tab-content-nexus active" role="tabpanel">
+            <div class="table-container">
+                <div th:if="${#lists.isEmpty(schedules)}" class="empty-state-nexus">
+                    <span class="material-symbols-outlined">event_busy</span>
+                    <p>No preventive schedules yet. Create a recurring schedule to start planning maintenance work.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(schedules)}">
                     <thead>
-                    <tr class="bg-surface-canvas border-b border-border-default">
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Target</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Service</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Frequency</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Start</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Next Due</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Responsible</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Status</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase text-right">History</th>
+                    <tr>
+                        <th>Target</th>
+                        <th>Service</th>
+                        <th>Frequency</th>
+                        <th>Start</th>
+                        <th>Next Due</th>
+                        <th>Responsible</th>
+                        <th>Status</th>
+                        <th class="text-right">History</th>
                     </tr>
                     </thead>
-                    <tbody class="divide-y divide-border-default">
-                    <tr th:each="schedule : ${schedules}" class="hover:bg-surface-canvas/60 transition-colors">
-                        <td class="px-5 py-3">
-                            <div class="flex flex-col">
-                                <span class="font-body-medium text-on-surface"
-                                      th:text="${schedule.asset != null ? schedule.asset.name : schedule.assetCategory}">Asset target</span>
-                                <span class="font-technical-data text-secondary text-label-small"
-                                      th:text="${schedule.asset != null ? schedule.asset.assetCode : 'CATEGORY'}">AST-2026-00001</span>
+                    <tbody>
+                    <tr th:each="schedule : ${schedules}" class="hover:bg-slate-50 transition-colors">
+                        <td>
+                            <div class="asset-cell">
+                                <span class="asset-name" th:text="${schedule.asset != null ? schedule.asset.name : schedule.assetCategory}">Asset target</span>
+                                <span class="asset-code" th:text="${schedule.asset != null ? schedule.asset.assetCode : 'CATEGORY'}">AST-2026-00001</span>
                             </div>
                         </td>
-                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${schedule.serviceType}">Inspection</td>
-                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${schedule.frequency.displayName()}">Monthly</td>
-                        <td class="px-5 py-3 font-technical-data text-secondary" th:text="${schedule.startDate}">2026-06-15</td>
-                        <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${schedule.nextDueDate}">2026-07-15</td>
-                        <td class="px-5 py-3">
-                            <p class="text-body-default text-on-surface" th:text="${schedule.responsibleParty}">Operations</p>
+                        <td th:text="${schedule.serviceType}">Inspection</td>
+                        <td th:text="${schedule.frequency.displayName()}">Monthly</td>
+                        <td class="font-technical-data" th:text="${schedule.startDate}">2026-06-15</td>
+                        <td class="font-technical-data" th:text="${schedule.nextDueDate}">2026-07-15</td>
+                        <td>
+                            <p class="text-body-default" th:text="${schedule.responsibleParty}">Operations</p>
                             <p class="text-label-small text-secondary" th:text="${schedule.responsibleRole}">Asset Manager</p>
                         </td>
-                        <td class="px-5 py-3">
-                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-info/10 text-status-info"
-                                  th:text="${schedule.status}">SCHEDULED</span>
+                        <td>
+                            <span class="badge badge-scheduled" th:text="${schedule.status}">SCHEDULED</span>
                         </td>
-                        <td class="px-5 py-3 text-right">
-                            <a th:if="${schedule.asset != null}" th:href="@{/assets/{id}/maintenance(id=${schedule.asset.id})}" class="inline-flex w-8 h-8 items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-canvas">
-                                <span class="material-symbols-outlined text-[18px]">history</span>
+                        <td class="text-right">
+                            <a th:if="${schedule.asset != null}" th:href="@{/assets/{id}/maintenance(id=${schedule.asset.id})}" class="btn btn-sm btn-secondary">
+                                <span class="material-symbols-outlined">history</span>
                             </a>
                         </td>
                     </tr>
@@ -195,297 +1075,271 @@
                 </table>
             </div>
         </div>
-    </section>
 
-    <section data-tab-panel="corrective" class="hidden space-y-4">
-        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
-                <div>
-                    <h3 class="font-card-header text-card-header text-on-surface">Corrective Maintenance Events</h3>
-                    <p class="text-label-small text-secondary mt-1">Faults, repairs, providers, costs, and resolution dates.</p>
+        <!-- ─── Tab: Corrective ─── -->
+        <div id="tab-corrective" class="tab-content-nexus" role="tabpanel">
+            <div class="table-container">
+                <div th:if="${#lists.isEmpty(correctiveRecords)}" class="empty-state-nexus">
+                    <span class="material-symbols-outlined">construction</span>
+                    <p>No corrective events recorded. Record a fault when an asset needs repair or service intervention.</p>
                 </div>
-                <button type="button" data-modal-target="corrective-modal" class="h-[38px] px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">add</span>
-                    Log Event
-                </button>
-            </div>
-
-            <div th:if="${#lists.isEmpty(correctiveRecords)}" class="p-12 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[34px]">construction</span>
-                </div>
-                <h3 class="font-card-header text-card-header text-on-surface">No corrective events recorded</h3>
-                <p class="text-body-default text-secondary mt-2">Record a fault when an asset needs repair or service intervention.</p>
-            </div>
-
-            <div th:unless="${#lists.isEmpty(correctiveRecords)}" class="divide-y divide-border-default">
-                <div th:each="record : ${correctiveRecords}" class="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-surface-canvas/60 transition-colors">
-                    <div class="min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="font-card-header text-card-header text-on-surface hover:text-primary" th:text="${record.asset.name}">Asset</a>
-                            <span class="px-2 py-0.5 rounded text-technical-data bg-surface-variant text-primary" th:text="${record.asset.assetCode}">AST-2026-00001</span>
-                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-error-container text-error" th:text="${record.status}">OPEN</span>
-                        </div>
-                        <p class="text-body-default text-secondary mt-2 max-w-3xl" th:text="${record.issueDescription}">Issue description</p>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm shrink-0">
-                        <div>
-                            <p class="text-label-small text-secondary">Requester</p>
-                            <p class="font-body-medium text-on-surface" th:text="${record.requestedBy ?: 'Asset Manager'}">Requester</p>
-                        </div>
-                        <div>
-                            <p class="text-label-small text-secondary">Provider</p>
-                            <p class="font-body-medium text-on-surface" th:text="${record.serviceProvider ?: 'Unassigned'}">Provider</p>
-                        </div>
-                        <div>
-                            <p class="text-label-small text-secondary">Date</p>
-                            <p class="font-technical-data text-on-surface" th:text="${record.maintenanceDate}">2026-06-15</p>
-                        </div>
-                        <div>
-                            <p class="text-label-small text-secondary">Resolution</p>
-                            <p class="font-technical-data text-on-surface" th:text="${record.resolutionDate ?: 'Pending'}">Pending</p>
-                        </div>
-                        <div class="text-left sm:text-right">
-                            <p class="text-label-small text-secondary">Cost</p>
-                            <p class="font-technical-data text-primary font-bold"
-                               th:utext="'&#8358;' + ${#numbers.formatDecimal(record.maintenanceCost ?: 0, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</p>
-                        </div>
-                    </div>
-                </div>
+                <table th:unless="${#lists.isEmpty(correctiveRecords)}">
+                    <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Issue</th>
+                        <th>Provider</th>
+                        <th>Date</th>
+                        <th>Resolution</th>
+                        <th>Status</th>
+                        <th class="text-right">Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="record : ${correctiveRecords}" class="hover:bg-slate-50 transition-colors">
+                        <td>
+                            <div class="asset-cell">
+                                <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="asset-name hover:text-primary" th:text="${record.asset.name}">Asset</a>
+                                <span class="asset-code" th:text="${record.asset.assetCode}">AST-2026-00001</span>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="text-body-default" th:text="${record.issueDescription}">Issue description</p>
+                            <p class="text-label-small text-secondary" th:if="${record.requestedBy != null}" th:text="'By ' + ${record.requestedBy}">Requester</p>
+                        </td>
+                        <td th:text="${record.serviceProvider ?: 'Unassigned'}">Provider</td>
+                        <td class="font-technical-data" th:text="${record.maintenanceDate}">2026-06-15</td>
+                        <td class="font-technical-data" th:text="${record.resolutionDate ?: 'Pending'}">Pending</td>
+                        <td>
+                            <span class="badge" th:classappend="${record.status == 'OPEN' ? 'badge-overdue' : 'badge-completed'}" th:text="${record.status}">OPEN</span>
+                        </td>
+                        <td class="text-right font-technical-data text-primary font-bold" th:utext="'₦' + ${#numbers.formatDecimal(record.maintenanceCost ?: 0, 1, 'COMMA', 2, 'POINT')}">₦0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </section>
 
-    <section data-tab-panel="tasks" class="hidden space-y-4">
-        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-            <div class="p-5 border-b border-border-default flex items-center justify-between gap-3 flex-wrap">
+        <!-- ─── Tab: Tasks ─── -->
+        <div id="tab-tasks" class="tab-content-nexus" role="tabpanel">
+            <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
                 <div>
-                    <h3 class="font-card-header text-card-header text-on-surface">Generated Maintenance Tasks</h3>
-                    <p class="text-label-small text-secondary mt-1">Due schedules generate task records and RabbitMQ events for asynchronous notification handling.</p>
+                    <h4 class="text-sm font-semibold text-slate-800">Generated Maintenance Tasks</h4>
+                    <p class="text-xs text-slate-500">Due schedules generate task records and RabbitMQ events for asynchronous notification handling.</p>
                 </div>
                 <form th:action="@{/assets/maintenance/due-check}" method="post">
-                    <button type="submit" class="h-[38px] px-4 bg-surface-card border border-border-default text-on-surface rounded-lg font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">sync</span>
+                    <button type="submit" class="btn btn-secondary">
+                        <span class="material-symbols-outlined">sync</span>
                         Run Due Check
                     </button>
                 </form>
             </div>
 
-            <div th:if="${#lists.isEmpty(recentTasks)}" class="p-12 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[34px]">task_alt</span>
-                </div>
-                <h3 class="font-card-header text-card-header text-on-surface">No generated tasks yet</h3>
-                <p class="text-body-default text-secondary mt-2">Tasks appear here when a schedule reaches its due date.</p>
+            <div th:if="${#lists.isEmpty(recentTasks)}" class="empty-state-nexus">
+                <span class="material-symbols-outlined">task_alt</span>
+                <p>No generated tasks yet. Tasks appear here when a schedule reaches its due date.</p>
             </div>
-
-            <div th:unless="${#lists.isEmpty(recentTasks)}" class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5">
-                <article th:each="task : ${recentTasks}" class="border border-border-default rounded-xl p-4 bg-surface-canvas/40">
+            <div th:unless="${#lists.isEmpty(recentTasks)}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article th:each="task : ${recentTasks}" class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 hover:bg-slate-50 transition-colors">
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <p class="font-card-header text-card-header text-on-surface" th:text="${task.serviceType}">Service</p>
-                            <p class="text-label-small text-secondary mt-1"
+                            <p class="font-semibold text-slate-800" th:text="${task.serviceType}">Service</p>
+                            <p class="text-sm text-slate-500 mt-1"
                                th:text="${task.asset != null ? task.asset.name + ' (' + task.asset.assetCode + ')' : task.assetCategory}">Target</p>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-warning/10 text-status-warning" th:text="${task.status}">DUE</span>
+                        <span class="badge" th:classappend="${task.status == 'DUE' ? 'badge-overdue' : 'badge-completed'}" th:text="${task.status}">DUE</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-border-default">
+                    <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-200">
                         <div>
-                            <p class="text-label-small text-secondary">Due</p>
-                            <p class="font-technical-data text-on-surface" th:text="${task.dueDate}">2026-06-15</p>
+                            <p class="text-xs text-slate-500">Due</p>
+                            <p class="font-mono text-sm text-slate-800" th:text="${task.dueDate}">2026-06-15</p>
                         </div>
                         <div>
-                            <p class="text-label-small text-secondary">Role</p>
-                            <p class="font-body-medium text-on-surface" th:text="${task.responsibleRole}">Role</p>
+                            <p class="text-xs text-slate-500">Role</p>
+                            <p class="text-sm text-slate-800" th:text="${task.responsibleRole}">Role</p>
                         </div>
                         <div>
-                            <p class="text-label-small text-secondary">RabbitMQ</p>
-                            <p class="font-body-medium" th:classappend="${task.eventPublished} ? ' text-status-success' : ' text-status-warning'"
-                               th:text="${task.eventPublished ? 'Published' : 'Pending'}">Published</p>
+                            <p class="text-xs text-slate-500">RabbitMQ</p>
+                            <p class="text-sm" th:classappend="${task.eventPublished} ? 'text-success' : 'text-warning'" th:text="${task.eventPublished ? 'Published' : 'Pending'}">Published</p>
                         </div>
                     </div>
-                    <div class="mt-4 pt-4 border-t border-border-default flex justify-end"
-                         th:if="${task.status.name() == 'DUE'}">
-                        <button type="button" class="h-10 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark flex items-center gap-2"
-                                th:attr="data-resolve-task=${task.id}, data-resolve-label=${task.serviceType}"
-                                onclick="openResolveModal(this)">
-                            <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                    <div class="mt-4 pt-4 border-t border-slate-200 flex justify-end" th:if="${task.status.name() == 'DUE'}">
+                        <button type="button" class="btn btn-primary" th:attr="data-resolve-task=${task.id}, data-resolve-label=${task.serviceType}" onclick="openResolveModal(this)">
+                            <span class="material-symbols-outlined">task_alt</span>
                             Resolve
                         </button>
                     </div>
                 </article>
             </div>
         </div>
-    </section>
 
-    <section data-tab-panel="requests" class="hidden space-y-4">
-        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-            <div class="p-5 border-b border-border-default">
-                <h3 class="font-card-header text-card-header text-on-surface">Pending Maintenance Requests</h3>
-                <p class="text-label-small text-secondary mt-1">Submitted by employees and awaiting action. Resolve to close the request.</p>
-            </div>
-
-            <div th:if="${#lists.isEmpty(recentRequests)}" class="p-12 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-status-success/10 text-status-success mx-auto flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[34px]">check_circle</span>
-                </div>
-                <h3 class="font-card-header text-card-header text-on-surface">No pending requests</h3>
-                <p class="text-body-default text-secondary mt-2">Employee maintenance requests will appear here when submitted.</p>
-            </div>
-
-            <div th:unless="${#lists.isEmpty(recentRequests)}" class="divide-y divide-border-default">
-                <div th:each="record : ${recentRequests}" class="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-surface-canvas/60 transition-colors">
-                    <div class="min-w-0">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="font-card-header text-card-header text-on-surface hover:text-primary" th:text="${record.asset.name}">Asset</a>
-                            <span class="px-2 py-0.5 rounded text-technical-data bg-surface-variant text-primary" th:text="${record.asset.assetCode}">AST-2026-00001</span>
-                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-status-warning/10 text-status-warning" th:text="${record.status}">OPEN</span>
-                        </div>
-                        <p class="text-body-default text-secondary mt-2 max-w-3xl" th:text="${record.issueDescription}">Issue description</p>
-                        <p class="text-label-small text-secondary mt-1" th:if="${record.requestedBy != null}" th:text="'Requested by ' + ${record.requestedBy}">Requester</p>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <button type="button" class="h-10 px-4 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark flex items-center gap-2"
-                                th:attr="data-resolve-request=${record.id}, data-resolve-request-label=${record.asset.name}"
-                                onclick="openResolveRequestModal(this)">
-                            <span class="material-symbols-outlined text-[18px]">task_alt</span>
-                            Resolve
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section data-tab-panel="reports" class="hidden space-y-4">
-        <div class="bg-surface-card border border-border-default rounded-xl overflow-hidden card-shadow">
-            <div class="p-5 border-b border-border-default flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <!-- ─── Tab: Reports ─── -->
+        <div id="tab-reports" class="tab-content-nexus" role="tabpanel">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
                 <div>
-                    <h3 class="font-card-header text-card-header text-on-surface">Maintenance Cost Report</h3>
-                    <p class="text-label-small text-secondary mt-1">Filter maintenance activities by stored maintenance date.</p>
+                    <h4 class="text-sm font-semibold text-slate-800">Maintenance Cost Report</h4>
+                    <p class="text-xs text-slate-500">Filter maintenance activities by stored maintenance date.</p>
                 </div>
                 <form th:action="@{/maintenance}" method="get" class="flex flex-col sm:flex-row gap-3">
                     <div>
-                        <label for="report-start" class="block text-label-small text-secondary mb-1">Start</label>
-                        <input id="report-start" name="start" type="date" th:value="${reportStart}" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <label for="report-start" class="block text-xs text-slate-500 mb-1">Start</label>
+                        <input id="report-start" name="start" type="date" th:value="${reportStart}" class="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
                     </div>
                     <div>
-                        <label for="report-end" class="block text-label-small text-secondary mb-1">End</label>
-                        <input id="report-end" name="end" type="date" th:value="${reportEnd}" class="h-[38px] px-3 bg-surface-canvas border border-border-default rounded-lg text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                        <label for="report-end" class="block text-xs text-slate-500 mb-1">End</label>
+                        <input id="report-end" name="end" type="date" th:value="${reportEnd}" class="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
                     </div>
-                    <button type="submit" class="h-[38px] px-4 mt-0 sm:mt-5 bg-primary text-on-primary rounded-lg font-body-medium hover:bg-brand-primary-dark transition-all flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                    <button type="submit" class="btn btn-primary self-end sm:self-auto">
+                        <span class="material-symbols-outlined">filter_alt</span>
                         Run Report
                     </button>
                 </form>
             </div>
 
-            <div th:if="${#lists.isEmpty(reportRows)}" class="p-12 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-surface-variant text-primary mx-auto flex items-center justify-center mb-4">
-                    <span class="material-symbols-outlined text-[34px]">bar_chart</span>
-                </div>
-                <h3 class="font-card-header text-card-header text-on-surface">No activities in selected period</h3>
-                <p class="text-body-default text-secondary mt-2">Adjust the report dates or record maintenance events.</p>
+            <div th:if="${#lists.isEmpty(reportRows)}" class="empty-state-nexus">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <p>No activities in selected period. Adjust the report dates or record maintenance events.</p>
             </div>
-
-            <div th:unless="${#lists.isEmpty(reportRows)}" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[820px]">
+            <div th:unless="${#lists.isEmpty(reportRows)}" class="table-container">
+                <table>
                     <thead>
-                    <tr class="bg-surface-canvas border-b border-border-default">
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Asset</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Type</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Provider</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Date</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Resolution</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase">Status</th>
-                        <th class="px-5 py-3 text-label-small font-label-small text-secondary uppercase text-right">Cost</th>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Type</th>
+                        <th>Provider</th>
+                        <th>Date</th>
+                        <th>Resolution</th>
+                        <th>Status</th>
+                        <th class="text-right">Cost</th>
                     </tr>
                     </thead>
-                    <tbody class="divide-y divide-border-default">
-                    <tr th:each="row : ${reportRows}" class="hover:bg-surface-canvas/60 transition-colors">
-                        <td class="px-5 py-3">
-                            <a th:href="@{/assets/{id}/maintenance(id=${row.assetId()})}" class="font-body-medium text-on-surface hover:text-primary" th:text="${row.assetName()}">Asset</a>
-                            <p class="font-technical-data text-label-small text-secondary" th:text="${row.assetCode()}">AST-2026-00001</p>
+                    <tbody>
+                    <tr th:each="row : ${reportRows}" class="hover:bg-slate-50 transition-colors">
+                        <td>
+                            <div class="asset-cell">
+                                <a th:href="@{/assets/{id}/maintenance(id=${row.assetId()})}" class="asset-name hover:text-primary" th:text="${row.assetName()}">Asset</a>
+                                <span class="asset-code" th:text="${row.assetCode()}">AST-2026-00001</span>
+                            </div>
                         </td>
-                        <td class="px-5 py-3 text-body-default text-on-surface" th:text="${row.type()}">CORRECTIVE</td>
-                        <td class="px-5 py-3 text-body-default text-secondary" th:text="${row.serviceProvider() ?: 'Unassigned'}">Provider</td>
-                        <td class="px-5 py-3 font-technical-data text-on-surface" th:text="${row.maintenanceDate()}">2026-06-15</td>
-                        <td class="px-5 py-3 font-technical-data text-secondary" th:text="${row.resolutionDate() ?: 'Pending'}">Pending</td>
-                        <td class="px-5 py-3">
-                            <span class="px-2 py-0.5 rounded-full text-badge-label font-badge-label bg-surface-variant text-on-surface-variant" th:text="${row.status()}">COMPLETED</span>
+                        <td th:text="${row.type()}">CORRECTIVE</td>
+                        <td th:text="${row.serviceProvider() ?: 'Unassigned'}">Provider</td>
+                        <td class="font-technical-data" th:text="${row.maintenanceDate()}">2026-06-15</td>
+                        <td class="font-technical-data" th:text="${row.resolutionDate() ?: 'Pending'}">Pending</td>
+                        <td>
+                            <span class="badge" th:classappend="${row.status() == 'OPEN' ? 'badge-overdue' : 'badge-completed'}" th:text="${row.status()}">COMPLETED</span>
                         </td>
-                        <td class="px-5 py-3 text-right font-technical-data text-primary font-bold"
-                            th:utext="'&#8358;' + ${#numbers.formatDecimal(row.cost() ?: 0, 1, 'COMMA', 2, 'POINT')}">&#8358;0.00</td>
+                        <td class="text-right font-technical-data text-primary font-bold" th:utext="'₦' + ${#numbers.formatDecimal(row.cost() ?: 0, 1, 'COMMA', 2, 'POINT')}">₦0.00</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-    </section>
 
-    <div id="schedule-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
-            <div class="p-5 border-b border-border-default flex items-center justify-between">
-                <div>
-                    <h3 class="font-section-header text-section-header text-on-surface">Create Preventive Schedule</h3>
-                    <p class="text-label-small text-secondary mt-1">Define frequency, start date, and responsible party.</p>
+        <!-- ─── Tab: Requests ─── -->
+        <div id="tab-requests" class="tab-content-nexus" role="tabpanel">
+            <div class="table-container">
+                <div th:if="${#lists.isEmpty(recentRequests)}" class="empty-state-nexus">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <p>No pending requests. Employee maintenance requests will appear here when submitted.</p>
                 </div>
-                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+                <table th:unless="${#lists.isEmpty(recentRequests)}">
+                    <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Issue</th>
+                        <th>Requester</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="record : ${recentRequests}" class="hover:bg-slate-50 transition-colors">
+                        <td>
+                            <div class="asset-cell">
+                                <a th:href="@{/assets/{id}/maintenance(id=${record.asset.id})}" class="asset-name hover:text-primary" th:text="${record.asset.name}">Asset</a>
+                                <span class="asset-code" th:text="${record.asset.assetCode}">AST-2026-00001</span>
+                            </div>
+                        </td>
+                        <td th:text="${record.issueDescription}">Issue description</td>
+                        <td th:text="${record.requestedBy}">Requester</td>
+                        <td class="font-technical-data" th:text="${record.maintenanceDate}">2026-06-15</td>
+                        <td>
+                            <span class="badge badge-pending" th:text="${record.status}">OPEN</span>
+                        </td>
+                        <td class="text-right">
+                            <button type="button" class="btn btn-primary" th:attr="data-resolve-request=${record.id}, data-resolve-request-label=${record.asset.name}" onclick="openResolveRequestModal(this)">
+                                <span class="material-symbols-outlined">task_alt</span>
+                                Resolve
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <form th:action="@{/assets/maintenance/schedules}" method="post" class="p-5 space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label for="schedule-asset" class="text-label-small text-secondary">Asset</label>
-                        <select id="schedule-asset-select" name="assetId" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                            <option value="">Use asset category instead</option>
-                            <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
-                        </select>
+        </div>
+
+    </div><!-- /card-nexus -->
+
+    <!-- ─── Schedule Modal ─── -->
+    <div id="schedule-modal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Create Preventive Schedule</h3>
+            <p>Define frequency, start date, and responsible party.</p>
+            <form th:action="@{/assets/maintenance/schedules}" method="post">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="schedule-asset-select">Asset</label>
+                            <select id="schedule-asset-select" name="assetId" class="w-full">
+                                <option value="">Use asset category instead</option>
+                                <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="schedule-category">Asset Category</label>
+                            <select id="schedule-category" name="assetCategory" class="w-full">
+                                <option value="">Select category</option>
+                                <option value="IT Equipment">IT Equipment</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Office Equipment">Office Equipment</option>
+                                <option value="Vehicle">Vehicle</option>
+                                <option value="Machinery">Machinery</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="service-type">Service Type <span class="text-error">*</span></label>
+                            <input id="service-type" name="serviceType" required data-input-type="text" placeholder="e.g. Safety inspection">
+                        </div>
+                        <div>
+                            <label for="frequency">Frequency <span class="text-error">*</span></label>
+                            <select id="frequency" name="frequency" required class="w-full">
+                                <option th:each="frequency : ${frequencies}" th:value="${frequency}" th:text="${frequency.displayName()}">Monthly</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="start-date">Start Date <span class="text-error">*</span></label>
+                            <input id="start-date" name="startDate" type="date" required>
+                        </div>
+                        <div>
+                            <label for="responsible-role">Responsible Role <span class="text-error">*</span></label>
+                            <select id="responsible-role" name="responsibleRole" required class="w-full">
+                                <option value="Asset Manager">Asset Manager</option>
+                                <option value="Maintenance Officer">Maintenance Officer</option>
+                                <option value="Operations Lead">Operations Lead</option>
+                                <option value="External Vendor">External Vendor</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="schedule-category" class="text-label-small text-secondary">Asset Category</label>
-                        <select id="schedule-category" name="assetCategory" class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                            <option value="">Select category</option>
-                            <option value="IT Equipment">IT Equipment</option>
-                            <option value="Furniture">Furniture</option>
-                            <option value="Office Equipment">Office Equipment</option>
-                            <option value="Vehicle">Vehicle</option>
-                            <option value="Machinery">Machinery</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="service-type" class="text-label-small text-secondary">Service Type <span class="text-error">*</span></label>
-                        <input id="service-type" name="serviceType" required data-input-type="text" placeholder="e.g. Safety inspection" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="frequency" class="text-label-small text-secondary">Frequency <span class="text-error">*</span></label>
-                        <select id="frequency" name="frequency" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                            <option th:each="frequency : ${frequencies}" th:value="${frequency}" th:text="${frequency.displayName()}">Monthly</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="start-date" class="text-label-small text-secondary">Start Date <span class="text-error">*</span></label>
-                        <input id="start-date" name="startDate" type="date" required class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="responsible-role" class="text-label-small text-secondary">Responsible Role <span class="text-error">*</span></label>
-                        <select id="responsible-role" name="responsibleRole" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                            <option value="Asset Manager">Asset Manager</option>
-                            <option value="Maintenance Officer">Maintenance Officer</option>
-                            <option value="Operations Lead">Operations Lead</option>
-                            <option value="External Vendor">External Vendor</option>
-                        </select>
+                    <div>
+                        <label for="responsible-party">Responsible Party <span class="text-error">*</span></label>
+                        <input id="responsible-party" name="responsibleParty" required data-input-type="letters" placeholder="Person, team, or vendor name">
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label for="responsible-party" class="text-label-small text-secondary">Responsible Party <span class="text-error">*</span></label>
-                    <input id="responsible-party" name="responsibleParty" required data-input-type="letters" placeholder="Person, team, or vendor name" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                </div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
-                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">save</span>
+                <div class="modal-actions">
+                    <button type="button" data-modal-close class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">save</span>
                         Save Schedule
                     </button>
                 </div>
@@ -493,50 +1347,46 @@
         </div>
     </div>
 
-    <div id="corrective-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
-            <div class="p-5 border-b border-border-default flex items-center justify-between">
-                <div>
-                    <h3 class="font-section-header text-section-header text-on-surface">Record Corrective Maintenance</h3>
-                    <p class="text-label-small text-secondary mt-1">Capture fault details, provider, cost, and resolution date.</p>
-                </div>
-                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form th:action="@{/assets/maintenance/corrective}" method="post" class="p-5 space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1.5 md:col-span-2">
-                        <label for="corrective-asset" class="text-label-small text-secondary">Asset <span class="text-error">*</span></label>
-                        <select id="corrective-asset-select" name="assetId" required class="w-full h-11 px-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                            <option value="">Select asset</option>
-                            <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="service-provider" class="text-label-small text-secondary">Service Provider <span class="text-error">*</span></label>
-                        <input id="service-provider" name="serviceProvider" required data-input-type="letters" placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
-                            <input id="maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+    <!-- ─── Corrective Modal ─── -->
+    <div id="corrective-modal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Record Corrective Maintenance</h3>
+            <p>Capture fault details, provider, cost, and resolution date.</p>
+            <form th:action="@{/assets/maintenance/corrective}" method="post">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="corrective-asset-select">Asset <span class="text-error">*</span></label>
+                            <select id="corrective-asset-select" name="assetId" required class="w-full">
+                                <option value="">Select asset</option>
+                                <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.assetCode + ' - ' + asset.name}">Asset</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="service-provider">Service Provider <span class="text-error">*</span></label>
+                            <input id="service-provider" name="serviceProvider" required data-input-type="letters" placeholder="Internal team or vendor">
+                        </div>
+                        <div>
+                            <label for="maintenance-cost">Maintenance Cost</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">₦</span>
+                                <input id="maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="pl-8">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="resolution-date">Resolution Date</label>
+                            <input id="resolution-date" name="resolutionDate" type="date">
                         </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="resolution-date" class="text-label-small text-secondary">Resolution Date</label>
-                        <input id="resolution-date" name="resolutionDate" type="date" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    <div>
+                        <label for="issue-description">Issue Description <span class="text-error">*</span></label>
+                        <textarea id="issue-description" name="issueDescription" required data-input-type="text" rows="4" placeholder="Describe the fault, symptoms, and repair outcome..."></textarea>
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label for="issue-description" class="text-label-small text-secondary">Issue Description <span class="text-error">*</span></label>
-                    <textarea id="issue-description" name="issueDescription" required data-input-type="text" rows="4" placeholder="Describe the fault, symptoms, and repair outcome..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
-                </div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
-                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">save</span>
+                <div class="modal-actions">
+                    <button type="button" data-modal-close class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">save</span>
                         Save Event
                     </button>
                 </div>
@@ -544,44 +1394,40 @@
         </div>
     </div>
 
-    <div id="resolve-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
-            <div class="p-5 border-b border-border-default flex items-center justify-between">
-                <div>
-                    <h3 class="font-section-header text-section-header text-on-surface">Resolve Maintenance Task</h3>
-                    <p class="text-label-small text-secondary mt-1" id="resolve-task-label">Capture completion details and log the work.</p>
-                </div>
-                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form action="#" method="post" class="p-5 space-y-5" id="resolve-form">
+    <!-- ─── Resolve Task Modal ─── -->
+    <div id="resolve-modal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Resolve Maintenance Task</h3>
+            <p id="resolve-task-label">Capture completion details and log the work.</p>
+            <form action="#" method="post" id="resolve-form">
                 <input type="hidden" name="taskId" id="resolve-task-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label for="resolve-service-provider" class="text-label-small text-secondary">Service Provider</label>
-                        <input id="resolve-service-provider" name="serviceProvider" data-input-type="letters" placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="resolve-maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
-                            <input id="resolve-maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="resolve-service-provider">Service Provider</label>
+                            <input id="resolve-service-provider" name="serviceProvider" data-input-type="letters" placeholder="Internal team or vendor">
+                        </div>
+                        <div>
+                            <label for="resolve-maintenance-cost">Maintenance Cost</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">₦</span>
+                                <input id="resolve-maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="pl-8">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="resolve-resolution-date">Resolution Date</label>
+                            <input id="resolve-resolution-date" name="resolutionDate" type="date">
                         </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="resolve-resolution-date" class="text-label-small text-secondary">Resolution Date</label>
-                        <input id="resolve-resolution-date" name="resolutionDate" type="date" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    <div>
+                        <label for="resolve-notes">Notes</label>
+                        <textarea id="resolve-notes" name="notes" rows="4" placeholder="Work performed, parts replaced, observations..."></textarea>
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label for="resolve-notes" class="text-label-small text-secondary">Notes</label>
-                    <textarea id="resolve-notes" name="notes" rows="4" placeholder="Work performed, parts replaced, observations..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
-                </div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
-                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                <div class="modal-actions">
+                    <button type="button" data-modal-close class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">task_alt</span>
                         Mark Resolved
                     </button>
                 </div>
@@ -589,44 +1435,40 @@
         </div>
     </div>
 
-    <div id="resolve-request-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true">
-        <div class="modal-panel bg-surface-card border border-border-default rounded-2xl card-shadow w-full max-w-2xl overflow-y-auto">
-            <div class="p-5 border-b border-border-default flex items-center justify-between">
-                <div>
-                    <h3 class="font-section-header text-section-header text-on-surface">Resolve Maintenance Request</h3>
-                    <p class="text-label-small text-secondary mt-1" id="resolve-request-label">Capture resolution details and close the employee request.</p>
-                </div>
-                <button type="button" data-modal-close class="w-9 h-9 rounded-lg hover:bg-surface-canvas flex items-center justify-center text-secondary">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <form action="#" method="post" class="p-5 space-y-5" id="resolve-request-form">
+    <!-- ─── Resolve Request Modal ─── -->
+    <div id="resolve-request-modal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Resolve Maintenance Request</h3>
+            <p id="resolve-request-label">Capture resolution details and close the employee request.</p>
+            <form action="#" method="post" id="resolve-request-form">
                 <input type="hidden" name="recordId" id="resolve-request-id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label for="resolve-request-service-provider" class="text-label-small text-secondary">Service Provider</label>
-                        <input id="resolve-request-service-provider" name="serviceProvider" data-input-type="letters" placeholder="Internal team or vendor" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="resolve-request-maintenance-cost" class="text-label-small text-secondary">Maintenance Cost</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">&#8358;</span>
-                            <input id="resolve-request-maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="resolve-request-service-provider">Service Provider</label>
+                            <input id="resolve-request-service-provider" name="serviceProvider" data-input-type="letters" placeholder="Internal team or vendor">
+                        </div>
+                        <div>
+                            <label for="resolve-request-maintenance-cost">Maintenance Cost</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">₦</span>
+                                <input id="resolve-request-maintenance-cost" name="maintenanceCost" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00" class="pl-8">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="resolve-request-resolution-date">Resolution Date</label>
+                            <input id="resolve-request-resolution-date" name="resolutionDate" type="date">
                         </div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label for="resolve-request-resolution-date" class="text-label-small text-secondary">Resolution Date</label>
-                        <input id="resolve-request-resolution-date" name="resolutionDate" type="date" class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary">
+                    <div>
+                        <label for="resolve-request-notes">Resolution Notes</label>
+                        <textarea id="resolve-request-notes" name="notes" rows="4" placeholder="Work performed, parts replaced, observations..."></textarea>
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label for="resolve-request-notes" class="text-label-small text-secondary">Resolution Notes</label>
-                    <textarea id="resolve-request-notes" name="notes" rows="4" placeholder="Work performed, parts replaced, observations..." class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary resize-y"></textarea>
-                </div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
-                    <button type="button" data-modal-close class="h-11 px-5 border border-border-strong text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas">Cancel</button>
-                    <button type="submit" class="h-11 px-5 bg-primary text-on-primary rounded-xl font-body-medium hover:bg-brand-primary-dark flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                <div class="modal-actions">
+                    <button type="button" data-modal-close class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">task_alt</span>
                         Mark Resolved
                     </button>
                 </div>
@@ -634,88 +1476,133 @@
         </div>
     </div>
 
-    <script>
-        const tabButtons = Array.from(document.querySelectorAll('[data-tab-button]'));
-        const tabPanels = Array.from(document.querySelectorAll('[data-tab-panel]'));
-
-        function activateTab(tabName) {
-            tabButtons.forEach((button) => {
-                const active = button.dataset.tabButton === tabName;
-                button.classList.toggle('text-primary', active);
-                button.classList.toggle('font-bold', active);
-                button.classList.toggle('border-primary', active);
-                button.classList.toggle('text-secondary', !active);
-                button.classList.toggle('font-body-medium', !active);
-                button.classList.toggle('border-transparent', !active);
-            });
-            tabPanels.forEach((panel) => panel.classList.toggle('hidden', panel.dataset.tabPanel !== tabName));
-        }
-
-        tabButtons.forEach((button) => {
-            button.addEventListener('click', () => activateTab(button.dataset.tabButton));
-        });
-
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeModal(modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function openResolveModal(button) {
-            const taskId = button.dataset.resolveTask;
-            const label = button.dataset.resolveLabel || 'this task';
-            const modal = document.getElementById('resolve-modal');
-            const form = document.getElementById('resolve-form');
-            document.getElementById('resolve-task-id').value = taskId;
-            document.getElementById('resolve-task-label').textContent = 'Resolve: ' + label;
-            form.action = '/assets/maintenance/tasks/' + taskId + '/resolve';
-            form.reset();
-            openModal('resolve-modal');
-        }
-
-        function openResolveRequestModal(button) {
-            const recordId = button.dataset.resolveRequest;
-            const label = button.dataset.resolveRequestLabel || 'this request';
-            const modal = document.getElementById('resolve-request-modal');
-            const form = document.getElementById('resolve-request-form');
-            document.getElementById('resolve-request-id').value = recordId;
-            document.getElementById('resolve-request-label').textContent = 'Resolve: ' + label;
-            form.action = '/assets/maintenance/requests/' + recordId + '/resolve';
-            form.reset();
-            openModal('resolve-request-modal');
-        }
-
-        document.querySelectorAll('[data-modal-target]').forEach((button) => {
-            button.addEventListener('click', () => openModal(button.dataset.modalTarget));
-        });
-
-        document.querySelectorAll('[data-modal-close]').forEach((button) => {
-            button.addEventListener('click', () => closeModal(button.closest('[role="dialog"]')));
-        });
-
-        document.querySelectorAll('[role="dialog"]').forEach((modal) => {
-            modal.addEventListener('click', (event) => {
-                if (event.target === modal) closeModal(modal);
-            });
-        });
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                document.querySelectorAll('[role="dialog"]').forEach(closeModal);
-            }
-        });
-    </script>
+    <!-- ─── Scripts ─── -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         (function() {
             'use strict';
-            // Initialize searchable asset selects in modals
+
+            // ── Tab Switching ──
+            const tabs = document.querySelectorAll('.tab-nexus');
+            const contents = document.querySelectorAll('.tab-content-nexus');
+
+            function activateTab(tab) {
+                const target = tab.getAttribute('data-tab');
+
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                const panel = document.getElementById('tab-' + target);
+                if (panel) panel.classList.add('active');
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (this.classList.contains('active')) return;
+                    activateTab(this);
+                });
+                tab.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (this.classList.contains('active')) return;
+                        activateTab(this);
+                    }
+                });
+            });
+
+            // ── Loading Overlay on Form Submit ──
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    const overlay = document.getElementById('loadingOverlay');
+                    if (overlay) overlay.classList.add('active');
+                });
+            });
+
+            // ── Auto-dismiss Alerts ──
+            document.querySelectorAll('.alert').forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 300ms ease, transform 300ms ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-8px)';
+                    setTimeout(() => alert.remove(), 350);
+                }, 5000);
+            });
+
+            // ── Close overlay on click outside ──
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) this.classList.remove('active');
+                });
+            }
+
+            // ── Modal Helpers ──
+            function openModal(id) {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeModal(modal) {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+                // Reset forms inside
+                modal.querySelectorAll('form').forEach(f => f.reset());
+            }
+
+            document.querySelectorAll('[data-modal-target]').forEach(btn => {
+                btn.addEventListener('click', () => openModal(btn.dataset.modalTarget));
+            });
+
+            document.querySelectorAll('[data-modal-close]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal-overlay-nexus');
+                    if (modal) closeModal(modal);
+                });
+            });
+
+            document.querySelectorAll('.modal-overlay-nexus').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal(this);
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay-nexus.active').forEach(closeModal);
+                }
+            });
+
+            // ── Resolve Task Modal ──
+            window.openResolveModal = function(button) {
+                const taskId = button.dataset.resolveTask;
+                const label = button.dataset.resolveLabel || 'this task';
+                const form = document.getElementById('resolve-form');
+                document.getElementById('resolve-task-id').value = taskId;
+                document.getElementById('resolve-task-label').textContent = 'Resolve: ' + label;
+                form.action = '/assets/maintenance/tasks/' + taskId + '/resolve';
+                openModal('resolve-modal');
+            };
+
+            // ── Resolve Request Modal ──
+            window.openResolveRequestModal = function(button) {
+                const recordId = button.dataset.resolveRequest;
+                const label = button.dataset.resolveRequestLabel || 'this request';
+                const form = document.getElementById('resolve-request-form');
+                document.getElementById('resolve-request-id').value = recordId;
+                document.getElementById('resolve-request-label').textContent = 'Resolve: ' + label;
+                form.action = '/assets/maintenance/requests/' + recordId + '/resolve';
+                openModal('resolve-request-modal');
+            };
+
+            // ── Tom-Select Initialization ──
             const scheduleAssetSelect = document.getElementById('schedule-asset-select');
             const correctiveAssetSelect = document.getElementById('corrective-asset-select');
 
@@ -724,9 +1611,7 @@
                     placeholder: 'Search and select an asset...',
                     searchField: ['text', 'value'],
                     create: false,
-                    plugins: {
-                        dropdown_input: {}
-                    }
+                    plugins: { dropdown_input: {} }
                 });
             }
 
@@ -735,11 +1620,10 @@
                     placeholder: 'Search and select an asset...',
                     searchField: ['text', 'value'],
                     create: false,
-                    plugins: {
-                        dropdown_input: {}
-                    }
+                    plugins: { dropdown_input: {} }
                 });
             }
+
         })();
     </script>
 </main>

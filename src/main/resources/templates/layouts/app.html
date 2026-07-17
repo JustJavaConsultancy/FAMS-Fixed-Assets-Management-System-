@@ -354,11 +354,14 @@
             min-width: 0;
             overflow: hidden;
         }
-        #main-content {
+        .main-content-area {
             flex: 1 1 0%;
             min-height: 0;
             overflow-y: auto;
+            padding: 2rem;
             background: #F4F5F7;
+        }
+        #main-content {
             min-width: 0;
         }
 
@@ -677,11 +680,12 @@
     </header>
 
     <!-- PAGE CONTENT -->
-    <main id="main-content" class="flex-1 overflow-y-auto p-8 main-content-area" layout:fragment="content">
-        <!-- Default fallback content (will be replaced by fragments) -->
-        <div class="bg-white rounded-xl p-6 border border-border-default shadow-sm">
-            <h1 class="text-page-title">Dashboard</h1>
-            <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
+    <div class="flex-1 overflow-y-auto p-8 main-content-area">
+        <div layout:fragment="content">
+            <!-- Default fallback content (will be replaced by fragments) -->
+            <div class="bg-white rounded-xl p-6 border border-border-default shadow-sm">
+                <h1 class="text-page-title">Dashboard</h1>
+                <p class="text-body-default text-secondary mt-2">Welcome back, <span th:text="${currentUserDisplayName}">Alex</span>. Here's your asset overview.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                 <div class="bg-surface-canvas rounded-xl p-4 border border-border-default">
                     <p class="text-label-small text-secondary">Total Assets</p>
@@ -701,7 +705,8 @@
                 </div>
             </div>
         </div>
-</main>
+        </div>
+    </div>
 </div>
 
 <!-- ══ LOGOUT CONFIRMATION MODAL ══ -->

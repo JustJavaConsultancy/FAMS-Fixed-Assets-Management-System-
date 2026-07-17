@@ -5,7 +5,7 @@
 <head>
     <title>Asset Check-In/Check-Out | JustJava FAMS</title>
     <style>
-        /* ── Base Reset & Variables ── */
+        /* ── Base Reset & Nexus Design Tokens ── */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,38 +13,43 @@
         }
 
         :root {
-            --color-primary: #c0182a;
-            --color-primary-dark: #8F0F1E;
-            --color-primary-light: #fce4e4;
-            --color-success: #1A7A4A;
-            --color-success-light: #ecf5ec;
-            --color-warning: #A05C00;
-            --color-warning-light: #fff5e6;
-            --color-info: #1558A8;
-            --color-info-light: #e3f2fd;
-            --color-danger: #ba1a1a;
-            --color-danger-light: #fce4e4;
-            --color-gray-50: #f9f9ff;
-            --color-gray-100: #F4F5F7;
-            --color-gray-200: #E4E6EA;
-            --color-gray-300: #d0d3da;
-            --color-gray-400: #9aa0aa;
-            --color-gray-500: #5d5e65;
-            --color-gray-700: #1A1D23;
+            --color-primary: #D32F2F;
+            --color-primary-dark: #B71C1C;
+            --color-primary-light: #FCE4E4;
+            --color-primary-hover: #C62828;
+            --color-success: #16a34a;
+            --color-success-light: #dcfce7;
+            --color-warning: #d97706;
+            --color-warning-light: #fef3c7;
+            --color-info: #2563eb;
+            --color-info-light: #dbeafe;
+            --color-danger: #dc2626;
+            --color-danger-light: #fee2e2;
+            --color-slate-50: #f8fafc;
+            --color-slate-100: #f1f5f9;
+            --color-slate-200: #e2e8f0;
+            --color-slate-300: #cbd5e1;
+            --color-slate-400: #94a3b8;
+            --color-slate-500: #64748b;
+            --color-slate-600: #475569;
+            --color-slate-700: #334155;
+            --color-slate-800: #1e293b;
+            --color-slate-900: #0f172a;
             --radius: 12px;
             --radius-sm: 8px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
             --transition: all 200ms ease;
-            --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
         body {
             font-family: var(--font);
-            color: var(--color-gray-700);
-            background: #f7f8fc;
+            color: var(--color-slate-900);
+            background: #fafafc;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ── Loading Spinner ── */
@@ -52,7 +57,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(192, 24, 42, 0.15);
+            border: 3px solid rgba(211, 47, 47, 0.15);
             border-top-color: var(--color-primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -88,10 +93,11 @@
             padding: 32px 40px;
             border-radius: var(--radius);
             box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-slate-200);
         }
         .loading-content p {
             margin-top: 16px;
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
             font-size: 14px;
             font-weight: 500;
         }
@@ -106,6 +112,8 @@
             align-items: flex-start;
             gap: 14px;
             animation: slideDown 300ms ease-out;
+            background: white;
+            box-shadow: var(--shadow-sm);
         }
         @keyframes slideDown {
             from {
@@ -118,24 +126,24 @@
             }
         }
         .alert-success {
+            border-color: #86c7a3;
             background: var(--color-success-light);
-            border-color: #b8d9c8;
-            color: #005e47;
+            color: #065f46;
         }
         .alert-error {
-            background: var(--color-danger-light);
             border-color: #f0c8c8;
-            color: #8f0f1e;
+            background: var(--color-danger-light);
+            color: #991b1b;
         }
         .alert-warning {
-            background: var(--color-warning-light);
             border-color: #f0d5b8;
-            color: #7a3c00;
+            background: var(--color-warning-light);
+            color: #78350f;
         }
         .alert-info {
-            background: var(--color-info-light);
             border-color: #b8cfe8;
-            color: #0d47a1;
+            background: var(--color-info-light);
+            color: #1e40af;
         }
         .alert-icon {
             font-size: 22px;
@@ -157,21 +165,21 @@
             opacity: 0.9;
         }
 
-        /* ── Cards ── */
-        .card {
+        /* ── Nexus Cards ── */
+        .card-nexus {
             background: #ffffff;
             border-radius: var(--radius);
-            border: 1px solid var(--color-gray-200);
+            border: 1px solid var(--color-slate-200);
             padding: 24px;
             margin-bottom: 24px;
             box-shadow: var(--shadow-sm);
-            transition: box-shadow 200ms ease;
+            transition: border-color 200ms ease;
         }
-        .card:hover {
-            box-shadow: var(--shadow-md);
+        .card-nexus:hover {
+            border-color: var(--color-slate-300);
         }
 
-        .card-header {
+        .card-header-nexus {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -179,7 +187,7 @@
             gap: 16px;
             margin-bottom: 20px;
             padding-bottom: 16px;
-            border-bottom: 1px solid var(--color-gray-200);
+            border-bottom: 1px solid var(--color-slate-200);
         }
         .card-header-left {
             display: flex;
@@ -188,9 +196,9 @@
         }
         .card-header-left h2 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            color: var(--color-gray-700);
+            color: var(--color-slate-900);
             letter-spacing: -0.01em;
             display: flex;
             align-items: center;
@@ -202,8 +210,9 @@
         }
         .card-subtitle {
             font-size: 13px;
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
             margin: 0;
+            font-weight: 400;
         }
 
         .card-header-actions {
@@ -213,7 +222,7 @@
             flex-wrap: wrap;
         }
 
-        /* ── Buttons ── */
+        /* ── Nexus Buttons ── */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -244,7 +253,7 @@
         .btn-primary:hover {
             background: var(--color-primary-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(192, 24, 42, 0.30);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.30);
         }
         .btn-primary:disabled {
             opacity: 0.5;
@@ -254,13 +263,13 @@
         }
 
         .btn-secondary {
-            background: var(--color-gray-100);
-            color: var(--color-gray-700);
-            border: 1px solid var(--color-gray-200);
+            background: var(--color-slate-100);
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
         }
         .btn-secondary:hover {
-            background: #e8eaef;
-            border-color: var(--color-gray-300);
+            background: var(--color-slate-200);
+            border-color: var(--color-slate-300);
         }
 
         .btn-success {
@@ -268,9 +277,9 @@
             color: #fff;
         }
         .btn-success:hover {
-            background: #134f33;
+            background: #15803d;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(26, 122, 74, 0.30);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.30);
         }
 
         .btn-warning {
@@ -278,18 +287,28 @@
             color: #fff;
         }
         .btn-warning:hover {
-            background: #7a4500;
+            background: #b45309;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(160, 92, 0, 0.30);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.30);
         }
 
         .btn-outline {
             background: transparent;
-            color: var(--color-gray-700);
-            border: 1px solid var(--color-gray-200);
+            color: var(--color-slate-700);
+            border: 1px solid var(--color-slate-200);
         }
         .btn-outline:hover {
-            background: var(--color-gray-100);
+            background: var(--color-slate-100);
+            border-color: var(--color-slate-300);
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
         }
 
         .btn-sm {
@@ -302,7 +321,7 @@
             font-size: 16px;
         }
 
-        /* ── Badges ── */
+        /* ── Nexus Badges ── */
         .badge {
             display: inline-flex;
             align-items: center;
@@ -319,27 +338,31 @@
             line-height: 1;
         }
         .badge-available {
-            background: #e6f3eb;
-            color: #0d5e3e;
+            background: #dcfce7;
+            color: #166534;
         }
         .badge-checked-out {
-            background: #fff3e6;
-            color: #7a3c00;
+            background: #fef3c7;
+            color: #92400e;
         }
         .badge-returned {
-            background: #e3f2fd;
-            color: #0d47a1;
+            background: #dbeafe;
+            color: #1e40af;
         }
         .badge-verified {
-            background: #ecf5ec;
-            color: #1A7A4A;
+            background: #dcfce7;
+            color: #166534;
         }
         .badge-overdue {
-            background: #fce4e4;
-            color: #8f0f1e;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
         }
 
-        /* ── Tables ── */
+        /* ── Nexus Tables ── */
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -353,30 +376,30 @@
             min-width: 680px;
         }
         .table-container thead {
-            background: var(--color-gray-50);
-            border-bottom: 2px solid var(--color-gray-200);
+            background: var(--color-slate-50);
+            border-bottom: 2px solid var(--color-slate-200);
         }
         .table-container th {
             padding: 12px 16px;
             text-align: left;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
-            color: var(--color-gray-500);
+            letter-spacing: 0.04em;
+            color: var(--color-slate-500);
             white-space: nowrap;
         }
         .table-container td {
             padding: 14px 16px;
-            border-bottom: 1px solid var(--color-gray-200);
-            color: var(--color-gray-700);
+            border-bottom: 1px solid var(--color-slate-200);
+            color: var(--color-slate-700);
             vertical-align: middle;
         }
         .table-container tbody tr {
             transition: background 150ms ease;
         }
         .table-container tbody tr:hover {
-            background: var(--color-gray-50);
+            background: var(--color-slate-50);
         }
         .table-container .asset-cell {
             display: flex;
@@ -385,10 +408,11 @@
         }
         .table-container .asset-cell .asset-name {
             font-weight: 600;
+            color: var(--color-slate-900);
         }
         .table-container .asset-cell .asset-code {
             font-size: 12px;
-            color: var(--color-gray-400);
+            color: var(--color-slate-400);
         }
         .table-container .actions-cell {
             display: flex;
@@ -397,16 +421,18 @@
             flex-wrap: wrap;
         }
 
-        /* ── Tabs ── */
-        .tabs {
+        /* ── Nexus Tabs ── */
+        .tabs-nexus {
             display: flex;
             gap: 4px;
-            border-bottom: 1px solid var(--color-gray-200);
+            border-bottom: 1px solid var(--color-slate-200);
             margin-bottom: 24px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             padding-bottom: 0;
         }
-        .tab {
+        .tab-nexus {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -416,35 +442,36 @@
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
             border-bottom: 2.5px solid transparent;
             transition: var(--transition);
             font-family: inherit;
             white-space: nowrap;
             border-radius: 0;
+            flex-shrink: 0;
         }
-        .tab .material-symbols-outlined {
+        .tab-nexus .material-symbols-outlined {
             font-size: 18px;
             line-height: 1;
         }
-        .tab:hover {
-            color: var(--color-gray-700);
-            background: var(--color-gray-50);
-            border-bottom-color: var(--color-gray-300);
+        .tab-nexus:hover {
+            color: var(--color-slate-700);
+            background: var(--color-slate-50);
+            border-bottom-color: var(--color-slate-300);
         }
-        .tab.active {
+        .tab-nexus.active {
             color: var(--color-primary);
             border-bottom-color: var(--color-primary);
         }
-        .tab.active:hover {
+        .tab-nexus.active:hover {
             background: transparent;
         }
 
-        .tab-content {
+        .tab-content-nexus {
             display: none;
             animation: fadeIn 300ms ease;
         }
-        .tab-content.active {
+        .tab-content-nexus.active {
             display: block;
         }
         @keyframes fadeIn {
@@ -458,110 +485,118 @@
             }
         }
 
-        /* ── Stats Grid ── */
-        .stats-grid {
+        /* ── Nexus Stats Grid ── */
+        .stats-grid-nexus {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
-        .stat-card {
+        .stat-card-nexus {
             background: white;
-            border: 1px solid var(--color-gray-200);
+            border: 1px solid var(--color-slate-200);
             border-radius: var(--radius);
-            padding: 20px 24px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
         }
-        .stat-card:hover {
+        .stat-card-nexus:hover {
             box-shadow: var(--shadow-md);
+            border-color: var(--color-slate-300);
             transform: translateY(-2px);
         }
-        .stat-icon {
-            width: 48px;
-            height: 48px;
+        .stat-icon-nexus {
+            width: 44px;
+            height: 44px;
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-size: 24px;
+            font-size: 22px;
         }
-        .stat-icon-red {
+        .stat-icon-nexus-red {
             background: var(--color-primary-light);
             color: var(--color-primary);
         }
-        .stat-icon-orange {
+        .stat-icon-nexus-orange {
             background: var(--color-warning-light);
             color: var(--color-warning);
         }
-        .stat-icon-danger {
+        .stat-icon-nexus-danger {
             background: var(--color-danger-light);
             color: var(--color-danger);
         }
-        .stat-icon-blue {
+        .stat-icon-nexus-blue {
             background: var(--color-info-light);
             color: var(--color-info);
         }
-        .stat-info {
+        .stat-icon-nexus-green {
+            background: var(--color-success-light);
+            color: var(--color-success);
+        }
+        .stat-info-nexus {
             flex: 1;
             min-width: 0;
         }
-        .stat-info .stat-label {
-            font-size: 12px;
+        .stat-info-nexus .stat-label {
+            font-size: 11px;
             font-weight: 500;
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
             text-transform: uppercase;
             letter-spacing: 0.04em;
             margin-bottom: 2px;
         }
-        .stat-info .stat-value {
-            font-size: 26px;
+        .stat-info-nexus .stat-value {
+            font-size: 24px;
             font-weight: 700;
-            color: var(--color-gray-700);
+            color: var(--color-slate-900);
             line-height: 1.2;
         }
-        .stat-info .stat-value.red {
+        .stat-info-nexus .stat-value.red {
             color: var(--color-primary);
         }
-        .stat-info .stat-value.orange {
+        .stat-info-nexus .stat-value.orange {
             color: var(--color-warning);
         }
-        .stat-info .stat-value.danger {
+        .stat-info-nexus .stat-value.danger {
             color: var(--color-danger);
         }
-        .stat-info .stat-value.blue {
+        .stat-info-nexus .stat-value.blue {
             color: var(--color-info);
+        }
+        .stat-info-nexus .stat-value.green {
+            color: var(--color-success);
         }
 
         /* ── Empty State ── */
-        .empty-state {
+        .empty-state-nexus {
             text-align: center;
             padding: 48px 20px 40px;
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
         }
-        .empty-state .material-symbols-outlined {
-            font-size: 56px;
-            color: var(--color-gray-300);
+        .empty-state-nexus .material-symbols-outlined {
+            font-size: 48px;
+            color: var(--color-slate-300);
             margin-bottom: 12px;
             display: block;
         }
-        .empty-state p {
+        .empty-state-nexus p {
             margin: 0;
             font-size: 14px;
             max-width: 400px;
             margin-inline: auto;
         }
-        .empty-state .empty-cta {
+        .empty-state-nexus .empty-cta {
             margin-top: 16px;
         }
 
         /* ── Utilities ── */
         .text-secondary {
-            color: var(--color-gray-500);
+            color: var(--color-slate-500);
         }
         .text-center {
             text-align: center;
@@ -575,19 +610,42 @@
         .inline-form {
             display: inline-flex;
         }
+        .flex-shrink-0 {
+            flex-shrink: 0;
+        }
 
         /* ── Responsive ── */
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+        @media (max-width: 1200px) {
+            .stats-grid-nexus {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .card {
+            .stats-grid-nexus {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .stat-card-nexus {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+            .stat-icon-nexus {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .stat-info-nexus .stat-value {
+                font-size: 20px;
+            }
+            .stat-info-nexus .stat-label {
+                font-size: 10px;
+            }
+
+            .card-nexus {
                 padding: 18px;
             }
-            .card-header {
+            .card-header-nexus {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 12px;
@@ -599,37 +657,23 @@
                 flex: 1;
                 justify-content: center;
             }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-            .stat-card {
-                padding: 16px;
-                gap: 12px;
-            }
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            .stat-info .stat-value {
-                font-size: 20px;
+            .card-header-left h2 {
+                font-size: 16px;
             }
 
-            .tabs {
+            .tabs-nexus {
                 gap: 2px;
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 padding-bottom: 0;
             }
-            .tab {
+            .tab-nexus {
                 padding: 8px 14px;
                 font-size: 12px;
                 flex-shrink: 0;
             }
-            .tab .material-symbols-outlined {
+            .tab-nexus .material-symbols-outlined {
                 font-size: 16px;
             }
 
@@ -652,30 +696,30 @@
         }
 
         @media (max-width: 480px) {
-            .stats-grid {
+            .stats-grid-nexus {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
-            .stat-card {
-                padding: 14px;
+            .stat-card-nexus {
+                padding: 12px 14px;
                 flex-direction: column;
                 text-align: center;
-                gap: 8px;
+                gap: 6px;
             }
-            .stat-icon {
-                width: 36px;
-                height: 36px;
+            .stat-icon-nexus {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+            }
+            .stat-info-nexus .stat-value {
                 font-size: 18px;
             }
-            .stat-info .stat-value {
-                font-size: 18px;
-            }
-            .stat-info .stat-label {
-                font-size: 10px;
+            .stat-info-nexus .stat-label {
+                font-size: 9px;
             }
 
             .card-header-left h2 {
-                font-size: 16px;
+                font-size: 15px;
             }
             .card-header-left h2 .material-symbols-outlined {
                 font-size: 18px;
@@ -722,17 +766,97 @@
         /* ── Print-friendly ── */
         @media print {
             .btn,
-            .tab,
+            .tab-nexus,
             .loading-overlay {
                 display: none !important;
             }
-            .card {
+            .card-nexus {
                 box-shadow: none !important;
                 border-color: #ddd !important;
             }
-            .stats-grid {
+            .stats-grid-nexus {
                 break-inside: avoid;
             }
+        }
+
+        /* ── Modal styles ── */
+        .modal-overlay-nexus {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 200ms ease;
+        }
+        .modal-overlay-nexus.active {
+            display: flex;
+        }
+        .modal-content-nexus {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--color-slate-200);
+            animation: slideUp 250ms ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-content-nexus h3 {
+            margin: 0 0 4px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-slate-900);
+        }
+        .modal-content-nexus p {
+            margin: 0 0 16px;
+            font-size: 13px;
+            color: var(--color-slate-500);
+        }
+        .modal-content-nexus label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 6px;
+        }
+        .modal-content-nexus textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color 200ms ease;
+        }
+        .modal-content-nexus textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
         }
     </style>
 </head>
@@ -764,9 +888,9 @@
         </div>
     </div>
 
-    <!-- ─── Page Header ─── -->
-    <div class="card">
-        <div class="card-header">
+    <!-- ─── Page Header Card ─── -->
+    <div class="card-nexus">
+        <div class="card-header-nexus">
             <div class="card-header-left">
                 <h2>
                     <span class="material-symbols-outlined">swap_horiz</span>
@@ -783,98 +907,99 @@
         </div>
     </div>
 
-    <!-- ─── Statistics ─── -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-red">
+    <!-- ─── Statistics Grid ─── -->
+    <div class="stats-grid-nexus">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-red">
                 <span class="material-symbols-outlined">inventory_2</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Total Checkouts</div>
                 <div class="stat-value red" th:text="${totalCount}">0</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-orange">
                 <span class="material-symbols-outlined">schedule</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Currently Checked Out</div>
                 <div class="stat-value orange" th:text="${activeCount}">0</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-danger">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-danger">
                 <span class="material-symbols-outlined">pending_actions</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Overdue Returns</div>
                 <div class="stat-value danger" th:text="${overdueCount}">0</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-blue">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-blue">
                 <span class="material-symbols-outlined">verified_user</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Pending Verification</div>
                 <div class="stat-value blue" th:text="${pendingVerificationCount}">0</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-danger">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-orange">
                 <span class="material-symbols-outlined">approval</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Pending Approvals</div>
-                <div class="stat-value danger" th:text="${pendingApprovalCount}">0</div>
+                <div class="stat-value orange" th:text="${pendingApprovalCount}">0</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon stat-icon-orange">
+        <div class="stat-card-nexus">
+            <div class="stat-icon-nexus stat-icon-nexus-blue">
                 <span class="material-symbols-outlined">assignment_return</span>
             </div>
-            <div class="stat-info">
+            <div class="stat-info-nexus">
                 <div class="stat-label">Pending Returns</div>
-                <div class="stat-value orange" th:text="${pendingReturnCount}">0</div>
+                <div class="stat-value blue" th:text="${pendingReturnCount}">0</div>
             </div>
         </div>
     </div>
 
-    <!-- ─── Main Content ─── -->
-    <div class="card">
-        <!-- Tabs -->
-        <div class="tabs" role="tablist">
-            <button class="tab active" data-tab="all-checkouts" role="tab" aria-selected="true">
+    <!-- ─── Main Content Card ─── -->
+    <div class="card-nexus">
+
+        <!-- Nexus Tabs -->
+        <div class="tabs-nexus" role="tablist">
+            <button class="tab-nexus active" data-tab="all-checkouts" role="tab" aria-selected="true">
                 <span class="material-symbols-outlined">list</span>
                 All Checkouts
             </button>
-            <button class="tab" data-tab="active-checkouts" role="tab" aria-selected="false">
+            <button class="tab-nexus" data-tab="active-checkouts" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">schedule</span>
                 Active
             </button>
-            <button class="tab" data-tab="overdue-checkouts" role="tab" aria-selected="false">
+            <button class="tab-nexus" data-tab="overdue-checkouts" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">pending_actions</span>
                 Overdue
             </button>
-            <button class="tab" data-tab="pending-verification" role="tab" aria-selected="false">
+            <button class="tab-nexus" data-tab="pending-verification" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">verified_user</span>
                 Pending Verification
             </button>
-            <button class="tab" data-tab="pending-approvals" role="tab" aria-selected="false">
+            <button class="tab-nexus" data-tab="pending-approvals" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">approval</span>
                 Pending Approvals
             </button>
-            <button class="tab" data-tab="pending-returns" role="tab" aria-selected="false">
+            <button class="tab-nexus" data-tab="pending-returns" role="tab" aria-selected="false">
                 <span class="material-symbols-outlined">assignment_return</span>
                 Pending Returns
             </button>
         </div>
 
         <!-- ─── Tab 1: All Checkouts ─── -->
-        <div id="all-checkouts" class="tab-content active" role="tabpanel">
+        <div id="all-checkouts" class="tab-content-nexus active" role="tabpanel">
             <div class="table-container">
-                <div th:if="${#lists.isEmpty(allCheckouts)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(allCheckouts)}" class="empty-state-nexus">
                     <span class="material-symbols-outlined">inventory_2</span>
                     <p>No checkout records found. Start by checking out an asset.</p>
                 </div>
@@ -938,9 +1063,9 @@
         </div>
 
         <!-- ─── Tab 2: Active Checkouts ─── -->
-        <div id="active-checkouts" class="tab-content" role="tabpanel">
+        <div id="active-checkouts" class="tab-content-nexus" role="tabpanel">
             <div class="table-container">
-                <div th:if="${#lists.isEmpty(activeCheckouts)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(activeCheckouts)}" class="empty-state-nexus">
                     <span class="material-symbols-outlined">check_circle</span>
                     <p>No assets currently checked out.</p>
                 </div>
@@ -983,9 +1108,9 @@
         </div>
 
         <!-- ─── Tab 3: Overdue Checkouts ─── -->
-        <div id="overdue-checkouts" class="tab-content" role="tabpanel">
+        <div id="overdue-checkouts" class="tab-content-nexus" role="tabpanel">
             <div class="table-container">
-                <div th:if="${#lists.isEmpty(overdueCheckouts)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(overdueCheckouts)}" class="empty-state-nexus">
                     <span class="material-symbols-outlined">verified</span>
                     <p>No overdue checkouts. Great job staying on top of returns!</p>
                 </div>
@@ -1030,9 +1155,9 @@
         </div>
 
         <!-- ─── Tab 4: Pending Verification ─── -->
-        <div id="pending-verification" class="tab-content" role="tabpanel">
+        <div id="pending-verification" class="tab-content-nexus" role="tabpanel">
             <div class="table-container">
-                <div th:if="${#lists.isEmpty(pendingVerifications)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(pendingVerifications)}" class="empty-state-nexus">
                     <span class="material-symbols-outlined">done_all</span>
                     <p>No assets pending verification. All returns have been verified.</p>
                 </div>
@@ -1071,122 +1196,122 @@
                 </table>
             </div>
         </div>
-    </div>
 
-    <!-- ─── Pending Approvals Tab ─── -->
-    <div id="pending-approvals" class="tab-content" role="tabpanel">
-        <div class="table-container">
-            <div th:if="${#lists.isEmpty(pendingApprovals)}" class="empty-state">
-                <span class="material-symbols-outlined">approval</span>
-                <p>No checkout requests awaiting approval. Employee requests will appear here for review.</p>
-            </div>
-            <table th:unless="${#lists.isEmpty(pendingApprovals)}">
-                <thead>
-                <tr>
-                    <th>Asset</th>
-                    <th>Requested By</th>
-                    <th>Checkout Date</th>
-                    <th>Due Return Date</th>
-                    <th>Purpose</th>
-                    <th>Requested</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="checkout : ${pendingApprovals}">
-                    <td>
-                        <div class="asset-cell">
-                            <span class="asset-name" th:text="${checkout.asset.name}"></span>
-                            <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
-                        </div>
-                    </td>
-                    <td th:text="${checkout.requestedBy}"></td>
-                    <td th:text="${#temporals.format(checkout.checkoutDate, 'dd MMM yyyy')}"></td>
-                    <td th:text="${#temporals.format(checkout.dueReturnDate, 'dd MMM yyyy')}"></td>
-                    <td th:text="${checkout.purpose ?: '—'}"></td>
-                    <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
-                    <td>
-                        <div class="actions-cell">
-                            <form th:action="@{/assets/checkout/{id}/approve(id=${checkout.id})}" method="post" class="inline-form">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    <span class="material-symbols-outlined">check_circle</span>
-                                    Approve
+        <!-- ─── Tab 5: Pending Approvals ─── -->
+        <div id="pending-approvals" class="tab-content-nexus" role="tabpanel">
+            <div class="table-container">
+                <div th:if="${#lists.isEmpty(pendingApprovals)}" class="empty-state-nexus">
+                    <span class="material-symbols-outlined">approval</span>
+                    <p>No checkout requests awaiting approval. Employee requests will appear here for review.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(pendingApprovals)}">
+                    <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Requested By</th>
+                        <th>Checkout Date</th>
+                        <th>Due Return Date</th>
+                        <th>Purpose</th>
+                        <th>Requested</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="checkout : ${pendingApprovals}">
+                        <td>
+                            <div class="asset-cell">
+                                <span class="asset-name" th:text="${checkout.asset.name}"></span>
+                                <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
+                            </div>
+                        </td>
+                        <td th:text="${checkout.requestedBy}"></td>
+                        <td th:text="${#temporals.format(checkout.checkoutDate, 'dd MMM yyyy')}"></td>
+                        <td th:text="${#temporals.format(checkout.dueReturnDate, 'dd MMM yyyy')}"></td>
+                        <td th:text="${checkout.purpose ?: '—'}"></td>
+                        <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="actions-cell">
+                                <form th:action="@{/assets/checkout/{id}/approve(id=${checkout.id})}" method="post" class="inline-form">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        Approve
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline open-reject-modal"
+                                        th:attr="data-checkout-id=${checkout.id}">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                    Reject
                                 </button>
-                            </form>
-                            <button type="button" class="btn btn-sm btn-outline open-reject-modal"
-                                    th:attr="data-checkout-id=${checkout.id}">
-                                <span class="material-symbols-outlined">cancel</span>
-                                Reject
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <!-- ─── Pending Returns Tab ─── -->
-    <div id="pending-returns" class="tab-content" role="tabpanel">
-        <div class="table-container">
-            <div th:if="${#lists.isEmpty(pendingReturns)}" class="empty-state">
-                <span class="material-symbols-outlined">assignment_return</span>
-                <p>No return requests awaiting approval. Employee check-in requests will appear here for review.</p>
-            </div>
-            <table th:unless="${#lists.isEmpty(pendingReturns)}">
-                <thead>
-                <tr>
-                    <th>Asset</th>
-                    <th>Checked Out By</th>
-                    <th>Condition</th>
-                    <th>Return Notes</th>
-                    <th>Requested</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="checkout : ${pendingReturns}">
-                    <td>
-                        <div class="asset-cell">
-                            <span class="asset-name" th:text="${checkout.asset.name}"></span>
-                            <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
-                        </div>
-                    </td>
-                    <td th:text="${checkout.checkedOutBy}"></td>
-                    <td th:text="${checkout.conditionAfterReturn ?: 'Not specified'}"></td>
-                    <td th:text="${checkout.returnNotes ?: '—'}"></td>
-                    <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
-                    <td>
-                        <div class="actions-cell">
-                            <form th:action="@{/assets/checkout/{id}/approve-return(id=${checkout.id})}" method="post" class="inline-form">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    <span class="material-symbols-outlined">check_circle</span>
-                                    Approve Return
+        <!-- ─── Tab 6: Pending Returns ─── -->
+        <div id="pending-returns" class="tab-content-nexus" role="tabpanel">
+            <div class="table-container">
+                <div th:if="${#lists.isEmpty(pendingReturns)}" class="empty-state-nexus">
+                    <span class="material-symbols-outlined">assignment_return</span>
+                    <p>No return requests awaiting approval. Employee check-in requests will appear here for review.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(pendingReturns)}">
+                    <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Checked Out By</th>
+                        <th>Condition</th>
+                        <th>Return Notes</th>
+                        <th>Requested</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="checkout : ${pendingReturns}">
+                        <td>
+                            <div class="asset-cell">
+                                <span class="asset-name" th:text="${checkout.asset.name}"></span>
+                                <span class="asset-code" th:text="${checkout.asset.assetCode}"></span>
+                            </div>
+                        </td>
+                        <td th:text="${checkout.checkedOutBy}"></td>
+                        <td th:text="${checkout.conditionAfterReturn ?: 'Not specified'}"></td>
+                        <td th:text="${checkout.returnNotes ?: '—'}"></td>
+                        <td th:text="${#temporals.format(checkout.requestedAt, 'dd MMM yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="actions-cell">
+                                <form th:action="@{/assets/checkout/{id}/approve-return(id=${checkout.id})}" method="post" class="inline-form">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        Approve Return
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-outline open-reject-return-modal"
+                                        th:attr="data-checkout-id=${checkout.id}">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                    Reject
                                 </button>
-                            </form>
-                            <button type="button" class="btn btn-sm btn-outline open-reject-return-modal"
-                                    th:attr="data-checkout-id=${checkout.id}">
-                                <span class="material-symbols-outlined">cancel</span>
-                                Reject
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+
+    </div><!-- /card-nexus -->
 
     <!-- ─── Reject Modal ─── -->
-    <div id="rejectModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
-        <div id="rejectModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
-        <div style="position:relative; width:clamp(320px, 90%, 480px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
-            <h3 style="margin:0 0 4px; font-size:18px; font-weight:600; color:var(--color-gray-700);">Reject Checkout Request</h3>
-            <p style="margin:0 0 16px; font-size:13px; color:var(--color-gray-500);">Provide a reason for rejecting this request. The requester will be notified of the rejection.</p>
+    <div id="rejectModal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Reject Checkout Request</h3>
+            <p>Provide a reason for rejecting this request. The requester will be notified of the rejection.</p>
             <form id="rejectForm" method="post">
-                <label style="display:block; font-size:12px; font-weight:600; color:var(--color-gray-500); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Rejection Reason</label>
-                <textarea name="rejectionReason" rows="4" required placeholder="Reason for rejection…" style="width:100%; padding:10px 12px; border:1px solid var(--color-gray-200); border-radius:8px; font-family:inherit; font-size:13px; resize:vertical;"></textarea>
-                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <label for="rejectReason">Rejection Reason</label>
+                <textarea id="rejectReason" name="rejectionReason" rows="4" required placeholder="Reason for rejection…"></textarea>
+                <div class="modal-actions">
                     <button type="button" id="rejectModalCancel" class="btn btn-outline">Cancel</button>
                     <button type="submit" class="btn btn-warning">
                         <span class="material-symbols-outlined">cancel</span>
@@ -1198,15 +1323,14 @@
     </div>
 
     <!-- ─── Reject Return Modal ─── -->
-    <div id="rejectReturnModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
-        <div id="rejectReturnModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
-        <div style="position:relative; width:clamp(320px, 90%, 480px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
-            <h3 style="margin:0 0 4px; font-size:18px; font-weight:600; color:var(--color-gray-700);">Reject Return Request</h3>
-            <p style="margin:0 0 16px; font-size:13px; color:var(--color-gray-500);">Provide a reason for rejecting this return. The asset will remain checked out with the employee.</p>
+    <div id="rejectReturnModal" class="modal-overlay-nexus" aria-hidden="true">
+        <div class="modal-content-nexus">
+            <h3>Reject Return Request</h3>
+            <p>Provide a reason for rejecting this return. The asset will remain checked out with the employee.</p>
             <form id="rejectReturnForm" method="post">
-                <label style="display:block; font-size:12px; font-weight:600; color:var(--color-gray-500); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Rejection Reason</label>
-                <textarea name="rejectionReason" rows="4" required placeholder="Reason for rejection…" style="width:100%; padding:10px 12px; border:1px solid var(--color-gray-200); border-radius:8px; font-family:inherit; font-size:13px; resize:vertical;"></textarea>
-                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <label for="rejectReturnReason">Rejection Reason</label>
+                <textarea id="rejectReturnReason" name="rejectionReason" rows="4" required placeholder="Reason for rejection…"></textarea>
+                <div class="modal-actions">
                     <button type="button" id="rejectReturnModalCancel" class="btn btn-outline">Cancel</button>
                     <button type="submit" class="btn btn-warning">
                         <span class="material-symbols-outlined">cancel</span>
@@ -1217,11 +1341,9 @@
         </div>
     </div>
 
-    <!-- ─── Modal Container (for fragment forms) ─── -->
-    <div id="fragmentModal" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:10000; align-items:center; justify-content:center;">
-        <div id="fragmentModalBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.45);"></div>
-        <div id="fragmentModalContent" style="position:relative; width:clamp(320px, 80%, 880px); max-height:90vh; overflow:auto; border-radius:12px; background:#fff; padding:18px; box-shadow:0 12px 40px rgba(0,0,0,0.25); z-index:10001;">
-            <button id="fragmentModalClose" aria-label="Close" style="position:absolute; top:12px; right:12px; background:transparent; border:none; font-size:20px; cursor:pointer;display: none;">×</button>
+    <!-- ─── Fragment Modal Container ─── -->
+    <div id="fragmentModal" class="modal-overlay-nexus" aria-hidden="true">
+        <div id="fragmentModalContent" class="modal-content-nexus" style="max-width: 760px;">
             <div id="fragmentModalInner"></div>
         </div>
     </div>
@@ -1232,20 +1354,18 @@
             'use strict';
 
             // ── Tab Switching ──
-            const tabs = document.querySelectorAll('.tab');
-            const contents = document.querySelectorAll('.tab-content');
+            const tabs = document.querySelectorAll('.tab-nexus');
+            const contents = document.querySelectorAll('.tab-content-nexus');
 
             function activateTab(tab) {
                 const target = tab.getAttribute('data-tab');
 
-                // Deactivate all
                 tabs.forEach(t => {
                     t.classList.remove('active');
                     t.setAttribute('aria-selected', 'false');
                 });
                 contents.forEach(c => c.classList.remove('active'));
 
-                // Activate target
                 tab.classList.add('active');
                 tab.setAttribute('aria-selected', 'true');
                 const panel = document.getElementById(target);
@@ -1258,8 +1378,6 @@
                     if (this.classList.contains('active')) return;
                     activateTab(this);
                 });
-
-                // Keyboard support: Enter / Space
                 tab.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -1287,49 +1405,47 @@
                 }, 5000);
             });
 
-            // ── Close overlay if user clicks outside (optional) ──
+            // ── Close overlay on click outside ──
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.classList.remove('active');
-                    }
+                    if (e.target === this) this.classList.remove('active');
                 });
             }
 
-            // ── Fragment modal logic: fetch and show fragment forms for checkout/return/verify ──
-            const modal = document.getElementById('fragmentModal');
-            const modalInner = document.getElementById('fragmentModalInner');
-            const modalClose = document.getElementById('fragmentModalClose');
+            // ── Fragment modal ──
+            const fragmentModal = document.getElementById('fragmentModal');
+            const fragmentInner = document.getElementById('fragmentModalInner');
 
-            function showModal(html) {
-                modalInner.innerHTML = html;
-                // Execute any inline scripts in the fetched fragment
-                modalInner.querySelectorAll('script').forEach(s => {
-                    const newScript = document.createElement('script');
-                    if (s.src) {
-                        newScript.src = s.src;
-                    } else {
-                        newScript.textContent = s.textContent;
-                    }
-                    document.body.appendChild(newScript).parentNode.removeChild(newScript);
+            function showFragmentModal(html) {
+                fragmentInner.innerHTML = html;
+                fragmentInner.querySelectorAll('script').forEach(s => {
+                    const ns = document.createElement('script');
+                    if (s.src) { ns.src = s.src; } else { ns.textContent = s.textContent; }
+                    document.body.appendChild(ns).parentNode.removeChild(ns);
                 });
-
-                modal.style.display = 'flex';
-                modal.setAttribute('aria-hidden', 'false');
+                fragmentModal.classList.add('active');
+                fragmentModal.setAttribute('aria-hidden', 'false');
             }
 
-            function hideModal() {
-                modalInner.innerHTML = '';
-                modal.style.display = 'none';
-                modal.setAttribute('aria-hidden', 'true');
+            function hideFragmentModal() {
+                fragmentInner.innerHTML = '';
+                fragmentModal.classList.remove('active');
+                fragmentModal.setAttribute('aria-hidden', 'true');
             }
 
-            modalClose.addEventListener('click', hideModal);
-            document.getElementById('fragmentModalBackdrop').addEventListener('click', hideModal);
-            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideModal(); });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideFragmentModal();
+                    hideRejectModal();
+                    hideRejectReturnModal();
+                }
+            });
 
-            // Intercept links that point to fragment endpoints and load them into the modal
+            fragmentModal.addEventListener('click', function(e) {
+                if (e.target === this) hideFragmentModal();
+            });
+
             function shouldLoadAsFragment(href) {
                 return /\/assets\/checkout\/.+\/(form|return-form|verify-form)$/.test(href);
             }
@@ -1342,7 +1458,7 @@
                         e.preventDefault();
                         fetch(href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                             .then(r => r.ok ? r.text() : Promise.reject(r.statusText))
-                            .then(html => showModal(html))
+                            .then(html => showFragmentModal(html))
                             .catch(err => {
                                 console.error('Failed to load fragment', err);
                                 alert('Could not load form. Please try again or open the link in a new tab.');
@@ -1351,49 +1467,63 @@
                 }
             });
 
-            // ── Reject modal logic (Pending Approvals tab) ──
+            // ── Reject modal (Pending Approvals) ──
             const rejectModal = document.getElementById('rejectModal');
             const rejectForm = document.getElementById('rejectForm');
             const rejectCancel = document.getElementById('rejectModalCancel');
+
             document.querySelectorAll('.open-reject-modal').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const id = this.getAttribute('data-checkout-id');
                     rejectForm.setAttribute('action', '/assets/checkout/' + id + '/reject');
-                    rejectModal.style.display = 'flex';
+                    rejectModal.classList.add('active');
                     rejectModal.setAttribute('aria-hidden', 'false');
+                    document.getElementById('rejectReason').focus();
                 });
             });
+
             function hideRejectModal() {
-                rejectModal.style.display = 'none';
+                rejectModal.classList.remove('active');
                 rejectModal.setAttribute('aria-hidden', 'true');
-                rejectForm.querySelector('textarea').value = '';
+                document.getElementById('rejectReason').value = '';
             }
+
             rejectCancel.addEventListener('click', hideRejectModal);
-            document.getElementById('rejectModalBackdrop').addEventListener('click', hideRejectModal);
+            rejectModal.addEventListener('click', function(e) {
+                if (e.target === this) hideRejectModal();
+            });
+
             rejectForm.addEventListener('submit', function() {
                 const overlay = document.getElementById('loadingOverlay');
                 if (overlay) overlay.classList.add('active');
             });
 
-            // ── Reject-return modal logic (Pending Returns tab) ──
+            // ── Reject Return modal ──
             const rejectReturnModal = document.getElementById('rejectReturnModal');
             const rejectReturnForm = document.getElementById('rejectReturnForm');
             const rejectReturnCancel = document.getElementById('rejectReturnModalCancel');
+
             document.querySelectorAll('.open-reject-return-modal').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const id = this.getAttribute('data-checkout-id');
                     rejectReturnForm.setAttribute('action', '/assets/checkout/' + id + '/reject-return');
-                    rejectReturnModal.style.display = 'flex';
+                    rejectReturnModal.classList.add('active');
                     rejectReturnModal.setAttribute('aria-hidden', 'false');
+                    document.getElementById('rejectReturnReason').focus();
                 });
             });
+
             function hideRejectReturnModal() {
-                rejectReturnModal.style.display = 'none';
+                rejectReturnModal.classList.remove('active');
                 rejectReturnModal.setAttribute('aria-hidden', 'true');
-                rejectReturnForm.querySelector('textarea').value = '';
+                document.getElementById('rejectReturnReason').value = '';
             }
+
             rejectReturnCancel.addEventListener('click', hideRejectReturnModal);
-            document.getElementById('rejectReturnModalBackdrop').addEventListener('click', hideRejectReturnModal);
+            rejectReturnModal.addEventListener('click', function(e) {
+                if (e.target === this) hideRejectReturnModal();
+            });
+
             rejectReturnForm.addEventListener('submit', function() {
                 const overlay = document.getElementById('loadingOverlay');
                 if (overlay) overlay.classList.add('active');
