@@ -350,7 +350,7 @@
                 min-width: 60px;
             }
             table {
-                min-width: 600px;
+                min-width: 0;
             }
             th,
             td {
@@ -377,20 +377,21 @@
                 flex-wrap: wrap;
             }
 
-            /* ── Page header: stack title above the action buttons on tablets/phones ── */
-            header.flex {
+            /* ── Page header: stack title above the action buttons on tablets/phones ──
+               Scoped to .assets-page-header so it does NOT hit the shell's <header> ── */
+            .assets-page-header {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 12px;
             }
-            header.flex > h1 {
+            .assets-page-header > h1 {
                 font-size: 1.4rem;
             }
-            header.flex > div {
+            .assets-page-header > div {
                 width: 100%;
                 justify-content: stretch;
             }
-            header.flex .action-btn {
+            .assets-page-header .action-btn {
                 flex: 1 1 auto;
                 justify-content: center;
                 min-width: 0;
@@ -402,6 +403,21 @@
             }
             .filter-bar .relative {
                 flex: 1 1 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            /* ── On phones, hide the two least-essential columns so the
+               table fits the screen without horizontal scrolling ── */
+            .asset-table thead th:nth-child(4),
+            .asset-table tbody td:nth-child(4),
+            .asset-table thead th:nth-child(6),
+            .asset-table tbody td:nth-child(6) {
+                display: none;
+            }
+            .asset-table th,
+            .asset-table td {
+                white-space: normal;
             }
         }
 
@@ -432,19 +448,33 @@
                 font-size: 0.75rem;
             }
 
-            /* ── Phone refinements ── */
-            header.flex > h1 {
+            /* ── Phone refinements (scoped) ── */
+            .assets-page-header > h1 {
                 font-size: 1.25rem;
             }
-            header.flex > div {
+            .assets-page-header > div {
                 flex-wrap: wrap;
             }
-            header.flex .action-btn {
+            .assets-page-header .action-btn {
                 flex: 1 1 100%;
             }
             .filter-bar .filter-btn {
                 flex: 1 1 auto;
                 justify-content: center;
+            }
+
+            /* ── Tighten the table card on small phones ── */
+            .asset-table th,
+            .asset-table td {
+                padding: 8px 6px !important;
+                font-size: 0.8rem;
+            }
+            .asset-table .badge-category {
+                font-size: 0.68rem;
+                padding: 0.15rem 0.5rem;
+            }
+            #no-search-results {
+                padding: 2rem 1rem !important;
             }
         }
 
@@ -693,7 +723,7 @@
 <main id="main-content" layout:fragment="content">
     <div class="max-w-7xl mx-auto space-y-6">
         <!-- BEGIN: HeaderSection -->
-        <header class="flex items-center justify-between flex-wrap gap-4">
+        <header class="assets-page-header flex items-center justify-between flex-wrap gap-4">
             <h1 class="text-2xl font-bold tracking-tight text-on-background">Assets</h1>
             <div class="flex items-center gap-3 flex-wrap">
                 <button class="action-btn">
@@ -757,7 +787,7 @@
         <!-- BEGIN: TableSection -->
         <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
             <div class="table-container overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="asset-table min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-900 tracking-wider" scope="col">
