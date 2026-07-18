@@ -1,664 +1,705 @@
 <!DOCTYPE html>
-<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
 <head>
     <title>Register Asset | JustJava FAMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @media (max-width: 1280px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
+        /* ──────────────────────────────────────────────────────────────
+           Scoped under .register-asset-page – full viewport height,
+           no global scrolling, each pane scrolls independently.
+           ────────────────────────────────────────────────────────────── */
+        .register-asset-page {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;                 /* full viewport */
+            overflow: hidden;              /* no page scroll */
+            display: flex;
+            flex-direction: column;
+            margin: -2rem -2rem -2rem -2rem; /* cancel shell padding */
         }
-
-        .preview-card {
-            position: sticky;
-            top: 24px;
+        @media (max-width: 767px) {
+            .register-asset-page { margin: -1rem -1rem -1rem -1rem; }
         }
-
-        @media (max-width: 1024px) {
-            .preview-card {
-                position: static;
-            }
-        }
-
-        .form-section {
-            padding: 20px;
-        }
-
         @media (max-width: 640px) {
-            .form-section {
-                padding: 16px;
-            }
+            .register-asset-page { margin: -0.75rem -0.75rem -0.75rem -0.75rem; }
         }
 
-        /* ─── CSV Upload Card ─── */
-        .csv-drop-zone {
-            transition: border-color 0.25s ease, background 0.25s ease, transform 0.15s ease;
-            cursor: pointer;
+        .register-asset-page .border-border { border-color: #e5e7eb; }
+        .register-asset-page .text-textMain { color: #111827; }
+        .register-asset-page .text-textMuted { color: #6b7280; }
+        .register-asset-page .bg-secondary { background-color: #f3f4f6; }
+
+        /* ─── Form Inputs ─── */
+        .register-asset-page .form-input,
+        .register-asset-page .form-select,
+        .register-asset-page .form-textarea {
+            width: 100% !important;
+            display: block !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            padding: 0.625rem 0.75rem !important;
+            font-size: 0.875rem !important;
+            line-height: 1.4 !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            background-color: #ffffff !important;
+            color: #111827 !important;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+            min-height: 42px;
         }
-        .csv-drop-zone:hover {
-            border-color: #7c3aed;
-            background: #f5f3ff;
-        }
-        .csv-drop-zone.drag-over {
-            border-color: #7c3aed;
-            background: #ede9fe;
-            transform: scale(1.005);
-        }
-        .csv-drop-zone .drop-icon {
-            transition: transform 0.3s ease;
-        }
-        .csv-drop-zone:hover .drop-icon {
-            transform: translateY(-2px) scale(1.04);
+        .register-asset-page .form-input::placeholder,
+        .register-asset-page .form-textarea::placeholder { color: #9ca3af !important; }
+
+        .register-asset-page .form-input:focus,
+        .register-asset-page .form-select:focus,
+        .register-asset-page .form-textarea:focus {
+            outline: none !important;
+            border-color: #c0182a !important;
+            box-shadow: 0 0 0 3px rgba(192, 24, 42, 0.12) !important;
         }
 
-        /* file name truncation */
-        .file-name-truncate {
-            max-width: 180px;
+        .register-asset-page .form-select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+            background-position: right 0.75rem center !important;
+            background-size: 1.25rem 1.25rem !important;
+            background-repeat: no-repeat !important;
+            padding-right: 2.5rem !important;
+        }
+
+        .register-asset-page .form-textarea { resize: vertical !important; }
+
+        /* ─── Buttons ─── */
+        .register-asset-page .btn-primary {
+            background-color: #c0182a !important;
+            color: #ffffff !important;
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 0.5rem !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            transition: all 0.15s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            border: none !important;
+            cursor: pointer !important;
+        }
+        .register-asset-page .btn-primary:hover {
+            background-color: #8F0F1E !important;
+            box-shadow: 0 4px 12px rgba(192, 24, 42, 0.3) !important;
+        }
+        .register-asset-page .btn-primary:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+        }
+        .register-asset-page .btn-outline {
+            background-color: transparent !important;
+            color: #111827 !important;
+            padding: 0.625rem 1.25rem !important;
+            border-radius: 0.5rem !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            transition: all 0.15s ease !important;
+            border: 1px solid #d1d5db !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            text-decoration: none !important;
+        }
+        .register-asset-page .btn-outline:hover { background-color: #f3f4f6 !important; }
+        .register-asset-page .btn-loader {
             display: inline-block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            vertical-align: middle;
-        }
-        @media (min-width: 480px) {
-            .file-name-truncate {
-                max-width: 240px;
-            }
-        }
-
-        /* ─── Button loader ─── */
-        .btn-loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2.5px solid rgba(255, 255, 255, 0.35);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             flex-shrink: 0;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
+        .register-asset-page .btn-loading { pointer-events: none; opacity: 0.85; }
+
+        /* ─── Image upload ─── */
+        .register-asset-page .image-drop-zone {
+            border: 2px dashed #d1d5db !important;
+            border-radius: 0.5rem !important;
+            padding: 1.5rem !important;
+            text-align: center !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            background-color: #f9fafb !important;
+        }
+        .register-asset-page .image-drop-zone:hover {
+            border-color: #c0182a !important;
+            background-color: #fef2f2 !important;
+        }
+
+        /* ─── Scrollbar hide helper ─── */
+        .register-asset-page .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .register-asset-page .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* ════════════════════════════════════════════════════════════════
+           LAYOUT – full‑height split, independent scrolling panes
+           ════════════════════════════════════════════════════════════════ */
+        .register-asset-page .page-root {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0%;
+            min-height: 0;
+        }
+
+        /* Top header – fixed, never scrolls */
+        .register-asset-page .page-header {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        /* Split container – fills remaining height, each column scrolls independently */
+        .register-asset-page .split {
+            flex: 1 1 0%;
+            min-height: 0;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .register-asset-page .left-col,
+        .register-asset-page .right-col {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow-y: auto;            /* each column scrolls on its own */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .register-asset-page .left-col {
+            flex: 1 1 55%;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .register-asset-page .right-col {
+            flex: 1 1 45%;
+            background: #F9FAFB;
+        }
+
+        /* ─── LEFT COLUMN: form fills height, actions sticky at bottom ─── */
+        .register-asset-page .left-col form {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 100%;
+        }
+
+        .register-asset-page .form-body {
+            flex: 1 0 auto;
+            padding: 24px;
+        }
+
+        /* ─── Fixed page footer – always visible at the bottom of the page,
+               never scrolls away, on every viewport size ─── */
+        .register-asset-page .form-actions {
+            flex-shrink: 0;              /* pinned footer in the page-root flex column */
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+        }
+
+        /* ─── RIGHT COLUMN: header fixed, content scrolls ─── */
+        .register-asset-page .preview-header {
+            flex-shrink: 0;
+            padding: 14px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .register-asset-page .preview-body {
+            flex: 1 1 auto;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .register-asset-page .preview-card {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 32px;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+        }
+
+        .register-asset-page .preview-card .preview-hero {
+            margin: -32px -32px 24px -32px;
+            padding: 32px;
+            border-radius: 0.75rem 0.75rem 0 0;
+            background: rgba(192, 24, 42, 0.05);
+            border-bottom: 1px solid rgba(192, 24, 42, 0.1);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1024px) {
+            .register-asset-page .split { flex-direction: column; }
+            .register-asset-page .left-col,
+            .register-asset-page .right-col {
+                flex: 1 1 auto;
+                width: 100% !important;
+                border-right: none !important;
+                min-height: 50vh;
+                max-height: 60vh;
+            }
+            .register-asset-page .right-col { border-top: 1px solid #e5e7eb; }
+            .register-asset-page .left-col form { min-height: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .register-asset-page .form-grid-2 { grid-template-columns: 1fr !important; }
+            .register-asset-page .form-body { padding: 16px; }
+            .register-asset-page .preview-body { padding: 16px; }
+            .register-asset-page .preview-card { padding: 20px; font-size: 12px; }
+            .register-asset-page .preview-card .preview-hero { margin: -20px -20px 16px -20px; padding: 20px; }
+            .register-asset-page .form-actions { padding: 14px 16px; }
+            .register-asset-page .left-col,
+            .register-asset-page .right-col {
+                min-height: 45vh;
+                max-height: 55vh;
             }
         }
 
-        .btn-loading {
-            pointer-events: none;
-            opacity: 0.85;
-        }
-
-        /* ─── page loader overlay (kept from original) ─── */
-        #page-loader {
-            transition: opacity 0.3s ease;
-        }
-        #page-loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #page-loader:not(.hidden) {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* ─── subtle card polish ─── */
-        .card-shadow {
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        /* ─── responsive tweaks ─── */
-        @media (max-width: 480px) {
-            .csv-actions {
-                flex-direction: column;
-                width: 100%;
+        @media (max-width: 640px) {
+            .register-asset-page .page-header { padding: 12px 16px; gap: 8px; }
+            .register-asset-page .page-header h1 { font-size: 1.125rem !important; }
+            .register-asset-page .page-header .status-pill { display: none !important; }
+            .register-asset-page .form-actions {
+                flex-direction: column-reverse !important;
+                align-items: stretch !important;
+                gap: 10px !important;
             }
-            .csv-actions .btn,
-            .csv-actions .btn-outline {
-                width: 100%;
-                justify-content: center;
+            .register-asset-page .form-actions .actions-right {
+                width: 100% !important;
+                display: flex;
+                gap: 10px;
+            }
+            .register-asset-page .form-actions .actions-right .btn-outline,
+            .register-asset-page .form-actions .actions-right .btn-primary {
+                flex: 1 1 0%;
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            .register-asset-page .left-col,
+            .register-asset-page .right-col {
+                min-height: 40vh;
+                max-height: 50vh;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .register-asset-page .form-body { padding: 12px; }
+            .register-asset-page .preview-body { padding: 12px; }
+            .register-asset-page .preview-card { padding: 16px; }
+            .register-asset-page .preview-card .preview-hero { margin: -16px -16px 16px -16px; padding: 16px; }
+            .register-asset-page .form-actions { padding: 12px; }
+            .register-asset-page .left-col,
+            .register-asset-page .right-col {
+                min-height: 35vh;
+                max-height: 45vh;
             }
         }
     </style>
 </head>
 <body>
-<main id="main-content" class="space-y-6 px-4 sm:px-6 lg:px-8 py-6" layout:fragment="content">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-            <h2 class="font-page-title text-page-title text-on-background">Register New Asset</h2>
-            <p class="text-body-default text-secondary mt-1">Create a fixed asset record with custody, location, purchase, and image details.</p>
-        </div>
-        <a th:href="@{/assets}"
-           class="h-[42px] px-5 bg-surface-card border border-border-default text-on-surface rounded-xl font-body-medium hover:bg-surface-canvas transition-all flex items-center gap-2 whitespace-nowrap">
-            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-            All Assets
-        </a>
-    </div>
+<main id="main-content" layout:fragment="content">
+    <div class="register-asset-page">
+        <div class="page-root">
 
-    <!-- ─── Bulk CSV Upload – Professional Redesign ─── -->
-    <section class="mt-6">
-        <div class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-            <!-- header -->
-            <div class="px-5 py-4 border-b border-border-default flex items-center gap-3 flex-wrap">
-                <span class="material-symbols-outlined text-primary text-[22px]">upload_file</span>
-                <div>
-                    <h4 class="font-card-header text-card-header text-on-surface">Bulk Register via CSV</h4>
-                    <p class="text-label-small text-secondary">Upload a CSV file to register multiple assets at once.</p>
-                </div>
-                <span class="ml-auto inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-[11px] font-semibold rounded-full tracking-wide uppercase">
-                        <span class="material-symbols-outlined text-[16px]">bolt</span>
-                        batch
-                    </span>
-            </div>
-
-            <!-- body -->
-            <form id="bulk-form" th:action="@{/assets/bulk-upload}" method="post" enctype="multipart/form-data" class="p-5">
-                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-5">
-
-                    <!-- Drop zone -->
-                    <label for="csv-file" class="csv-drop-zone flex-1 border-2 border-dashed border-border-default rounded-2xl px-5 py-5 bg-surface-canvas/40 flex items-center gap-4 min-h-[80px] transition-all">
-                        <input id="csv-file" name="file" type="file" accept="text/csv,.csv" class="sr-only">
-                        <span class="drop-icon material-symbols-outlined text-4xl text-primary/70 flex-shrink-0">cloud_upload</span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-body-medium font-medium text-on-surface" id="csv-file-label">Choose CSV file or drag &amp; drop</p>
-                            <p class="text-label-small text-secondary mt-0.5" id="csv-file-size">
-                                <span class="material-symbols-outlined text-[14px] align-middle">description</span>
-                                <span class="align-middle">.csv — max 10 MB</span>
-                            </p>
-                        </div>
-                        <span id="csv-file-badge" class="hidden px-3 py-1 bg-success/10 text-success text-[12px] font-medium rounded-full flex items-center gap-1.5 whitespace-nowrap">
-                                <span class="material-symbols-outlined text-[16px]">check_circle</span>
-                                <span id="csv-badge-label">ready</span>
-                            </span>
-                    </label>
-
-                    <!-- Actions -->
-                    <div class="csv-actions flex items-center gap-3 flex-shrink-0">
-                        <a th:href="@{/assets/register/example-csv}"
-                           class="btn-outline h-11 px-5 bg-surface-variant border border-border-default rounded-xl flex items-center gap-2 text-body-default hover:bg-surface-canvas transition-all text-sm font-medium">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
-                            Example
-                        </a>
-                        <button type="submit"
-                                id="bulk-upload-btn"
-                                class="btn h-11 px-6 bg-primary text-on-primary rounded-xl font-medium flex items-center gap-2.5 transition-all hover:bg-brand-primary-dark shadow-sm focus:ring-2 focus:ring-primary/40 focus:outline-none">
-                            <span class="material-symbols-outlined text-[20px]">upload</span>
-                            <span id="bulk-btn-label">Upload</span>
-                            <!-- spinner (hidden by default) -->
-                            <span id="bulk-btn-spinner" class="btn-loader hidden"></span>
-                        </button>
+            <!-- ─── Page Header (fixed) ─── -->
+            <div class="page-header">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <a th:href="@{/assets}" class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors text-textMuted shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    </a>
+                    <h1 class="text-xl font-semibold text-textMain">Register New Asset</h1>
+                    <div class="status-pill flex items-center gap-1 bg-secondary px-3 py-1.5 rounded-md border border-border text-xs text-textMuted">
+                        <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                        <span>New Entry</span>
                     </div>
                 </div>
-
-                <!-- error / success messages (server-side) -->
-                <div th:if="${bulkErrorMessage}" class="mt-4 bg-error-container text-on-error-container border border-error/20 rounded-xl px-4 py-3 flex items-start gap-3">
-                    <span class="material-symbols-outlined text-[20px] mt-0.5">error</span>
-                    <p class="text-body-default" th:text="${bulkErrorMessage}">Upload failed.</p>
-                </div>
-                <div th:if="${bulkSuccessMessage}" class="mt-4 bg-success-container text-on-success-container border border-success/20 rounded-xl px-4 py-3 flex items-start gap-3">
-                    <span class="material-symbols-outlined text-[20px] mt-0.5">check_circle</span>
-                    <p class="text-body-default" th:text="${bulkSuccessMessage}">Upload successful.</p>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- inline error (from original) -->
-    <div th:if="${errorMessage}" class="bg-error-container text-on-error-container border border-error/20 rounded-xl px-4 py-3 flex items-start gap-3">
-        <span class="material-symbols-outlined text-[20px] mt-0.5">error</span>
-        <p class="text-body-default" th:text="${errorMessage}">Unable to register asset.</p>
-    </div>
-
-    <!-- ─── Main Asset Form ─── -->
-    <form id="asset-form" th:action="@{/assets}" th:object="${asset}" method="post" enctype="multipart/form-data" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-        <!-- Main Form -->
-        <div class="xl:col-span-8 space-y-6">
-
-            <!-- Basic Information -->
-            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">info</span>
-                    <h3 class="font-card-header text-card-header text-on-surface">Basic Information</h3>
-                </div>
-                <div class="form-section space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="space-y-1.5">
-                            <label for="name" class="font-label-small text-label-small text-secondary">Asset Name <span class="text-error">*</span></label>
-                            <input id="name" th:field="*{name}" type="text" data-input-type="text" required placeholder="e.g. Dell Latitude 5530"
-                                   class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label for="category" class="font-label-small text-label-small text-secondary">Category <span class="text-error">*</span></label>
-                            <select id="category" th:field="*{category}" required
-                                    class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                <option value="">Select category</option>
-                                <option th:each="category : ${assetCategories}"
-                                        th:value="${category.name}"
-                                        th:text="${category.name}">IT Equipment</option>
-                            </select>
-                            <p th:if="${#lists.isEmpty(assetCategories)}" class="text-label-small text-error mt-1">
-                                No active asset categories are configured. Ask an administrator to add one in Settings.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label for="description" class="font-label-small text-label-small text-secondary">Description</label>
-                        <textarea id="description" th:field="*{description}" data-input-type="text" rows="3" placeholder="Short asset description..."
-                                  class="w-full px-4 py-3 bg-surface-canvas border border-border-default rounded-xl text-body-default focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-y min-h-[100px]"></textarea>
-                    </div>
-
-                    <!-- Image Upload -->
-                    <div class="space-y-1.5">
-                        <label class="font-label-small text-label-small text-secondary">Asset Image</label>
-                        <label class="border-2 border-dashed border-primary/30 hover:border-primary/50 rounded-2xl p-8 flex flex-col items-center justify-center bg-surface-canvas/60 hover:bg-surface-canvas transition-all cursor-pointer">
-                            <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only">
-                            <span class="material-symbols-outlined text-primary text-5xl mb-3">cloud_upload</span>
-                            <p id="image-upload-label" class="font-medium text-on-surface">Click or drag image to upload</p>
-                            <p class="text-label-small text-secondary mt-1">PNG, JPG, WEBP • Max 20MB</p>
-                        </label>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Identification -->
-            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">fingerprint</span>
-                    <h3 class="font-card-header text-card-header text-on-surface">Identification</h3>
-                </div>
-                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-1.5">
-                        <label for="serialNumber" class="font-label-small text-label-small text-secondary">Serial Number</label>
-                        <input id="serialNumber" th:field="*{serialNumber}" type="text" data-input-type="alphanumeric" placeholder="XXXX-XXXX-XXXX"
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data uppercase focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="font-label-small text-label-small text-secondary">Generated Asset ID</label>
-                        <div class="h-11 px-4 bg-surface-variant border border-primary/20 rounded-xl flex items-center text-secondary">
-                            <span class="font-technical-data">Generated after save</span>
-                            <span class="ml-auto material-symbols-outlined text-primary">lock</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="manufacturer" class="font-label-small text-label-small text-secondary">Manufacturer</label>
-                        <input id="manufacturer" th:field="*{manufacturer}" type="text" data-input-type="text" placeholder="e.g. Dell Inc."
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="model" class="font-label-small text-label-small text-secondary">Model</label>
-                        <input id="model" th:field="*{model}" type="text" data-input-type="text" placeholder="e.g. Latitude 5530"
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Financial Details -->
-            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">payments</span>
-                    <h3 class="font-card-header text-card-header text-on-surface">Financial Details</h3>
-                </div>
-                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-1.5">
-                        <label for="purchaseDate" class="font-label-small text-label-small text-secondary">Purchase Date</label>
-                        <input id="purchaseDate" th:field="*{purchaseDate}" type="date"
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="purchaseCost" class="font-label-small text-label-small text-secondary">Purchase Cost (₦)</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-medium">₦</span>
-                            <input id="purchaseCost" th:field="*{purchaseCost}" type="number" data-input-type="decimal" min="0" step="0.01" placeholder="0.00"
-                                   class="w-full h-11 pl-10 pr-4 bg-surface-canvas border border-border-default rounded-xl font-technical-data focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                        </div>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="vendor" class="font-label-small text-label-small text-secondary">Vendor</label>
-                        <input id="vendor" th:field="*{vendor}" type="text" data-input-type="text" placeholder="e.g. JustJava Supplies"
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="warrantyExpiry" class="font-label-small text-label-small text-secondary">Warranty Expiry</label>
-                        <input id="warrantyExpiry" th:field="*{warrantyExpiry}" type="date"
-                               class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Location & Custody -->
-            <section class="bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-5 border-b border-border-default flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">location_on</span>
-                    <h3 class="font-card-header text-card-header text-on-surface">Location &amp; Custody</h3>
-                </div>
-                <div class="form-section grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="space-y-1.5">
-                        <label for="department" class="font-label-small text-label-small text-secondary">Department <span class="text-error">*</span></label>
-                        <select id="department" th:field="*{department}" required
-                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                            <option value="">Select department</option>
-                            <option th:each="dept : ${departments}" th:value="${dept.name}" th:text="${dept.name}"></option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="branch" class="font-label-small text-label-small text-secondary">Branch <span class="text-error">*</span></label>
-                        <select id="branch" th:field="*{branch}" required
-                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                            <option value="">Select branch</option>
-                            <option th:each="br : ${branches}" th:value="${br.name}" th:text="${br.name}"></option>
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label for="custodian" class="font-label-small text-label-small text-secondary">Custodian <span class="text-error">*</span>
-                        </label>
-                        <select id="custodian" th:field="*{custodian}" required
-                                class="w-full h-11 px-4 bg-surface-canvas border border-border-default rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                            <option value="">Select custodian</option>
-                            <option th:each="custodian : ${custodians}" th:value="${custodian.username}" th:text="${custodian.name}"></option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                <a th:href="@{/assets}"
-                   class="h-12 px-6 border border-border-strong text-on-surface-variant font-medium rounded-2xl hover:bg-surface-canvas transition-all flex items-center justify-center">
-                    Cancel
+                <a th:href="@{/assets}" class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors text-textMuted shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
                 </a>
+            </div>
 
-                <button type="submit"
-                        id="asset-submit-btn"
-                        class="flex-1 h-12 bg-primary text-on-primary font-medium rounded-2xl hover:bg-brand-primary-dark transition-all shadow-sm flex items-center justify-center gap-2.5 focus:ring-2 focus:ring-primary/40 focus:outline-none">
-                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                    <span id="asset-btn-label">Register Asset</span>
-                    <span id="asset-btn-spinner" class="btn-loader hidden"></span>
-                </button>
+            <!-- ─── Split: two independently‑scrolling panes ─── -->
+            <div class="split">
+
+                <!-- ═══ LEFT: FORM (own scroll) ═══ -->
+                <div class="left-col scrollbar-hide">
+                    <form id="asset-form" th:action="@{/assets}" th:object="${asset}" method="post" enctype="multipart/form-data">
+
+                        <div class="form-body space-y-8">
+
+                            <!-- Basic Information -->
+                            <section>
+                                <h3 class="text-base font-semibold text-textMain mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[22px]">info</span>
+                                    Basic Information
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="name" class="block text-xs font-medium text-textMuted mb-1.5">Asset Name <span class="text-red-500">*</span></label>
+                                        <input id="name" th:field="*{name}" type="text" required placeholder="e.g. Dell Latitude 5530" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label for="category" class="block text-xs font-medium text-textMuted mb-1.5">Category <span class="text-red-500">*</span></label>
+                                        <select id="category" th:field="*{category}" required class="form-select">
+                                            <option value="">Select category</option>
+                                            <option th:each="category : ${assetCategories}" th:value="${category.name}" th:text="${category.name}">IT Equipment</option>
+                                        </select>
+                                        <p th:if="${#lists.isEmpty(assetCategories)}" class="text-xs text-red-500 mt-1">
+                                            No active asset categories are configured. Ask an administrator to add one in Settings.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label for="description" class="block text-xs font-medium text-textMuted mb-1.5">Description</label>
+                                        <textarea id="description" th:field="*{description}" rows="3" placeholder="Short asset description..." class="form-textarea"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-textMuted mb-1.5">Asset Image</label>
+                                        <div class="image-drop-zone">
+                                            <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only">
+                                            <span class="material-symbols-outlined text-primary text-4xl mb-2">cloud_upload</span>
+                                            <p id="image-upload-label" class="font-medium text-textMain text-sm">Click or drag image to upload</p>
+                                            <p class="text-xs text-textMuted mt-1">PNG, JPG, WEBP • Max 20MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Identification -->
+                            <section>
+                                <h3 class="text-base font-semibold text-textMain mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[22px]">fingerprint</span>
+                                    Identification
+                                </h3>
+                                <div class="form-grid-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="serialNumber" class="block text-xs font-medium text-textMuted mb-1.5">Serial Number</label>
+                                        <input id="serialNumber" th:field="*{serialNumber}" type="text" placeholder="XXXX-XXXX-XXXX" class="form-input font-mono uppercase">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-textMuted mb-1.5">Generated Asset ID</label>
+                                        <div class="form-input bg-gray-50 text-textMuted flex items-center justify-between">
+                                            <span class="font-mono">Generated after save</span>
+                                            <span class="material-symbols-outlined text-primary text-[18px]">lock</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="manufacturer" class="block text-xs font-medium text-textMuted mb-1.5">Manufacturer</label>
+                                        <input id="manufacturer" th:field="*{manufacturer}" type="text" placeholder="e.g. Dell Inc." class="form-input">
+                                    </div>
+                                    <div>
+                                        <label for="model" class="block text-xs font-medium text-textMuted mb-1.5">Model</label>
+                                        <input id="model" th:field="*{model}" type="text" placeholder="e.g. Latitude 5530" class="form-input">
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Location & Custody -->
+                            <section>
+                                <h3 class="text-base font-semibold text-textMain mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[22px]">location_on</span>
+                                    Location &amp; Custody
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="department" class="block text-xs font-medium text-textMuted mb-1.5">Department <span class="text-red-500">*</span></label>
+                                        <select id="department" th:field="*{department}" required class="form-select">
+                                            <option value="">Select department</option>
+                                            <option th:each="dept : ${departments}" th:value="${dept.name}" th:text="${dept.name}"></option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="branch" class="block text-xs font-medium text-textMuted mb-1.5">Branch <span class="text-red-500">*</span></label>
+                                        <select id="branch" th:field="*{branch}" required class="form-select">
+                                            <option value="">Select branch</option>
+                                            <option th:each="br : ${branches}" th:value="${br.name}" th:text="${br.name}"></option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="custodian" class="block text-xs font-medium text-textMuted mb-1.5">Custodian <span class="text-red-500">*</span></label>
+                                        <select id="custodian" th:field="*{custodian}" required class="form-select">
+                                            <option value="">Select custodian</option>
+                                            <option th:each="custodian : ${custodians}" th:value="${custodian.username}" th:text="${custodian.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Financial Details -->
+                            <section>
+                                <h3 class="text-base font-semibold text-textMain mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[22px]">payments</span>
+                                    Financial Details
+                                </h3>
+                                <div class="form-grid-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="purchaseDate" class="block text-xs font-medium text-textMuted mb-1.5">Purchase Date</label>
+                                        <input id="purchaseDate" th:field="*{purchaseDate}" type="date" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label for="purchaseCost" class="block text-xs font-medium text-textMuted mb-1.5">Purchase Cost (₦)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted font-medium">₦</span>
+                                            <input id="purchaseCost" th:field="*{purchaseCost}" type="number" min="0" step="0.01" placeholder="0.00" class="form-input pl-8">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="vendor" class="block text-xs font-medium text-textMuted mb-1.5">Vendor</label>
+                                        <input id="vendor" th:field="*{vendor}" type="text" placeholder="e.g. JustJava Supplies" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label for="warrantyExpiry" class="block text-xs font-medium text-textMuted mb-1.5">Warranty Expiry</label>
+                                        <input id="warrantyExpiry" th:field="*{warrantyExpiry}" type="date" class="form-input">
+                                    </div>
+                                </div>
+                            </section>
+
+                        </div><!-- /form-body -->
+
+                    </form>
+                </div>
+
+                <!-- ═══ RIGHT: PREVIEW (own scroll) ═══ -->
+                <div class="right-col scrollbar-hide">
+                    <div class="preview-header">
+                        <h2 class="text-lg font-semibold text-textMain">Asset Preview</h2>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1.5 text-sm font-medium text-textMain hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">print</span>
+                                Print
+                            </button>
+                            <button class="px-3 py-1.5 text-sm font-medium border border-border bg-white text-textMain rounded-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">mail</span>
+                                Email
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-card">
+
+                            <!-- Asset Hero -->
+                            <div class="preview-hero">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm border border-primary/10 overflow-hidden shrink-0">
+                                        <img id="preview-image-tag" class="hidden w-full h-full object-cover" alt="Asset preview">
+                                        <span id="preview-image-placeholder" class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+                                    </div>
+                                    <div>
+                                        <h2 id="preview-name-tag" class="text-xl font-bold text-primary mb-1">Asset Name</h2>
+                                        <div class="text-textMuted text-[10px] space-y-0.5">
+                                            <div id="preview-category-tag">Category: Not selected</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right text-textMuted text-[10px] space-y-0.5 shrink-0">
+                                    <div class="font-medium text-textMain">Status</div>
+                                    <div class="inline-flex px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold">New</div>
+                                </div>
+                            </div>
+
+                            <!-- Asset Details Grid -->
+                            <div class="grid grid-cols-2 gap-6 mb-8 text-[11px]">
+                                <div>
+                                    <div class="text-textMuted mb-1">Department</div>
+                                    <div id="preview-dept-tag" class="font-bold text-textMain">Not selected</div>
+                                </div>
+                                <div>
+                                    <div class="text-textMuted mb-1">Custodian</div>
+                                    <div id="preview-custodian-tag" class="font-bold text-textMain">Not selected</div>
+                                </div>
+                                <div>
+                                    <div class="text-textMuted mb-1">Serial Number</div>
+                                    <div id="preview-sn-tag" class="font-bold text-textMain font-mono">---</div>
+                                </div>
+                                <div>
+                                    <div class="text-textMuted mb-1">Purchase Cost</div>
+                                    <div id="preview-cost-tag" class="font-bold text-primary">₦0.00</div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="mt-auto border-t border-gray-100 pt-6">
+                                <div class="text-textMuted text-[10px]">Asset ID will be automatically generated upon registration.</div>
+                                <div class="flex items-center gap-2 mt-2 text-[10px] text-textMuted">
+                                    <span class="material-symbols-outlined text-[14px]">info</span>
+                                    <span>Warranty information will appear here if provided.</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /split -->
+
+            <!-- ─── Form Actions — fixed page footer, always visible ─── -->
+            <div class="form-actions">
+                <div class="text-xs text-textMuted">Fields marked with <span class="text-red-500">*</span> are required.</div>
+                <div class="actions-right flex gap-3">
+                    <a th:href="@{/assets}" class="btn-outline">
+                        <span class="material-symbols-outlined">close</span>
+                        Cancel
+                    </a>
+                    <button type="submit" form="asset-form" id="asset-submit-btn" class="btn-primary">
+                        <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                        <span id="asset-btn-label">Register Asset</span>
+                        <span id="asset-btn-spinner" class="btn-loader hidden"></span>
+                    </button>
+                </div>
+            </div>
+
+        </div><!-- /page-root -->
+
+        <!-- ─── Page Loader ─── -->
+        <div id="page-loader" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] transition-opacity">
+            <div class="bg-white border border-border rounded-2xl shadow-lg px-8 py-6 flex items-center gap-5 max-w-xs w-full">
+                <span class="w-9 h-9 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></span>
+                <div>
+                    <p class="font-medium text-textMain">Registering asset…</p>
+                    <p class="text-xs text-textMuted">Please wait</p>
+                </div>
             </div>
         </div>
 
-        <!-- Preview Sidebar -->
-        <aside class="xl:col-span-4">
-            <div class="preview-card bg-surface-card rounded-2xl card-shadow border border-border-default overflow-hidden">
-                <div class="p-6 border-b border-border-default">
-                    <h3 class="font-card-header text-card-header text-on-surface text-center">Asset Preview</h3>
-                </div>
-                <div class="p-6">
-                    <div class="w-full aspect-video bg-surface-canvas rounded-2xl border border-border-default overflow-hidden flex items-center justify-center relative">
-                        <img id="image-preview" alt="Asset preview" class="hidden w-full h-full object-cover">
-                        <div id="image-placeholder" class="text-center px-6">
-                            <span class="material-symbols-outlined text-primary text-6xl">inventory_2</span>
-                            <p class="text-body-medium font-medium text-on-surface mt-4">Image preview</p>
-                            <p class="text-label-small text-secondary mt-1">Selected image will appear here</p>
-                        </div>
-                    </div>
+        <!-- ─── Scripts ─── -->
+        <script>
+            (function() {
+                'use strict';
 
-                    <div class="mt-8 space-y-5 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-secondary">Asset Name</span>
-                            <span id="preview-name" class="font-medium text-right">Untitled Asset</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-secondary">Category</span>
-                            <span id="preview-category" class="font-medium text-right">Not selected</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-secondary">Department</span>
-                            <span id="preview-department" class="font-medium text-right">Not selected</span>
-                        </div>
-                        <div class="pt-4 border-t border-border-default flex justify-between">
-                            <span class="text-secondary">Purchase Cost</span>
-                            <span id="preview-cost" class="font-technical-data text-primary font-bold">₦0.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-    </form>
+                const assetForm = document.getElementById('asset-form');
+                const assetBtn = document.getElementById('asset-submit-btn');
+                const assetLabel = document.getElementById('asset-btn-label');
+                const assetSpinner = document.getElementById('asset-btn-spinner');
+                const pageLoader = document.getElementById('page-loader');
 
-    <!-- ─── Page Loader Overlay (kept) ─── -->
-    <div id="page-loader" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] transition-opacity">
-        <div class="bg-surface-card border border-border-default rounded-2xl card-shadow px-8 py-6 flex items-center gap-5 max-w-xs w-full">
-            <span class="w-9 h-9 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></span>
-            <div>
-                <p class="font-body-medium text-on-surface">Registering asset…</p>
-                <p class="text-label-small text-secondary">Please wait</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Scripts ─── -->
-    <script>
-        (function() {
-            'use strict';
-
-            // ─── 1. Asset form: submit loader ───
-            const assetForm = document.getElementById('asset-form');
-            const assetBtn = document.getElementById('asset-submit-btn');
-            const assetLabel = document.getElementById('asset-btn-label');
-            const assetSpinner = document.getElementById('asset-btn-spinner');
-            const pageLoader = document.getElementById('page-loader');
-
-            if (assetForm && assetBtn) {
-                assetForm.addEventListener('submit', function() {
-                    // disable button & show spinner
-                    assetBtn.classList.add('btn-loading');
-                    assetLabel.textContent = 'Registering…';
-                    assetSpinner.classList.remove('hidden');
-
-                    // show overlay
-                    if (pageLoader) {
-                        pageLoader.classList.remove('hidden');
-                        pageLoader.classList.add('flex');
-                    }
-                });
-            }
-
-            // ─── 2. Bulk CSV form: button spinner ───
-            const bulkForm = document.getElementById('bulk-form');
-            const bulkBtn = document.getElementById('bulk-upload-btn');
-            const bulkLabel = document.getElementById('bulk-btn-label');
-            const bulkSpinner = document.getElementById('bulk-btn-spinner');
-
-            if (bulkForm && bulkBtn) {
-                bulkForm.addEventListener('submit', function(e) {
-                    // only act if a file is selected
-                    const fileInput = document.getElementById('csv-file');
-                    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-                        e.preventDefault();
-                        // show a quick feedback
-                        const zone = document.querySelector('.csv-drop-zone');
-                        if (zone) {
-                            zone.style.borderColor = '#dc2626';
-                            zone.style.background = '#fef2f2';
-                            setTimeout(function() {
-                                zone.style.borderColor = '';
-                                zone.style.background = '';
-                            }, 1200);
-                        }
-                        return;
-                    }
-
-                    // show spinner
-                    bulkBtn.classList.add('btn-loading');
-                    bulkLabel.textContent = 'Uploading…';
-                    bulkSpinner.classList.remove('hidden');
-                });
-            }
-
-            // ─── 3. CSV file input: label & badge ───
-            const csvInput = document.getElementById('csv-file');
-            const csvLabel = document.getElementById('csv-file-label');
-            const csvBadge = document.getElementById('csv-file-badge');
-            const csvBadgeLabel = document.getElementById('csv-badge-label');
-            const csvSize = document.getElementById('csv-file-size');
-
-            if (csvInput) {
-                csvInput.addEventListener('change', function() {
-                    const file = this.files[0];
-                    if (!file) {
-                        csvLabel.textContent = 'Choose CSV file or drag & drop';
-                        if (csvBadge) csvBadge.classList.add('hidden');
-                        if (csvSize) {
-                            csvSize.innerHTML =
-                                '<span class="material-symbols-outlined text-[14px] align-middle">description</span> <span class="align-middle">.csv — max 10 MB</span>';
-                        }
-                        return;
-                    }
-
-                    // update label with filename
-                    const name = file.name.length > 32 ? file.name.slice(0, 29) + '…' : file.name;
-                    csvLabel.textContent = name;
-
-                    // show badge
-                    if (csvBadge) {
-                        csvBadge.classList.remove('hidden');
-                        if (csvBadgeLabel) csvBadgeLabel.textContent = file.name;
-                    }
-
-                    // update size info
-                    const sizeKB = (file.size / 1024).toFixed(0);
-                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-                    const sizeStr = file.size > 1024 * 1024 ? sizeMB + ' MB' : sizeKB + ' KB';
-                    if (csvSize) {
-                        csvSize.innerHTML =
-                            '<span class="material-symbols-outlined text-[14px] align-middle">check_circle</span> <span class="align-middle">' +
-                            file.name + ' · ' + sizeStr + '</span>';
-                    }
-
-                    // reset drop-zone border
-                    const zone = document.querySelector('.csv-drop-zone');
-                    if (zone) {
-                        zone.style.borderColor = '';
-                        zone.style.background = '';
-                    }
-                });
-
-                // ─── Drag & Drop support ───
-                const dropZone = document.querySelector('.csv-drop-zone');
-                if (dropZone) {
-                    ['dragenter', 'dragover'].forEach(function(evt) {
-                        dropZone.addEventListener(evt, function(e) {
-                            e.preventDefault();
-                            this.classList.add('drag-over');
-                        });
-                    });
-                    ['dragleave', 'drop'].forEach(function(evt) {
-                        dropZone.addEventListener(evt, function(e) {
-                            e.preventDefault();
-                            this.classList.remove('drag-over');
-                        });
-                    });
-                    dropZone.addEventListener('drop', function(e) {
-                        e.preventDefault();
-                        const dt = e.dataTransfer;
-                        if (dt && dt.files && dt.files.length > 0) {
-                            const input = document.getElementById('csv-file');
-                            if (input) {
-                                input.files = dt.files;
-                                input.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
+                if (assetForm && assetBtn) {
+                    assetForm.addEventListener('submit', function() {
+                        assetBtn.classList.add('btn-loading');
+                        assetLabel.textContent = 'Registering…';
+                        assetSpinner.classList.remove('hidden');
+                        if (pageLoader) {
+                            pageLoader.classList.remove('hidden');
+                            pageLoader.classList.add('flex');
                         }
                     });
                 }
-            }
 
-            // ─── 4. Asset preview sync (unchanged, with a small fix for cost) ───
-            const syncText = function(sourceId, targetId, fallback) {
-                const source = document.getElementById(sourceId);
-                const target = document.getElementById(targetId);
-                if (!source || !target) return;
-                const update = function() {
-                    target.textContent = source.value.trim() || fallback;
+                const syncText = (sourceId, targetId, fallback) => {
+                    const source = document.getElementById(sourceId);
+                    const target = document.getElementById(targetId);
+                    if (!source || !target) return;
+                    const update = () => { target.textContent = source.value.trim() || fallback; };
+                    source.addEventListener('input', update);
+                    source.addEventListener('change', update);
+                    update();
                 };
-                source.addEventListener('input', update);
-                source.addEventListener('change', update);
-                update();
-            };
 
-            syncText('name', 'preview-name', 'Untitled Asset');
-            syncText('category', 'preview-category', 'Not selected');
-            syncText('department', 'preview-department', 'Not selected');
+                syncText('name', 'preview-name-tag', 'Asset Name');
+                syncText('category', 'preview-category-tag', 'Category: Not selected');
+                syncText('department', 'preview-dept-tag', 'Not selected');
+                syncText('custodian', 'preview-custodian-tag', 'Not selected');
+                syncText('serialNumber', 'preview-sn-tag', '---');
 
-            // cost preview
-            const costInput = document.getElementById('purchaseCost');
-            const costPreview = document.getElementById('preview-cost');
-            if (costInput && costPreview) {
-                const updateCost = function() {
-                    const val = parseFloat(costInput.value) || 0;
-                    costPreview.textContent = new Intl.NumberFormat('en-NG', {
-                        style: 'currency',
-                        currency: 'NGN',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }).format(val);
-                };
-                costInput.addEventListener('input', updateCost);
-                costInput.addEventListener('change', updateCost);
-                updateCost();
-            }
-
-            // image preview
-            const imageInput = document.getElementById('image');
-            const imagePreview = document.getElementById('image-preview');
-            const imagePlaceholder = document.getElementById('image-placeholder');
-            const imageLabel = document.getElementById('image-upload-label');
-
-            if (imageInput && imagePreview && imagePlaceholder && imageLabel) {
-                imageInput.addEventListener('change', function() {
-                    const file = this.files[0];
-                    if (!file) {
-                        imagePreview.classList.add('hidden');
-                        imagePlaceholder.classList.remove('hidden');
-                        imageLabel.textContent = 'Click or drag image to upload';
-                        return;
-                    }
-                    imageLabel.textContent = file.name.length > 35 ? file.name.slice(0, 32) + '…' : file.name;
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
-                        imagePlaceholder.classList.add('hidden');
+                const costInput = document.getElementById('purchaseCost');
+                const costPreview = document.getElementById('preview-cost-tag');
+                if (costInput && costPreview) {
+                    const updateCost = () => {
+                        const val = parseFloat(costInput.value) || 0;
+                        costPreview.textContent = new Intl.NumberFormat('en-NG', {
+                            style: 'currency',
+                            currency: 'NGN',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }).format(val);
                     };
-                    reader.readAsDataURL(file);
-                });
-            }
+                    costInput.addEventListener('input', updateCost);
+                    costInput.addEventListener('change', updateCost);
+                    updateCost();
+                }
 
-            // ─── 5. Restore button state if form fails / page loads with errors ───
-            // (if there's an error message, reset buttons)
-            const hasError = document.querySelector('.bg-error-container');
-            if (hasError) {
-                if (assetBtn) {
-                    assetBtn.classList.remove('btn-loading');
-                    if (assetLabel) assetLabel.textContent = 'Register Asset';
-                    if (assetSpinner) assetSpinner.classList.add('hidden');
-                }
-                if (bulkBtn) {
-                    bulkBtn.classList.remove('btn-loading');
-                    if (bulkLabel) bulkLabel.textContent = 'Upload';
-                    if (bulkSpinner) bulkSpinner.classList.add('hidden');
-                }
-                if (pageLoader) {
-                    pageLoader.classList.add('hidden');
-                    pageLoader.classList.remove('flex');
-                }
-            }
+                const imageInput = document.getElementById('image');
+                const previewImage = document.getElementById('preview-image-tag');
+                const previewPlaceholder = document.getElementById('preview-image-placeholder');
+                const uploadLabel = document.getElementById('image-upload-label');
 
-            // Also reset if there's a bulk success message
-            const hasBulkSuccess = document.querySelector('.bg-success-container');
-            if (hasBulkSuccess) {
-                if (bulkBtn) {
-                    bulkBtn.classList.remove('btn-loading');
-                    if (bulkLabel) bulkLabel.textContent = 'Upload';
-                    if (bulkSpinner) bulkSpinner.classList.add('hidden');
+                if (imageInput && previewImage && previewPlaceholder) {
+                    imageInput.addEventListener('change', function() {
+                        const file = this.files[0];
+                        if (!file) {
+                            previewImage.classList.add('hidden');
+                            previewPlaceholder.classList.remove('hidden');
+                            if (uploadLabel) uploadLabel.textContent = 'Click or drag image to upload';
+                            return;
+                        }
+                        if (uploadLabel) uploadLabel.textContent = file.name.length > 35 ? file.name.slice(0, 32) + '…' : file.name;
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImage.src = e.target.result;
+                            previewImage.classList.remove('hidden');
+                            previewPlaceholder.classList.add('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    });
                 }
-            }
 
-        })();
-    </script>
+                const hasError = document.querySelector('.bg-red-50');
+                if (hasError) {
+                    if (assetBtn) {
+                        assetBtn.classList.remove('btn-loading');
+                        if (assetLabel) assetLabel.textContent = 'Register Asset';
+                        if (assetSpinner) assetSpinner.classList.add('hidden');
+                    }
+                    if (pageLoader) {
+                        pageLoader.classList.add('hidden');
+                        pageLoader.classList.remove('flex');
+                    }
+                }
+            })();
+        </script>
+    </div>
 </main>
 </body>
 </html>
