@@ -15,11 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Slf4j
 @Configuration
-public class Oauth2SecurityConfig {
+public class Oauth2SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -65,6 +68,17 @@ public class Oauth2SecurityConfig {
                 new OidcClientInitiatedLogoutSuccessHandler(repository);
         logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return logoutSuccessHandler;
+    }
+
+    /**
+     * Registers the URL-level role authorization guard. It runs on every dispatched
+     * request and redirects users who try to open a page their Keycloak groups don't
+     * permit to the access-denied page.
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        HandlerInterceptor guard = new RoleAuthorizationInterceptor();
+        registry.addInterceptor(guard).addPathPatterns("/**");
     }
 
     /**
